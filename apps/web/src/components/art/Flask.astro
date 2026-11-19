@@ -1,0 +1,28 @@
+---
+// Erlenmeyer flask sticker with bubbling red liquid.
+interface Props { class?: string }
+const { class: cls } = Astro.props;
+const id = "fl-" + Math.random().toString(36).slice(2, 8);
+const glass = "M62 26 V80 L22 168 Q17 182 32 182 H128 Q143 182 138 168 L98 80 V26 Z";
+---
+<svg viewBox="0 0 160 200" class={cls} aria-hidden="true" overflow="visible">
+  <defs><clipPath id={id}><path d={glass} /></clipPath></defs>
+  <g class="fl-out">
+    <circle class="fl-pop" cx="74" cy="6" r="6" fill="#FFF3E0" stroke="#111" stroke-width="3" />
+    <circle class="fl-pop" cx="92" cy="-8" r="4" fill="#FFF3E0" stroke="#111" stroke-width="3" />
+    <circle class="fl-pop" cx="80" cy="-22" r="8" fill="#FFF3E0" stroke="#111" stroke-width="3" />
+  </g>
+  <path d={glass} fill="#111" transform="translate(7 8)" />
+  <path d={glass} fill="#FFF3E0" />
+  <g clip-path={`url(#${id})`}>
+    <path class="fl-liquid" d="M0 122 q10 -7 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 V200 H0 Z" fill="#E3121B" />
+    <circle class="fl-bub" cx="58" cy="168" r="6" fill="#FFF3E0" />
+    <circle class="fl-bub" cx="86" cy="160" r="4" fill="#FFF3E0" />
+    <circle class="fl-bub" cx="104" cy="172" r="5" fill="#FFF3E0" />
+    <circle class="fl-bub" cx="72" cy="176" r="3" fill="#FFF3E0" />
+  </g>
+  <path d={glass} fill="none" stroke="#111" stroke-width="6" stroke-linejoin="round" />
+  <rect x="52" y="14" width="56" height="16" rx="6" fill="#FFF3E0" stroke="#111" stroke-width="6" />
+  <path d="M40 150 L56 116" stroke="#FFF3E0" stroke-width="6" stroke-linecap="round" opacity=".9" />
+  <path d="M98 92 H112 M104 108 H118" stroke="#111" stroke-width="4" stroke-linecap="round" />
+</svg>

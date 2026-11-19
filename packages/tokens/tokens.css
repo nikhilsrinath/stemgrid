@@ -1,0 +1,26 @@
+/* StemGrid brand tokens — shared by the marketing site and the future simulator app. */
+@theme {
+  --color-red: #E3121B;        /* Primary Red: bold, curious, energetic */
+  --color-red-dark: #B20912;   /* Dark Red: depth and shadows */
+  --color-cream: #FFF3E0;      /* Cream: warm, soft, inviting */
+  --color-ink: #111111;        /* Black: contrast and structure */
+  --color-coral: #F0574D;      /* Coral: accents on dark backgrounds ONLY */
+
+  --font-display: "Bagel Fat One", system-ui, sans-serif;           /* logo, headlines, stickers */
+  --font-label: "Archivo Variable", "Archivo", system-ui, sans-serif; /* labels, pills, GRID (use .font-label) */
+  --font-body: "Poppins", system-ui, sans-serif;                      /* body copy */
+
+  --radius-card: 1.25rem;
+  --shadow-offset: 6px 6px 0 0 #111111;
+  --shadow-offset-sm: 3px 3px 0 0 #111111;
+}
+
+/* Archivo Expanded Black = Archivo at max width + weight 900 */
+@utility font-label {
+  font-family: var(--font-label);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-variation-settings: "wdth" 125;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}

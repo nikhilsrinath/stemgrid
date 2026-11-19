@@ -1,0 +1,21 @@
+---
+// A single Quark module as a standalone sticker illustration.
+import ModuleArt, { type ModuleKind } from "./ModuleArt.astro";
+
+interface Props { kind: ModuleKind; class?: string }
+const { kind, class: cls } = Astro.props;
+
+const dims: Record<ModuleKind, [number, number]> = {
+  ultrasonic: [200, 120], ldr: [90, 100], ir: [90, 100], buzzer: [100, 100], servo: [120, 150],
+  dht11: [110, 140], c3: [240, 170], rfid: [190, 220], oled: [150, 150], buttons: [180, 110], pot: [130, 140],
+};
+const [w, h] = dims[kind];
+const top = kind === "servo" ? 62 : 28;
+const viewBox = `-28 ${-top} ${w + 62} ${h + top + 40}`;
+const body = kind === "c3" ? "#F4F1EA" : "#FF6B1A";
+---
+<svg viewBox={viewBox} class={cls} overflow="visible" aria-hidden="true" data-kind={kind}>
+  <rect x="8" y="10" width={w} height={h} rx="18" fill="#111" />
+  <rect width={w} height={h} rx="18" fill={body} stroke="#111" stroke-width="4" />
+  <ModuleArt kind={kind} />
+</svg>

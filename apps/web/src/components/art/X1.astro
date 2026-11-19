@@ -1,0 +1,23 @@
+---
+// Qbitio X1 learning console, brochure-style illustration.
+interface Props { class?: string }
+const { class: cls } = Astro.props;
+---
+<svg viewBox="-6 -6 252 352" class={cls} aria-hidden="true">
+  <rect x="12" y="14" width="220" height="320" rx="36" fill="#111" />
+  <rect x="0" y="0" width="220" height="320" rx="36" fill="#F4F1EA" stroke="#111" stroke-width="5" />
+  <rect x="22" y="26" width="176" height="128" rx="16" fill="#DDD6CA" />
+  <rect x="34" y="38" width="152" height="104" rx="9" fill="#111" />
+  <text x="110" y="92" text-anchor="middle" font-family="Bagel Fat One, sans-serif" font-size="40" fill="#E3121B">X1</text>
+  <text x="110" y="112" text-anchor="middle" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="8.5" letter-spacing="1.5" fill="#FFF3E0" style="font-stretch:125%">LEARN · BUILD · EXPLORE</text>
+  <rect x="58" y="122" width="104" height="5" rx="2.5" fill="#444" />
+  <rect class="x1-bar" x="58" y="122" width="58" height="5" rx="2.5" fill="#E3121B" />
+  <path d="M164 172l14 14M178 172l-14 14" stroke="#B9B1A4" stroke-width="5" stroke-linecap="round" />
+  <rect x="26" y="208" width="168" height="76" rx="38" fill="#E9E3D8" />
+  <g fill="#FFFFFF" stroke="#111" stroke-width="3">
+    <circle cx="68" cy="226" r="12" /><circle cx="68" cy="266" r="12" />
+    <circle cx="48" cy="246" r="12" /><circle cx="88" cy="246" r="12" />
+  </g>
+  <circle cx="152" cy="246" r="26" fill="#FFFFFF" stroke="#111" stroke-width="3" />
+  <circle cx="152" cy="246" r="16" fill="#EFEAE1" stroke="#B9B1A4" stroke-width="3" />
+</svg>

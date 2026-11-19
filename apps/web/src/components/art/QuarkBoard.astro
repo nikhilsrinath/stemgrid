@@ -1,0 +1,109 @@
+---
+// Illustrated Quark Kit: base plate, 11 modules, Zap cables. Every animatable part has a class.
+import Mod from "./Mod.astro";
+import ModuleArt from "./ModuleArt.astro";
+
+// Zap cables: module socket -> Quark C3 port (viewBox coords).
+const cables = [
+  { d: "M180 190 C180 270 300 340 380 340", c: "#E3121B" }, // ultrasonic -> left
+  { d: "M375 180 C375 240 420 240 420 300", c: "#FFB21A" }, // LDR -> top
+  { d: "M485 180 C485 240 470 240 470 300", c: "#F0574D" }, // IR -> top
+  { d: "M600 180 C600 240 530 240 530 300", c: "#E3121B" }, // buzzer -> top
+  { d: "M780 210 C780 275 580 245 580 300", c: "#FF7A1A" }, // servo -> top
+  { d: "M200 350 C295 350 290 420 380 420", c: "#FFB21A" }, // DHT11 -> left
+  { d: "M720 380 C670 380 672 340 620 340", c: "#E3121B" }, // RFID -> right
+  { d: "M240 575 C340 575 450 545 450 470", c: "#FF7A1A" }, // OLED -> bottom
+  { d: "M500 560 C500 515 560 515 560 470", c: "#F0574D" }, // buttons -> bottom
+  { d: "M715 540 C715 470 685 420 620 420", c: "#FFB21A" }, // pot -> right
+];
+---
+<svg class="quark-board" viewBox="0 0 1000 760" overflow="visible" aria-label="Illustration of the Quark Kit: eleven plug-and-play modules connected to a Quark C3 controller on a snap-fit base plate" role="img">
+  <defs>
+    <pattern id="qb-holes" x="32" y="32" width="48" height="48" patternUnits="userSpaceOnUse">
+      <circle cx="24" cy="24" r="12.5" fill="#E2D6C3" />
+      <path d="M13 22a11.5 11.5 0 0 1 22 0" fill="none" stroke="#CDBFA8" stroke-width="3" stroke-linecap="round" />
+    </pattern>
+    <filter id="qb-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" />
+    </filter>
+    <filter id="qb-soft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" />
+    </filter>
+  </defs>
+
+  <!-- Base plate -->
+  <g class="plate">
+    <rect x="34" y="40" width="960" height="720" rx="44" fill="#111" />
+    <rect x="20" y="20" width="960" height="720" rx="44" fill="#FBF7EF" stroke="#111" stroke-width="5" />
+    <rect x="44" y="44" width="912" height="672" rx="26" fill="url(#qb-holes)" />
+  </g>
+
+  <!-- Power glow under controller -->
+  <rect class="power-glow" x="350" y="270" width="300" height="230" rx="40" fill="#FF3B30" filter="url(#qb-glow)" opacity="0" />
+
+  <!-- Zap cables -->
+  <g class="cables" fill="none" stroke-linecap="round">
+    {cables.map((c) => (
+      <g class="cable">
+        <path class="c-draw c-base" d={c.d} pathLength="1" stroke="#111" stroke-width="13" />
+        <path class="c-draw c-core" d={c.d} pathLength="1" stroke={c.c} stroke-width="7" />
+        <path class="c-flow" d={c.d} pathLength="100" stroke="#FFF3E0" stroke-width="3.5" stroke-dasharray="6 94" stroke-dashoffset="100" opacity="0" />
+      </g>
+    ))}
+  </g>
+
+  <!-- 02 Ultrasonic -->
+  <Mod id="ultrasonic" x={80} y={70} w={200} h={120} name="Ultrasonic Sensor" desc="Measures distance using sound (HC-SR04).">
+    <ModuleArt kind="ultrasonic" />
+  </Mod>
+
+  <!-- 04 Light sensor (LDR) -->
+  <Mod id="ldr" x={330} y={80} w={90} h={100} name="Light Sensor" desc="Detects ambient light levels (LDR).">
+    <ModuleArt kind="ldr" />
+  </Mod>
+
+  <!-- 05 IR receiver -->
+  <Mod id="ir" x={440} y={80} w={90} h={100} name="IR Receiver" desc="Reads infrared remote signals.">
+    <ModuleArt kind="ir" />
+  </Mod>
+
+  <!-- 09 Buzzer -->
+  <Mod id="buzzer" x={550} y={80} w={100} h={100} name="Buzzer" desc="Tones, alerts and audio feedback.">
+    <ModuleArt kind="buzzer" />
+  </Mod>
+
+  <!-- 08 Servo -->
+  <Mod id="servo" x={720} y={60} w={120} h={150} name="Servo Motor" desc="Precise angles, arm included (MG90s).">
+    <ModuleArt kind="servo" />
+  </Mod>
+
+  <!-- 03 DHT11 -->
+  <Mod id="dht11" x={90} y={280} w={110} h={140} name="Temp & Humidity" desc="DHT11 live climate readings.">
+    <ModuleArt kind="dht11" />
+  </Mod>
+
+  <!-- 01 Quark C3 controller -->
+  <Mod id="c3" x={380} y={300} w={240} h={170} name="Quark C3 Controller" desc="The ESP32-C3 brain of every build." body="#F4F1EA">
+    <ModuleArt kind="c3" />
+  </Mod>
+
+  <!-- 07 RFID -->
+  <Mod id="rfid" x={720} y={270} w={190} h={220} name="RFID Reader" desc="Reads RFID cards and tags (RC522).">
+    <ModuleArt kind="rfid" />
+  </Mod>
+
+  <!-- 06 OLED -->
+  <Mod id="oled" x={90} y={500} w={150} h={150} name="OLED Display" desc="Text, graphics and live data.">
+    <ModuleArt kind="oled" />
+  </Mod>
+
+  <!-- 11 Dual push button -->
+  <Mod id="buttons" x={380} y={560} w={180} h={110} name="Dual Push Button" desc="Two independent digital inputs.">
+    <ModuleArt kind="buttons" />
+  </Mod>
+
+  <!-- 10 Potentiometer -->
+  <Mod id="pot" x={650} y={540} w={130} h={140} name="Potentiometer" desc="Smooth analog rotary control (10K).">
+    <ModuleArt kind="pot" />
+  </Mod>
+</svg>

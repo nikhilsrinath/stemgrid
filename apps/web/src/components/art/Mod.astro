@@ -1,0 +1,17 @@
+---
+// One Quark module: positioned wrapper → idle float layer → animatable group (sticker shadow + housing).
+interface Props {
+  id: string; x: number; y: number; w: number; h: number;
+  name: string; desc: string; body?: string;
+}
+const { id, x, y, w, h, name, desc, body = "#FF6B1A" } = Astro.props;
+---
+<g transform={`translate(${x} ${y})`}>
+  <g class="mod-float">
+    <g class="mod" data-mod={id} data-name={name} data-desc={desc} tabindex="0" role="img" aria-label={`${name}: ${desc}`}>
+      <rect x="7" y="9" width={w} height={h} rx="18" fill="#111" />
+      <rect width={w} height={h} rx="18" fill={body} stroke="#111" stroke-width="4" />
+      <slot />
+    </g>
+  </g>
+</g>

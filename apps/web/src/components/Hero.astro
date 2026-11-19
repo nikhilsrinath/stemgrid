@@ -1,0 +1,458 @@
+---
+import Sticker from "./art/Sticker.astro";
+import Stamp from "./art/Stamp.astro";
+import Van from "./art/Van.astro";
+import Flask from "./art/Flask.astro";
+import Pin from "./art/Pin.astro";
+
+// A few floating pieces around the poster. x/y = % of hero, w = CSS width, r = tilt, d = parallax depth.
+type Stk = { id: string; kind: "c3" | "stamp" | "badge" | "squiggle" | "ring"; x: number; y: number; w: string; r: number; d: number; mobile?: boolean };
+const stickers: Stk[] = [
+  { id: "c3", kind: "c3", x: 13, y: 31, w: "clamp(120px, 12vw, 200px)", r: -12, d: 1.1, mobile: true },
+  { id: "squiggle", kind: "squiggle", x: 27, y: 18, w: "clamp(60px, 6vw, 100px)", r: 0, d: 0.6 },
+  { id: "stamp", kind: "stamp", x: 87, y: 27, w: "clamp(100px, 10vw, 168px)", r: 10, d: 1.2, mobile: true },
+  { id: "ring", kind: "ring", x: 70, y: 21, w: "clamp(34px, 3.4vw, 56px)", r: 0, d: 0.5 },
+  { id: "badge", kind: "badge", x: 87, y: 66, w: "clamp(110px, 10.5vw, 176px)", r: -8, d: 0.9 },
+];
+
+// ₹0 starburst badge.
+const burst = Array.from({ length: 32 }, (_, i) => {
+  const a = (i / 32) * Math.PI * 2 - Math.PI / 2;
+  const r = i % 2 ? 41 : 49;
+  return `${(50 + Math.cos(a) * r).toFixed(1)},${(50 + Math.sin(a) * r).toFixed(1)}`;
+}).join(" ");
+
+const sparks = [
+  { x: 20, y: 54, s: 20, c: "cream" }, { x: 33, y: 80, s: 14, c: "ink" },
+  { x: 66, y: 22, s: 16, c: "ink" }, { x: 76, y: 50, s: 22, c: "cream" },
+];
+
+const road = ["Electronics", "Coding", "Robotics", "AI & IoT", "Quark Kits", "Trained Tutors", "Lab on Wheels", "₹0 Hardware"];
+---
+<section id="top" class="hero" aria-labelledby="hero-title">
+  <div class="hero-bg" aria-hidden="true">
+    <div class="grid-paper">
+      <div class="rays-wrap"><div class="rays"></div></div>
+      <div class="rays-glow"></div>
+    </div>
+    <div class="hero-shade"></div>
+  </div>
+
+  <!-- Floating pieces -->
+  <div class="stickers" aria-hidden="true">
+    {sparks.map((s) => (
+      <span class:list={["spark", `spark-${s.c}`]} data-depth="0.5" style={`left:${s.x}%;top:${s.y}%;width:${s.s}px;`}>
+        <svg viewBox="0 0 24 24"><path d="M12 0c1 6.5 5.5 11 12 12-6.5 1-11 5.5-12 12-1-6.5-5.5-11-12-12C6.5 11 11 6.5 12 0z" fill="currentColor" /></svg>
+      </span>
+    ))}
+    {stickers.map((s) => (
+      <div class:list={["stk", `stk-${s.id}`, { "stk-desk": !s.mobile }]} data-depth={s.d} style={`left:${s.x}%;top:${s.y}%;width:${s.w};--r:${s.r}deg;`}>
+        <div class="stk-in">
+          <div class="stk-float">
+            <div class="stk-h">
+              {s.kind === "c3" && <Sticker kind="c3" class="stk-svg" />}
+              {s.kind === "stamp" && <Stamp class="stk-svg stamp" />}
+              {s.kind === "badge" && (
+                <svg class="stk-svg badge" viewBox="0 0 100 100">
+                  <polygon points={burst} fill="#111" transform="translate(3 4)" />
+                  <g class="badge-spin"><polygon points={burst} fill="#FFF3E0" stroke="#111" stroke-width="2.5" stroke-linejoin="round" /></g>
+                  <text x="50" y="53" text-anchor="middle" font-family="Bagel Fat One, sans-serif" font-size="30" fill="#E3121B">₹0</text>
+                  <text x="50" y="66" text-anchor="middle" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="7" letter-spacing=".8" fill="#111" style="font-stretch:125%">HARDWARE</text>
+                  <text x="50" y="74" text-anchor="middle" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="7" letter-spacing=".8" fill="#111" style="font-stretch:125%">COST</text>
+                </svg>
+              )}
+              {s.kind === "squiggle" && (
+                <svg class="stk-svg" viewBox="0 0 100 40" overflow="visible">
+                  <path d="M4 22 q12 -22 24 0 t24 0 t24 0 t24 0" fill="none" stroke="#111" stroke-width="10" stroke-linecap="round" transform="translate(3 4)" />
+                  <path d="M4 22 q12 -22 24 0 t24 0 t24 0 t24 0" fill="none" stroke="#FFF3E0" stroke-width="10" stroke-linecap="round" />
+                </svg>
+              )}
+              {s.kind === "ring" && (
+                <svg class="stk-svg" viewBox="0 0 40 40" overflow="visible">
+                  <circle cx="20" cy="20" r="14" fill="none" stroke="#111" stroke-width="8" />
+                </svg>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Poster -->
+  <div class="poster">
+    <h1 id="hero-title" class="headline" aria-label="We bring the lab to your place.">
+      <span class="row row-tag" aria-hidden="true"><span class="tag">We bring the</span></span>
+      <span class="row row-lab" aria-hidden="true">
+        {"LAB".split("").map((c) => <span class="lab-lt"><span class="lab-h">{c}</span></span>)}
+        <span class="flask"><Flask class="flask-svg" /></span>
+      </span>
+      <span class="row row-slab" aria-hidden="true">
+        <span class="slab">to your place.<span class="pin"><Pin class="pin-svg" /></span></span>
+      </span>
+    </h1>
+
+    <p class="lede">Electronics, coding and robotics for schools. Kits, trained tutors and a Lab on Wheels that rolls right up to your door.</p>
+
+    <div class="ctas">
+      <a class="btn btn-cream" href="#contact">
+        <span class="btn-tx">Book a demo</span>
+        <span class="btn-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+      </a>
+      <a class="btn btn-ink" href="#who">
+        <span class="btn-tx">See how it works</span>
+        <span class="btn-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v13M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
+      </a>
+    </div>
+  </div>
+
+  <!-- The road: a ticker the van drives along -->
+  <div class="road" aria-hidden="true">
+    <div class="road-move">
+      <div class="road-track">
+        {[0, 1].map(() => (
+          <span class="road-set">
+            {road.map((r) => <span class="road-item">{r}<i>✦</i></span>)}
+          </span>
+        ))}
+      </div>
+    </div>
+  </div>
+  <div class="van" aria-hidden="true">
+    <div class="van-in"><Van class="van-svg" /></div>
+  </div>
+</section>
+
+<style is:global>
+  .hero { position: relative; z-index: 1; height: 100svh; min-height: 600px; background: var(--color-red); color: var(--color-cream); overflow: hidden; --road-b: 58px; --road-h: 48px; }
+
+  /* ── grid paper ── */
+  .hero-bg { position: absolute; inset: 0; pointer-events: none; }
+  /* sunburst: slow-turning rays radiating from behind the headline */
+  .grid-paper { position: absolute; inset: -10%; overflow: hidden; }
+  .rays-wrap { position: absolute; left: 50%; top: 47%; width: 260vmax; height: 260vmax; translate: -50% -50%; }
+  .rays {
+    position: absolute; inset: 0; border-radius: 50%;
+    background: repeating-conic-gradient(from 0deg, #E3121B 0deg 6.6deg, #C70E17 7.4deg 14.2deg, #E3121B 15deg);
+    animation: rays-spin 90s linear infinite;
+  }
+  @keyframes rays-spin { to { transform: rotate(360deg); } }
+  .rays-glow {
+    position: absolute; left: 50%; top: 47%; width: 70vmax; height: 70vmax; translate: -50% -50%; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 96, 70, .55), rgba(227, 18, 27, .25) 38%, transparent 68%);
+    animation: rays-breathe 5s ease-in-out infinite alternate;
+  }
+  @keyframes rays-breathe { from { transform: scale(.85); opacity: .7; } to { transform: scale(1.12); opacity: 1; } }
+  .hero-shade { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 47%, transparent 35%, rgba(110, 0, 8, .45)); }
+
+  /* ── floating pieces ── */
+  .stickers { position: absolute; inset: 0; z-index: 2; }
+  .stk { position: absolute; translate: -50% -50%; }
+  .stk-in { position: relative; }
+  .stk-float { animation: stk-float 4.2s ease-in-out infinite alternate; }
+  .stk:nth-child(2n) .stk-float { animation-duration: 5.1s; animation-delay: -1.6s; }
+  .stk:nth-child(3n) .stk-float { animation-duration: 3.7s; animation-delay: -2.4s; }
+  @keyframes stk-float {
+    from { transform: translateY(-8px) rotate(calc(var(--r) - 3deg)); }
+    to { transform: translateY(8px) rotate(calc(var(--r) + 3deg)); }
+  }
+  .stk-h { cursor: pointer; transition: scale .35s cubic-bezier(.34, 1.8, .5, 1), rotate .35s cubic-bezier(.34, 1.8, .5, 1); }
+  .stk:hover .stk-h { scale: 1.12; rotate: -6deg; }
+  .stk-h.boop { animation: boop .5s cubic-bezier(.34, 1.8, .5, 1); }
+  @keyframes boop { 30% { translate: 0 -18px; scale: 1.15; } 100% { translate: 0 0; } }
+  .stk-svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .stk .stamp .stamp-rim { transform-origin: 100px 100px; animation: spin 14s linear infinite; }
+  .badge-spin { transform-origin: 50px 50px; animation: spin 18s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hero.is-on .stk .c3-led { fill: #3DFF8B; }
+
+  .spark { position: absolute; translate: -50% -50%; pointer-events: none; }
+  .spark svg { width: 100%; height: auto; display: block; animation: twinkle 2.6s ease-in-out infinite; }
+  .spark:nth-child(2n) svg { animation-delay: -1.3s; }
+  .spark-cream { color: var(--color-cream); }
+  .spark-ink { color: var(--color-ink); }
+  @keyframes twinkle { 0%, 100% { transform: scale(.55) rotate(0); opacity: .55; } 50% { transform: scale(1) rotate(45deg); opacity: 1; } }
+
+  /* ── poster ── */
+  .poster {
+    position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    padding: 96px 16px calc(var(--road-b) + var(--road-h) + 40px);
+  }
+  .poster a, .poster .lab-h, .poster .slab, .poster .tag { pointer-events: auto; }
+  .headline {
+    --F: clamp(2.8rem, min(6.8vw, 10.5svh), 6.8rem);
+    margin: 0; font-family: var(--font-display); font-weight: 400; font-size: var(--F); line-height: 1;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .row { position: relative; display: flex; align-items: center; white-space: nowrap; }
+
+  /* "We bring the" — ink tag */
+  .row-tag { z-index: 2; translate: -.9em .18em; }
+  .tag {
+    display: inline-block; font-size: .46em; padding: .1em .5em .2em; border-radius: .3em; rotate: -4deg;
+    background: var(--color-ink); color: var(--color-cream); box-shadow: .1em .12em 0 var(--color-red-dark);
+  }
+
+  /* "LAB" — giant extruded letters */
+  .row-lab { z-index: 1; font-size: 1.95em; line-height: .86; }
+  .lab-lt { display: inline-block; }
+  .lab-h {
+    display: inline-block; color: var(--color-cream); cursor: default;
+    -webkit-text-stroke: .028em var(--color-ink); paint-order: stroke fill;
+    text-shadow: .015em .015em 0 var(--color-ink), .03em .03em 0 var(--color-ink), .045em .045em 0 var(--color-ink), .06em .06em 0 var(--color-ink);
+    transition: translate .35s cubic-bezier(.34, 1.8, .5, 1), rotate .35s cubic-bezier(.34, 1.8, .5, 1);
+  }
+  .lab-lt:nth-child(1) .lab-h { rotate: -5deg; }
+  .lab-lt:nth-child(2) .lab-h { rotate: 3deg; translate: 0 -.04em; }
+  .lab-lt:nth-child(3) .lab-h { rotate: -2deg; }
+  .lab-h:hover { translate: 0 -.08em; rotate: 8deg; }
+  .flask { position: absolute; right: -.62em; top: -.3em; width: .68em; rotate: 14deg; }
+  .flask-svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+  /* "to your place." — cream slab */
+  .row-slab { z-index: 2; translate: .55em -.12em; }
+  .slab {
+    position: relative; display: inline-block; font-size: .6em; padding: .08em .45em .18em; border-radius: .22em; rotate: 2.5deg;
+    background: var(--color-cream); color: var(--color-red); border: .06em solid var(--color-ink); box-shadow: .1em .12em 0 var(--color-ink);
+  }
+  .pin { position: absolute; right: -.75em; top: -1.05em; width: 1.15em; rotate: 12deg; }
+  .pin-svg { width: 100%; height: auto; display: block; overflow: visible; }
+
+  /* flask life */
+  .flask .fl-liquid { animation: slosh 2.4s ease-in-out infinite alternate; }
+  @keyframes slosh { from { transform: translateX(-20px); } to { transform: translateX(0); } }
+  .flask .fl-bub { transform-box: fill-box; animation: bubble 2.2s ease-in infinite; }
+  .flask .fl-bub:nth-child(3) { animation-delay: -.7s; animation-duration: 2.8s; }
+  .flask .fl-bub:nth-child(4) { animation-delay: -1.4s; }
+  .flask .fl-bub:nth-child(5) { animation-delay: -1.9s; animation-duration: 1.8s; }
+  @keyframes bubble { 0% { transform: translateY(0) scale(.6); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-60px) scale(1.1); opacity: 0; } }
+  .flask .fl-pop { transform-box: fill-box; transform-origin: center; animation: pop 2.6s ease-out infinite; }
+  .flask .fl-pop:nth-child(2) { animation-delay: -.9s; }
+  .flask .fl-pop:nth-child(3) { animation-delay: -1.7s; }
+  @keyframes pop { 0% { transform: translateY(20px) scale(.3); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-26px) scale(1); opacity: 0; } }
+
+  .lede { margin: clamp(22px, 4svh, 40px) 0 0; max-width: 50ch; font-size: clamp(14px, 1.1vw, 17px); line-height: 1.55; color: #fff; font-weight: 500; }
+  .ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: clamp(16px, 2.8svh, 28px); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px; padding: 15px 26px; border-radius: 999px; border: 3px solid var(--color-ink);
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    text-decoration: none; white-space: nowrap; box-shadow: 0 5px 0 0 var(--color-ink); transition: translate .18s ease, box-shadow .18s ease;
+  }
+  .btn:hover { translate: 0 -3px; box-shadow: 0 8px 0 0 var(--color-ink); }
+  .btn:active { translate: 0 3px; box-shadow: 0 2px 0 0 var(--color-ink); }
+  .btn-cream { background: var(--color-cream); color: var(--color-red); }
+  .btn-ink { background: var(--color-ink); color: var(--color-cream); box-shadow: 0 5px 0 0 var(--color-red-dark); }
+  .btn-ink:hover { box-shadow: 0 8px 0 0 var(--color-red-dark); }
+  .btn-ic { display: none; }
+
+  /* ── road ticker ── */
+  .road {
+    position: absolute; left: -2%; right: -2%; bottom: var(--road-b); height: var(--road-h); z-index: 3; overflow: hidden;
+    background: var(--color-ink); border-top: 4px solid var(--color-cream); border-bottom: 4px solid var(--color-cream);
+    display: flex; align-items: center;
+  }
+  .road-track { display: flex; width: max-content; animation: road 26s linear infinite; }
+  @keyframes road { to { transform: translateX(-50%); } }
+  .road-set { display: flex; }
+  .road-item {
+    display: inline-flex; align-items: center; gap: 22px; padding-right: 22px; color: var(--color-cream);
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 13px; letter-spacing: .16em; text-transform: uppercase;
+  }
+  .road-item i { font-style: normal; color: var(--color-red); font-size: 15px; }
+
+  /* ── van ── */
+  .van { position: absolute; left: 6%; bottom: calc(var(--road-b) + var(--road-h) - 4px); z-index: 4; width: clamp(150px, 14vw, 240px); }
+  .van-svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .van .vw-body { animation: chug .32s ease-in-out infinite alternate; }
+  @keyframes chug { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+  .van .vw-wheel { transform-box: fill-box; transform-origin: center; animation: spin .7s linear infinite; }
+  .van .vw-speed path { animation: speed .6s linear infinite; }
+  .van .vw-speed path:nth-child(2) { animation-delay: -.2s; }
+  .van .vw-speed path:nth-child(3) { animation-delay: -.4s; }
+  @keyframes speed { from { transform: translateX(14px); opacity: 1; } to { transform: translateX(-24px); opacity: 0; } }
+  .van .vw-beacon { animation: beacon .8s steps(2) infinite; }
+  @keyframes beacon { 50% { fill: #FFF3E0; } }
+
+  /* pre-JS: hide what the intro reveals */
+  html.js .stk-in, html.js .spark, html.js .flask, html.js .pin, html.js .lede, html.js .ctas .btn, html.js .van-in { opacity: 0; }
+
+  /* short desktop */
+  @media (min-width: 900px) and (max-height: 720px) {
+    .lede { display: none; }
+  }
+
+  /* mobile */
+  @media (max-width: 899px) {
+    .hero { --road-b: 50px; --road-h: 40px; --van-w: clamp(112px, 34vw, 150px); }
+    /* headline fills ~85% of the phone width; svh cap keeps short screens in check */
+    .headline { --F: clamp(2.6rem, min(17.4vw, 9.6svh), 5.6rem); translate: -.45em 0; }
+    .row-tag { translate: -.35em .2em; }
+    .row-slab { translate: .3em -.1em; }
+    .flask { right: -.55em; width: .6em; }
+    .pin { right: -.4em; top: -.9em; width: .62em; }
+    .stk-desk, .spark { display: none; }
+    .stk-c3 { left: 17% !important; top: calc(70px + 6.5svh) !important; width: clamp(64px, 20vw, 88px) !important; }
+    .stk-stamp { left: 85% !important; top: calc(70px + 6.5svh) !important; width: clamp(60px, 18.5vw, 80px) !important; }
+    .lede { display: none; }
+
+    /* CTAs: one chunky primary pill + a light secondary link */
+    .ctas { flex-direction: column; align-items: center; flex-wrap: nowrap; gap: clamp(12px, 2svh, 18px); margin-top: clamp(30px, 5.5svh, 52px); }
+    .btn-cream {
+      position: relative; overflow: hidden; isolation: isolate;
+      width: min(300px, 100%); height: 62px; justify-content: space-between; gap: 12px;
+      padding: 0 7px 0 26px; border-radius: 999px; border-width: 3px;
+      font-size: clamp(13px, 3.7vw, 15px); letter-spacing: .12em; color: var(--color-ink);
+      box-shadow: 0 6px 0 0 var(--color-ink), 0 14px 26px -8px rgba(60, 0, 4, .55);
+      rotate: -1.5deg;
+    }
+    .btn-cream .btn-tx { color: var(--color-red); }
+    /* shine sweep */
+    .btn-cream::before {
+      content: ""; position: absolute; inset: -20% auto -20% -40%; width: 30%; z-index: -1;
+      background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .95), transparent);
+      transform: skewX(-20deg); animation: btn-shine 3.2s ease-in-out 2.4s infinite;
+    }
+    @keyframes btn-shine { 0%, 55% { left: -40%; } 100% { left: 130%; } }
+    .btn-cream .btn-ic {
+      display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 50%;
+      background: var(--color-red); color: var(--color-cream); border: 2.5px solid var(--color-ink);
+      animation: btn-nudge 1.6s ease-in-out infinite;
+    }
+    .btn-cream .btn-ic svg { width: 22px; height: 22px; }
+    @keyframes btn-nudge { 0%, 60%, 100% { translate: 0 0; } 75% { translate: 4px 0; } 85% { translate: -1px 0; } }
+    .btn-cream:active { translate: 0 4px; box-shadow: 0 2px 0 0 var(--color-ink); }
+    .btn-cream:active .btn-ic { rotate: -45deg; }
+
+    .btn-ink {
+      background: none; border: 0; box-shadow: none; padding: 6px 4px; gap: 8px;
+      color: var(--color-cream); font-size: clamp(11px, 3vw, 12.5px); letter-spacing: .16em;
+    }
+    .btn-ink:hover, .btn-ink:active { box-shadow: none; }
+    .btn-ink .btn-tx { padding-bottom: 3px; background: linear-gradient(90deg, var(--color-cream) 50%, transparent 0) 0 100% / 8px 2px repeat-x; }
+    .btn-ink .btn-ic {
+      display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+      background: var(--color-ink); color: var(--color-cream);
+      animation: btn-bob 1.4s ease-in-out infinite;
+    }
+    .btn-ink .btn-ic svg { width: 14px; height: 14px; }
+    @keyframes btn-bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 3px; } }
+    .poster { padding: 88px 20px calc(var(--road-b) + var(--road-h) + 48px); }
+    .van { left: 4%; width: var(--van-w); }
+    .road-item { font-size: 11px; gap: 16px; padding-right: 16px; }
+  }
+  /* short phones (SE / landscape-ish): tighten everything vertically */
+  @media (max-width: 899px) and (max-height: 700px) {
+    .hero { --van-w: 112px; }
+    .poster { padding-top: 80px; padding-bottom: calc(var(--road-b) + var(--road-h) + 56px); }
+    .btn-cream { height: 56px; }
+    .btn-cream .btn-ic { width: 40px; height: 40px; }
+    .stk-c3, .stk-stamp { top: calc(66px + 3svh) !important; width: 54px !important; }
+    .stk-stamp { left: 76% !important; }
+  }
+  @media (max-width: 899px) and (max-height: 600px) { .stk { display: none; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rays, .rays-glow, .stk-float, .spark svg, .stk .stamp .stamp-rim, .badge-spin, .road-track,
+    .flask .fl-liquid, .flask .fl-bub, .flask .fl-pop,
+    .van .vw-body, .van .vw-wheel, .van .vw-speed path, .van .vw-beacon,
+    .btn-cream::before, .btn-ic { animation: none; }
+  }
+</style>
+
+<script>
+  import { gsap, ScrollTrigger, reducedMotion, finePointer } from "../scripts/motion";
+
+  const hero = document.querySelector<HTMLElement>(".hero")!;
+  const q = gsap.utils.selector(hero);
+
+  // Sticker boop on click.
+  q(".stk-h").forEach((el) => {
+    el.addEventListener("click", () => {
+      el.classList.remove("boop");
+      void (el as HTMLElement).offsetWidth;
+      el.classList.add("boop");
+    });
+  });
+
+  if (reducedMotion) {
+    gsap.set(q(".stk-in, .spark, .flask, .pin, .lede, .ctas .btn, .van-in"), { opacity: 1 });
+    hero.classList.add("is-on");
+  } else {
+    // ── Load: slam the poster together, then the lab van rolls in ──
+    const intro = gsap.timeline({ delay: 0.1 });
+    intro
+      .fromTo(q(".grid-paper"), { scale: 1.15, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.2, ease: "power3.out" }, 0)
+      .fromTo(q(".road"), { yPercent: 160 }, { yPercent: 0, duration: 0.6, ease: "back.out(1.6)" }, 0.05)
+      .fromTo(q(".tag"), { x: -260, rotate: -22, opacity: 0 }, { x: 0, rotate: -4, opacity: 1, duration: 0.7, ease: "back.out(1.8)" }, 0.15)
+      .fromTo(q(".lab-lt"), { yPercent: -160, scale: 1.5, opacity: 0 },
+        { yPercent: 0, scale: 1, opacity: 1, duration: 0.55, stagger: 0.09, ease: "power4.in" }, 0.3)
+      // thud
+      .fromTo(q(".poster"), { y: 10 }, { y: 0, duration: 0.6, ease: "elastic.out(1.2, 0.25)" }, 0.85)
+      .fromTo(q(".grid-paper"), { y: 8 }, { y: 0, duration: 0.6, ease: "elastic.out(1.2, 0.25)" }, 0.85)
+      .fromTo(q(".slab"), { scale: 0.4, rotate: 14, opacity: 0 }, { scale: 1, rotate: 2.5, opacity: 1, duration: 0.6, ease: "back.out(2.2)" }, 0.95)
+      .fromTo(q(".flask"), { y: 60, scale: 0, rotate: -30, opacity: 0 }, { y: 0, scale: 1, rotate: 14, opacity: 1, duration: 0.6, ease: "back.out(2.4)" }, 1.05)
+      .fromTo(q(".pin"), { y: -260, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "bounce.out" }, 1.15)
+      .fromTo(q(".van-in"), { x: () => -window.innerWidth * 0.5, opacity: 1 }, { x: 0, opacity: 1, duration: 1.1, ease: "power3.out" }, 1.0)
+      .fromTo(q(".van-in"), { rotate: 0 }, { rotate: -4, duration: 0.18, yoyo: true, repeat: 1, ease: "power1.out", transformOrigin: "80% 100%" }, 1.95)
+      .call(() => hero.classList.add("is-on"), [], 1.3)
+      .fromTo(q(".stk-in"), { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(2.2)", stagger: { each: 0.08, from: "random" } }, 1.3)
+      .fromTo(q(".spark"), { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(3)", stagger: 0.06 }, 1.45)
+      .fromTo(q(".lede"), { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 1.4)
+      .fromTo(q(".ctas .btn"), { y: 22, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "back.out(2)", stagger: 0.08 }, 1.5);
+
+    // ── Mouse parallax ─────────────────────────────────────────
+    if (finePointer) {
+      const movers = q(".stk-in, .spark").map((el) => {
+        const host = el.classList.contains("spark") ? el : (el.parentElement as HTMLElement);
+        const depth = Number(host.dataset.depth || 1);
+        return { depth, x: gsap.quickTo(el, "x", { duration: 1.1, ease: "power3" }), y: gsap.quickTo(el, "y", { duration: 1.1, ease: "power3" }) };
+      });
+      const hx = gsap.quickTo(q(".headline"), "x", { duration: 1.2, ease: "power3" });
+      const hy = gsap.quickTo(q(".headline"), "y", { duration: 1.2, ease: "power3" });
+      // the centre of the burst leans gently toward the pointer
+      const rx = gsap.quickTo(q(".rays-wrap"), "x", { duration: 2, ease: "power3" });
+      const ry = gsap.quickTo(q(".rays-wrap"), "y", { duration: 2, ease: "power3" });
+      const gx = gsap.quickTo(q(".rays-glow"), "x", { duration: 1.6, ease: "power3" });
+      const gy = gsap.quickTo(q(".rays-glow"), "y", { duration: 1.6, ease: "power3" });
+      hero.addEventListener("pointermove", (e) => {
+        const px = e.clientX / window.innerWidth - 0.5;
+        const py = e.clientY / window.innerHeight - 0.5;
+        rx(px * 70); ry(py * 50); gx(px * 90); gy(py * 60);
+      });
+      hero.addEventListener("pointermove", (e) => {
+        const nx = e.clientX / window.innerWidth - 0.5;
+        const ny = e.clientY / window.innerHeight - 0.5;
+        movers.forEach((m) => { m.x(nx * -60 * m.depth); m.y(ny * -60 * m.depth); });
+        hx(nx * 14);
+        hy(ny * 10);
+      });
+    }
+
+    // ── Scroll scrub: hero holds while the next section slides over it ─
+    const tl = gsap.timeline({
+      defaults: { ease: "none" },
+      scrollTrigger: { trigger: hero, start: "top top", end: "bottom top", scrub: 0.8, pin: true, pinSpacing: false },
+    });
+    tl.to(q(".row-tag"), { xPercent: -45, rotate: -10, duration: 1 }, 0)
+      .to(q(".lab-lt"), { x: (i: number) => (i - 1) * 90, y: (i: number) => (i === 1 ? -40 : 20), rotate: (i: number) => (i - 1) * 14, duration: 1 }, 0)
+      .to(q(".row-lab"), { scale: 1.12, duration: 1 }, 0)
+      .to(q(".row-slab"), { xPercent: 40, rotate: 7, duration: 1 }, 0)
+      .to(q(".flask"), { x: 140, y: -120, rotate: 60, duration: 1 }, 0)
+      .to(q(".pin"), { y: -90, scale: 1.25, duration: 1 }, 0)
+      .to(q(".lede, .ctas"), { y: 60, opacity: 0, duration: 0.5, stagger: 0.05 }, 0)
+      .to(q(".van"), { x: () => window.innerWidth * 1.1, duration: 1, ease: "power1.in" }, 0)
+      .to(q(".road-move"), { xPercent: -30, duration: 1 }, 0)
+      .to(q(".grid-paper"), { scale: 1.3, rotate: 25, duration: 1 }, 0)
+      .to(q(".hero-shade"), { opacity: 1, backgroundColor: "rgba(40, 0, 4, .45)", duration: 1 }, 0);
+    q(".stk, .spark").forEach((el) => {
+      const x = parseFloat((el as HTMLElement).style.left) - 50;
+      const y = parseFloat((el as HTMLElement).style.top) - 50;
+      const d = Number((el as HTMLElement).dataset.depth || 1);
+      tl.to(el, { x: x * 9 * d, y: y * 7 * d - 120 * d, rotate: x * 0.9, duration: 1 }, 0);
+    });
+  }
+
+  ScrollTrigger.refresh();
+</script>

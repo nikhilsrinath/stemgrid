@@ -1,0 +1,21 @@
+---
+// "build MODE ON" sticker badge with rim text LEARN · BUILD · CODE · REPEAT.
+interface Props { class?: string }
+const { class: cls } = Astro.props;
+const id = "rim-" + Math.random().toString(36).slice(2, 8);
+---
+<svg viewBox="0 0 200 200" class={cls} aria-hidden="true">
+  <defs>
+    <path id={id} d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0" />
+  </defs>
+  <circle cx="104" cy="106" r="94" fill="#111" />
+  <circle cx="100" cy="100" r="94" fill="#FFF3E0" stroke="#111" stroke-width="4" />
+  <g class="stamp-rim">
+    <text font-family="Archivo Variable, sans-serif" font-weight="900" font-size="15" letter-spacing="5.2" fill="#111" style="font-stretch:125%">
+      <textPath href={`#${id}`}>LEARN · BUILD · CODE · REPEAT · </textPath>
+    </text>
+  </g>
+  <circle cx="100" cy="100" r="54" fill="none" stroke="#E3121B" stroke-width="2.5" stroke-dasharray="1 6" stroke-linecap="round" />
+  <text x="100" y="104" text-anchor="middle" font-family="Bagel Fat One, sans-serif" font-size="42" fill="#E3121B" transform="rotate(-8 100 100)">build</text>
+  <text x="100" y="128" text-anchor="middle" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="13" letter-spacing="1.5" fill="#111" style="font-stretch:125%">MODE ON</text>
+</svg>

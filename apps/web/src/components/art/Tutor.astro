@@ -1,0 +1,14 @@
+---
+// Tutor at a whiteboard (brochure icon).
+interface Props { class?: string }
+const { class: cls } = Astro.props;
+---
+<svg viewBox="0 0 120 100" class={cls} aria-hidden="true">
+  <rect x="44" y="10" width="68" height="50" rx="6" fill="none" stroke="currentColor" stroke-width="6" />
+  <path d="M54 48l14-14 10 8 20-20" fill="none" stroke="#E3121B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="98" cy="22" r="5" fill="#E3121B" />
+  <path d="M70 60l-8 22M86 60l8 22" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+  <circle cx="26" cy="34" r="12" fill="currentColor" />
+  <path d="M6 92c0-22 9-36 20-36s20 14 20 36z" fill="currentColor" />
+  <path d="M40 66l16-14" stroke="currentColor" stroke-width="6" stroke-linecap="round" />
+</svg>

@@ -1,0 +1,28 @@
+---
+// Lab on Wheels kit case (brochure icon), with spinning wheels and speed lines.
+interface Props { class?: string }
+const { class: cls } = Astro.props;
+---
+<svg viewBox="0 0 260 200" class={cls} aria-hidden="true" overflow="visible">
+  <g class="sc-speed" stroke="#FFF3E0" stroke-width="8" stroke-linecap="round">
+    <path d="M6 92h34" /><path d="M-10 118h46" /><path d="M14 144h24" />
+  </g>
+  <rect x="104" y="14" width="76" height="40" rx="14" fill="none" stroke="#111" stroke-width="12" />
+  <rect x="104" y="14" width="76" height="40" rx="14" fill="none" stroke="#FFF3E0" stroke-width="6" />
+  <rect x="62" y="48" width="170" height="118" rx="26" fill="#111" transform="translate(6 7)" />
+  <rect x="62" y="48" width="170" height="118" rx="26" fill="#FFF3E0" stroke="#111" stroke-width="5" />
+  <rect x="62" y="84" width="170" height="10" fill="#E3121B" />
+  <g fill="#E3121B">
+    <circle cx="117" cy="122" r="7" /><circle cx="139" cy="122" r="7" /><circle cx="161" cy="122" r="7" /><circle cx="183" cy="122" r="7" />
+  </g>
+  <g class="sc-wheel sc-wheel-a">
+    <circle cx="96" cy="176" r="18" fill="#111" />
+    <circle cx="96" cy="176" r="7" fill="#FFF3E0" />
+    <path d="M96 162v28M82 176h28" stroke="#FFF3E0" stroke-width="3" />
+  </g>
+  <g class="sc-wheel sc-wheel-b">
+    <circle cx="198" cy="176" r="18" fill="#111" />
+    <circle cx="198" cy="176" r="7" fill="#FFF3E0" />
+    <path d="M198 162v28M184 176h28" stroke="#FFF3E0" stroke-width="3" />
+  </g>
+</svg>

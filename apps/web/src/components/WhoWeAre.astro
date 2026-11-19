@@ -1,0 +1,536 @@
+---
+import Doodle from "./art/Doodle.astro";
+import Sticker from "./art/Sticker.astro";
+import ModuleArt from "./art/ModuleArt.astro";
+import Jst from "./art/Jst.astro";
+
+const lead =
+  "StemGrid brings real electronics, coding and robotics into classrooms, with the kits, the software and the tutors to make it happen every single week.";
+const hot = new Set(["electronics,", "coding", "robotics"]);
+
+const lines = [
+  { word: "Hands", on: "on." },
+  { word: "Minds", on: "on." },
+];
+
+const steps = [
+  { n: "01", tag: "In a textbook", title: "It's a diagram.", body: "Most students meet science as symbols on a page: a battery, a switch, an LED and a paragraph to memorise." },
+  { n: "02", tag: "On the grid", title: "It's a real part.", body: "At StemGrid every symbol becomes a module they can hold. Snap it onto the base plate, plug in a cable. No breadboard, no soldering." },
+  { n: "03", tag: "In their hands", title: "It lights up.", body: "They press the button, the LED glows and the idea sticks, because they built it themselves." },
+];
+
+// LED rays around the LED module dome (495, 278).
+const rays = Array.from({ length: 8 }, (_, i) => {
+  const a = (i / 8) * Math.PI * 2;
+  return { x1: 495 + Math.cos(a) * 44, y1: 278 + Math.sin(a) * 44, x2: 495 + Math.cos(a) * 62, y2: 278 + Math.sin(a) * 62 };
+});
+
+const stats = [
+  { n: 13, suffix: "", label: "Plug-and-play modules" },
+  { n: 50, suffix: "+", label: "Guided projects" },
+  { n: 0, suffix: "", label: "Breadboards or soldering", spin: true },
+  { n: 0, prefix: "₹", suffix: "", label: "Hardware cost with Lab on Wheels", spin: true, dark: true },
+];
+---
+<section id="who" class="who" aria-labelledby="who-title">
+  <!-- A. Headline + lead -->
+  <div class="who-intro wrap">
+    <div class="intro-dots" aria-hidden="true"></div>
+    <div class="intro-stk intro-stk-1" aria-hidden="true"><Sticker kind="pot" class="intro-stk-svg" /></div>
+    <div class="intro-stk intro-stk-2" aria-hidden="true"><Sticker kind="ldr" class="intro-stk-svg" /></div>
+
+    <p class="kicker"><span>02 · Who we are</span></p>
+    <h2 id="who-title" class="hh" aria-label="Hands on. Minds on.">
+      {lines.map((l, li) => (
+        <span class:list={["hh-line", `hh-line-${li + 1}`]} aria-hidden="true">
+          <span class="hh-word">{l.word.split("").map((c) => <span class="hh-ch">{c}</span>)}</span>
+          <span class="hh-on">{l.on}</span>
+        </span>
+      ))}
+    </h2>
+    <p class="lead">
+      {lead.split(" ").map((w) => <span class:list={["w", { "w-hot": hot.has(w) }]}>{w} </span>)}
+    </p>
+  </div>
+
+  <!-- B. Story: textbook diagram → real circuit on the grid (pinned, scrubbed) -->
+  <div class="story">
+    <div class="story-pin wrap">
+      <div class="story-stage">
+        <svg viewBox="0 0 640 560" class="story-svg" overflow="visible" aria-hidden="true">
+          <defs>
+            <pattern id="st-holes" x="34" y="48" width="40" height="40" patternUnits="userSpaceOnUse">
+              <circle cx="20" cy="20" r="10" fill="#E2D6C3" />
+              <path d="M11 18.5a9.5 9.5 0 0 1 18 0" fill="none" stroke="#CDBFA8" stroke-width="2.5" stroke-linecap="round" />
+            </pattern>
+            <filter id="st-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="16" /></filter>
+          </defs>
+
+          <!-- Base plate (revealed when the page leaves) -->
+          <g class="st-plate">
+            <rect x="28" y="42" width="608" height="500" rx="34" fill="#111" />
+            <rect x="16" y="30" width="608" height="500" rx="34" fill="#FBF7EF" stroke="#111" stroke-width="5" />
+            <rect x="34" y="48" width="572" height="464" rx="20" fill="url(#st-holes)" />
+          </g>
+
+          <!-- Textbook page -->
+          <g class="st-page">
+            <rect x="40" y="44" width="568" height="484" rx="6" fill="#111" />
+            <rect x="32" y="34" width="568" height="484" rx="6" fill="#FFFDF7" stroke="#111" stroke-width="4" />
+            {Array.from({ length: 12 }, (_, i) => (
+              <path d={`M32 ${126 + i * 32} H600`} stroke="#A9C1E8" stroke-width="1.5" />
+            ))}
+            <path d="M92 34 V518" stroke="#F08A8A" stroke-width="2" />
+            {[130, 276, 422].map((y) => <circle cx="60" cy={y} r="9" fill="#FFF3E0" stroke="#111" stroke-width="2.5" />)}
+            <text x="112" y="82" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="13" letter-spacing="2.5" fill="#E3121B" style="font-stretch:125%">FIG. 7.2</text>
+            <text x="200" y="82" font-family="Poppins, sans-serif" font-weight="600" font-size="15" fill="#555">A simple circuit</text>
+            <text x="592" y="82" text-anchor="end" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="11" letter-spacing="2" fill="#AAA" style="font-stretch:125%">PAGE 112</text>
+            <rect x="112" y="452" width="440" height="8" rx="4" fill="#D9D4CA" />
+            <rect x="112" y="474" width="400" height="8" rx="4" fill="#D9D4CA" />
+            <rect x="112" y="496" width="290" height="8" rx="4" fill="#D9D4CA" />
+            <path d="M600 470 L552 518 H594 a6 6 0 0 0 6-6 Z" fill="#EFE7D8" stroke="#111" stroke-width="3" stroke-linejoin="round" />
+          </g>
+
+          <!-- Zap cables (drawn once the modules arrive) -->
+          <g class="st-cables" fill="none" stroke-linecap="round">
+            {[
+              { d: "M165 232 C165 130 341 100 341 152", c: "#E3121B" },
+              { d: "M383 190 C440 190 495 176 495 222", c: "#FFB21A" },
+              { d: "M495 342 C495 452 186 452 186 351", c: "#FF7A1A" },
+            ].map((c) => (
+              <g class="st-cable">
+                <path class="st-draw" d={c.d} pathLength="1" stroke="#111" stroke-width="12" />
+                <path class="st-draw" d={c.d} pathLength="1" stroke={c.c} stroke-width="6" />
+                <path class="st-flow" d={c.d} pathLength="100" stroke="#FFF3E0" stroke-width="3" stroke-dasharray="6 94" stroke-dashoffset="100" />
+              </g>
+            ))}
+          </g>
+
+          <!-- Schematic (lives on the page, then lifts off it) -->
+          <g class="st-sch" fill="none" stroke="#111" stroke-linecap="round" stroke-linejoin="round">
+            <g class="sch-wires" stroke-width="4">
+              <path class="sch-draw" pathLength="1" d="M150 282 V170 H300" />
+              <path class="sch-draw" pathLength="1" d="M350 170 H495 V258" />
+              <path class="sch-draw" pathLength="1" d="M495 294 V420 H150 V298" />
+            </g>
+            <g class="sym sym-bat" stroke-width="5">
+              <path class="sch-draw" pathLength="1" d="M120 282 H180" />
+              <path class="sch-draw" pathLength="1" d="M134 298 H166" stroke-width="9" />
+              <text x="192" y="284" fill="#111" stroke="none" font-family="Poppins, sans-serif" font-weight="700" font-size="20">+</text>
+              <text x="104" y="330" fill="#E3121B" stroke="none" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="12" letter-spacing="1.5" style="font-stretch:125%">B1 · 3V</text>
+            </g>
+            <g class="sym sym-sw" stroke-width="4">
+              <circle cx="300" cy="170" r="5" fill="#FFFDF7" />
+              <path class="sch-draw" pathLength="1" d="M304 168 L346 144" stroke-width="5" />
+              <circle cx="350" cy="170" r="5" fill="#FFFDF7" />
+              <text x="310" y="204" fill="#E3121B" stroke="none" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="12" letter-spacing="1.5" style="font-stretch:125%">S1</text>
+            </g>
+            <g class="sym sym-led" stroke-width="4">
+              <path class="sch-draw" pathLength="1" d="M475 258 H515 L495 292 Z" fill="#FFFDF7" />
+              <path class="sch-draw" pathLength="1" d="M473 294 H517" stroke-width="5" />
+              <path class="sch-draw" pathLength="1" d="M522 262 l16 -12 m-8 0 h8 v8" stroke-width="3" />
+              <path class="sch-draw" pathLength="1" d="M524 280 l16 -12 m-8 0 h8 v8" stroke-width="3" />
+              <text x="540" y="310" fill="#E3121B" stroke="none" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="12" letter-spacing="1.5" style="font-stretch:125%">D1</text>
+            </g>
+          </g>
+
+          <!-- LED glow -->
+          <circle class="st-glow" cx="495" cy="278" r="62" fill="#FF3B30" filter="url(#st-glow)" />
+
+          <!-- Real modules -->
+          <g transform="translate(60 232) scale(.7)">
+            <g class="st-mod st-mod-c3">
+              <rect x="7" y="9" width="240" height="170" rx="18" fill="#111" />
+              <rect width="240" height="170" rx="18" fill="#F4F1EA" stroke="#111" stroke-width="4" />
+              <ModuleArt kind="c3" />
+            </g>
+          </g>
+          <g transform="translate(257 152) scale(.7)">
+            <g class="st-mod st-mod-btn">
+              <rect x="7" y="9" width="180" height="110" rx="18" fill="#111" />
+              <rect width="180" height="110" rx="18" fill="#FF6B1A" stroke="#111" stroke-width="4" />
+              <ModuleArt kind="buttons" />
+              <Jst x={180} y={55} rot={90} />
+            </g>
+          </g>
+          <g transform="translate(440 222)">
+            <g class="st-mod st-mod-led">
+              <rect x="6" y="8" width="110" height="120" rx="16" fill="#111" />
+              <rect width="110" height="120" rx="16" fill="#FF6B1A" stroke="#111" stroke-width="4" />
+              <rect x="12" y="16" width="86" height="80" rx="6" fill="#1F8A4C" stroke="#111" stroke-width="3" />
+              <circle cx="55" cy="56" r="27" fill="#2A2A2A" stroke="#111" stroke-width="3" />
+              <circle class="led-dome" cx="55" cy="54" r="20" fill="#5B1010" stroke="#111" stroke-width="3" />
+              <ellipse cx="48" cy="46" rx="6" ry="4" fill="#fff" opacity=".45" />
+              <text x="55" y="112" text-anchor="middle" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="10" letter-spacing="1.5" fill="#111" style="font-stretch:125%">LED</text>
+              <Jst x={55} y={0} /><Jst x={55} y={120} />
+            </g>
+          </g>
+
+          <!-- Light rays + click -->
+          <g class="st-rays" stroke="#E3121B" stroke-width="6" stroke-linecap="round">
+            {rays.map((r) => <line x1={r.x1} y1={r.y1} x2={r.x2} y2={r.y2} />)}
+          </g>
+          <g class="st-click">
+            <g transform="rotate(-10 404 112)">
+              <rect x="352" y="88" width="112" height="46" rx="12" fill="#111" transform="translate(4 5)" />
+              <rect x="352" y="88" width="112" height="46" rx="12" fill="#E3121B" stroke="#111" stroke-width="3.5" />
+              <text x="408" y="121" text-anchor="middle" font-family="Bagel Fat One, sans-serif" font-size="27" fill="#FFF3E0">click!</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="story-copy">
+        <div class="rail" aria-hidden="true">
+          {steps.map((s) => <span class="rail-n">{s.n}</span>)}
+          <span class="rail-track"><span class="rail-fill"></span></span>
+        </div>
+        <div class="steps">
+          {steps.map((s, i) => (
+            <div class:list={["step", `step-${i + 1}`]}>
+              <p class="step-tag">{s.tag}</p>
+              <h3 class="step-title">{s.title}</h3>
+              <p class="step-body">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C. Brand band -->
+  <div class="band" aria-label="Every great build starts on a grid. That's why we're StemGrid.">
+    <div class="band-dots" aria-hidden="true"></div>
+    <div class="band-row band-row-1" aria-hidden="true">
+      {Array.from({ length: 3 }).map(() => (
+        <span>Every great build starts on a grid. <i>✦</i> </span>
+      ))}
+    </div>
+    <div class="band-row band-row-2" aria-hidden="true">
+      {Array.from({ length: 4 }).map(() => (
+        <span>That's why we're StemGrid · Learn · Build · Code · Repeat · </span>
+      ))}
+    </div>
+    <div class="band-disc" aria-hidden="true">
+      <svg viewBox="0 0 300 300">
+        <defs>
+          <pattern id="disc-holes" x="0" y="0" width="22" height="22" patternUnits="userSpaceOnUse">
+            <circle cx="11" cy="11" r="6" fill="#E2D6C3" />
+          </pattern>
+          <clipPath id="disc-clip"><circle cx="150" cy="150" r="132" /></clipPath>
+        </defs>
+        <circle cx="158" cy="160" r="140" fill="#111" />
+        <circle cx="150" cy="150" r="140" fill="#FBF7EF" stroke="#111" stroke-width="5" />
+        <rect x="0" y="0" width="300" height="300" fill="url(#disc-holes)" clip-path="url(#disc-clip)" />
+      </svg>
+    </div>
+  </div>
+
+  <!-- D. Partner pitch + stats -->
+  <div class="stats-block wrap">
+    <p class="partner-pitch">
+      We are a complete STEM partner for schools and colleges. Buy kits and software for your own lab, place a trained StemGrid tutor,
+      or let us bring the whole lab to you every week, so you never have to buy a kit.
+    </p>
+    <ul class="stats">
+      {stats.map((s) => (
+        <li class:list={["stat", { "stat-dark": s.dark }]}>
+          <span class="stat-n">
+            {s.prefix}<span class="num" data-to={s.n} data-spin={s.spin ? "1" : undefined}>{s.n}</span>{s.suffix}
+          </span>
+          <span class="stat-l">{s.label}</span>
+        </li>
+      ))}
+    </ul>
+    <div class="partner">
+      <span class="partner-label">Technology partner</span>
+      <span class="partner-name">QBITIO</span>
+      <span class="partner-text">Makers of the Quark Kit and the X1 learning console.</span>
+    </div>
+    <div class="who-doodles" aria-hidden="true">
+      <Doodle name="gear" class="wd wd-1" />
+      <Doodle name="bulb" class="wd wd-2" />
+      <Doodle name="code" class="wd wd-3" />
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .who {
+    position: relative; z-index: 5; margin-top: -52px; background: var(--color-cream); color: var(--color-ink); overflow: hidden;
+    border-radius: 44px 44px 0 0; border-top: 4px solid var(--color-ink); box-shadow: 0 -10px 0 0 var(--color-red-dark);
+  }
+  .who::before {
+    content: ""; position: absolute; left: 50%; top: 14px; width: 64px; height: 6px; border-radius: 6px; translate: -50% 0; background: rgba(17,17,17,.18);
+  }
+  @media (max-width: 640px) { .who { border-radius: 28px 28px 0 0; margin-top: -40px; } }
+  .wrap { width: min(1180px, 100%); margin-inline: auto; padding-inline: 24px; }
+  @media (max-width: 640px) { .wrap { padding-inline: 16px; } }
+
+  .kicker { position: relative; margin: 0; }
+  .kicker span {
+    display: inline-block; padding: 9px 16px; border-radius: 999px; background: var(--color-red); color: #fff;
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  }
+
+  /* ── A. Intro ── */
+  .who-intro { position: relative; padding-top: clamp(90px, 14vh, 160px); padding-bottom: clamp(60px, 10vh, 110px); }
+  .intro-dots {
+    position: absolute; inset: 40px -10% 0 40%; pointer-events: none;
+    background-image: radial-gradient(circle, rgba(17,17,17,.13) 0 3px, transparent 3.5px); background-size: 34px 34px;
+    -webkit-mask-image: radial-gradient(ellipse at 60% 45%, #000 20%, transparent 70%); mask-image: radial-gradient(ellipse at 60% 45%, #000 20%, transparent 70%);
+  }
+  .intro-stk { position: absolute; pointer-events: none; }
+  .intro-stk-svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .intro-stk-1 { right: 6%; top: 20%; width: clamp(90px, 11vw, 160px); rotate: 12deg; }
+  .intro-stk-2 { right: 22%; top: 48%; width: clamp(60px, 7vw, 100px); rotate: -14deg; }
+  @media (max-width: 899px) { .intro-stk-2 { display: none; } .intro-stk-1 { right: 4%; top: 9%; width: 84px; } }
+
+  .hh {
+    position: relative; margin: clamp(20px, 3vh, 34px) 0 0; font-size: clamp(2.8rem, 8.4vw, 7.2rem); line-height: 1; letter-spacing: -.01em;
+  }
+  .hh-line { display: flex; align-items: center; gap: .16em; width: fit-content; padding-bottom: .1em; }
+  .hh-line-2 { margin-left: clamp(0px, 8vw, 140px); }
+  .hh-word { display: inline-flex; }
+  .hh-ch { display: inline-block; color: var(--color-red); text-shadow: 0 .05em 0 var(--color-red-dark); will-change: transform; }
+  .hh-on {
+    display: inline-block; font-size: .5em; line-height: 1; padding: .14em .36em .24em; border-radius: .26em;
+    background: var(--color-ink); color: var(--color-cream); box-shadow: 0 .1em 0 var(--color-red); rotate: -5deg; translate: 0 .08em;
+  }
+  .hh-line-2 .hh-on { rotate: 4deg; background: var(--color-cream); color: var(--color-ink); border: .06em solid var(--color-ink); box-shadow: 0 .1em 0 var(--color-ink); }
+
+  .lead { position: relative; margin: clamp(30px, 5vh, 52px) 0 0; max-width: 780px; font-size: clamp(1.15rem, 1.9vw, 1.65rem); line-height: 1.4; font-weight: 600; }
+  .lead .w-hot { color: var(--color-red); }
+  html.js .lead .w { opacity: .14; }
+
+  /* ── B. Story ── */
+  .story { position: relative; }
+  .story-pin { min-height: 100svh; display: grid; grid-template-columns: 1.15fr 1fr; align-items: center; gap: clamp(28px, 5vw, 80px); padding-block: 96px 24px; }
+  .story-svg { max-height: calc(100svh - 140px); }
+  .story-stage { perspective: 1400px; }
+  .story-svg { width: 100%; height: auto; display: block; }
+  .st-flow { opacity: 0; }
+  .st-draw { stroke-dasharray: 1; stroke-dashoffset: 0; }
+  html.js .st-draw { stroke-dashoffset: 1; }
+  .sch-draw { stroke-dasharray: 1; stroke-dashoffset: 0; }
+  html.js .sch-draw { stroke-dashoffset: 1; }
+  html.js .st-mod, html.js .st-glow, html.js .st-rays, html.js .st-click { opacity: 0; }
+  .st-glow { opacity: 0; }
+
+  .story-copy { position: relative; }
+  .rail { display: grid; grid-template-columns: repeat(3, auto) 1fr; align-items: center; gap: 14px; margin-bottom: 30px; }
+  .rail-n {
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 12px; letter-spacing: .14em;
+    width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; border: 3px solid var(--color-ink); background: #FFF8EC;
+    transition: background .25s, color .25s;
+  }
+  .rail-n.on { background: var(--color-red); color: #fff; }
+  .rail-track { height: 6px; border-radius: 6px; background: rgba(17,17,17,.12); overflow: hidden; }
+  .rail-fill { display: block; height: 100%; background: var(--color-red); transform-origin: 0 50%; transform: scaleX(0); }
+  .steps { display: grid; }
+  .step { grid-area: 1 / 1; }
+  html.js .step-2, html.js .step-3 { opacity: 0; visibility: hidden; }
+  .step-tag {
+    display: inline-block; margin: 0; padding: 7px 13px; border-radius: 999px; border: 2.5px solid var(--color-ink);
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  }
+  .step-title { margin: 16px 0 0; font-size: clamp(2rem, 3.6vw, 3.3rem); line-height: 1.04; padding-bottom: .06em; }
+  .step-3 .step-title { color: var(--color-red); text-shadow: 0 .05em 0 var(--color-red-dark); }
+  .step-body { margin: 14px 0 0; font-size: clamp(.95rem, 1.1vw, 1.05rem); line-height: 1.6; max-width: 440px; }
+
+  @media (max-width: 899px) {
+    .story-pin { grid-template-columns: 1fr; align-content: center; gap: 18px; padding-block: 70px 24px; }
+    .story-svg { max-height: 44svh; margin-inline: auto; }
+    .rail { margin-bottom: 14px; gap: 10px; }
+    .rail-n { width: 32px; height: 32px; font-size: 10px; }
+    .step-title { margin-top: 10px; font-size: clamp(1.9rem, 8vw, 2.6rem); }
+    .step-body { margin-top: 10px; font-size: 15px; }
+  }
+
+  /* ── C. Band ── */
+  .band { position: relative; background: var(--color-red); color: var(--color-cream); padding: clamp(60px, 10vh, 110px) 0; overflow: hidden; }
+  .band-dots {
+    position: absolute; inset: 0; background-image: radial-gradient(circle, var(--color-red-dark) 0 6px, transparent 6.5px); background-size: 34px 34px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 40%, #000); mask-image: linear-gradient(90deg, transparent 40%, #000);
+  }
+  .band-row { position: relative; z-index: 1; white-space: nowrap; display: flex; width: max-content; }
+  .band-row-1 { font-family: var(--font-display); font-size: clamp(2.6rem, 6.4vw, 5.8rem); line-height: 1.12; padding-bottom: .06em; text-shadow: 0 .05em 0 var(--color-red-dark); }
+  .band-row-1 i { font-style: normal; color: var(--color-ink); text-shadow: none; font-size: .6em; vertical-align: middle; }
+  .band-row-2 {
+    margin-top: 18px; font-family: var(--font-label); font-weight: 900; font-stretch: 125%; text-transform: uppercase;
+    font-size: clamp(.9rem, 1.6vw, 1.3rem); letter-spacing: .14em; color: var(--color-ink);
+  }
+  .band-disc { position: absolute; right: -6vw; top: 50%; width: clamp(220px, 30vw, 420px); translate: 0 -50%; z-index: 0; }
+  .band-disc svg { width: 100%; height: auto; display: block; }
+
+  /* ── D. Stats ── */
+  .stats-block { position: relative; padding-top: clamp(70px, 12vh, 130px); padding-bottom: clamp(70px, 12vh, 130px); }
+  .partner-pitch { max-width: 760px; font-size: clamp(1.02rem, 1.4vw, 1.22rem); line-height: 1.6; margin: 0 0 48px; }
+  .stats { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .stat {
+    display: flex; flex-direction: column; gap: 12px; padding: 22px 20px 24px; min-height: 180px;
+    background: #FFF8EC; border: 3px solid var(--color-ink); border-radius: 20px; box-shadow: 0 6px 0 0 var(--color-ink);
+  }
+  .stat-dark { background: var(--color-ink); color: var(--color-cream); box-shadow: 0 6px 0 0 var(--color-red); }
+  .stat-n { font-family: var(--font-display); font-size: clamp(2.8rem, 4.4vw, 4rem); line-height: 1.05; color: var(--color-red); }
+  .stat-dark .stat-n { color: var(--color-cream); }
+  .stat-l { margin-top: auto; font-weight: 600; font-size: 14.5px; line-height: 1.35; }
+  .partner {
+    margin-top: 56px; padding-top: 22px; border-top: 3px dashed var(--color-red);
+    display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px;
+  }
+  .partner-label, .partner-name { font-family: var(--font-label); font-weight: 900; font-stretch: 125%; text-transform: uppercase; }
+  .partner-label { font-size: 12px; letter-spacing: .16em; color: var(--color-red); }
+  .partner-name { font-size: 18px; letter-spacing: .1em; }
+  .partner-text { font-size: 14px; }
+  .who-doodles .wd { position: absolute; color: var(--color-red); opacity: .18; width: 90px; }
+  .wd-1 { right: 3%; top: 8%; } .wd-2 { left: -10px; top: 46%; width: 70px !important; } .wd-3 { right: 18%; bottom: 4%; width: 60px !important; }
+
+  @media (max-width: 899px) {
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .stat { min-height: 170px; padding: 20px 16px; }
+  }
+</style>
+
+<script>
+  import { gsap, ScrollTrigger, reducedMotion } from "../scripts/motion";
+
+  const who = document.querySelector<HTMLElement>(".who")!;
+  const q = gsap.utils.selector(who);
+
+  const showFinalStory = () => {
+    gsap.set(q(".st-page, .st-sch"), { opacity: 0 });
+    gsap.set(q(".st-draw"), { strokeDashoffset: 0 });
+    gsap.set(q(".st-mod, .st-glow, .st-rays, .st-click"), { opacity: 1 });
+    gsap.set(q(".led-dome"), { fill: "#FF2A2A" });
+    gsap.set(q(".step-1, .step-2"), { autoAlpha: 0 });
+    gsap.set(q(".step-3"), { autoAlpha: 1 });
+    gsap.set(q(".rail-fill"), { scaleX: 1 });
+    q(".rail-n").forEach((n) => n.classList.add("on"));
+  };
+
+  if (reducedMotion) {
+    gsap.set(q(".lead .w"), { opacity: 1 });
+    showFinalStory();
+  } else {
+    // ── A. Headline: letters drop / rise into place, "on." pills slide in ──
+    const hTl = gsap.timeline({
+      defaults: { ease: "back.out(1.8)" },
+      scrollTrigger: { trigger: ".hh", start: "top 92%", end: "top 35%", scrub: 0.8 },
+    });
+    hTl
+      .from(q(".hh-line-1 .hh-ch"), { yPercent: -150, rotate: () => gsap.utils.random(-35, 35), opacity: 0, stagger: 0.08, duration: 0.5 }, 0)
+      .from(q(".hh-line-1 .hh-on"), { xPercent: 160, rotate: 40, scale: 0.4, opacity: 0, duration: 0.5 }, 0.35)
+      .from(q(".hh-line-2 .hh-ch"), { yPercent: 150, rotate: () => gsap.utils.random(-35, 35), opacity: 0, stagger: 0.08, duration: 0.5 }, 0.35)
+      .from(q(".hh-line-2 .hh-on"), { xPercent: -200, rotate: -40, scale: 0.4, opacity: 0, duration: 0.5 }, 0.7);
+
+    // …and drift apart as the section scrolls away
+    gsap.to(q(".hh-line-1"), { xPercent: -6, ease: "none", scrollTrigger: { trigger: ".hh", start: "top 35%", end: "bottom top", scrub: true } });
+    gsap.to(q(".hh-line-2"), { xPercent: 6, ease: "none", scrollTrigger: { trigger: ".hh", start: "top 35%", end: "bottom top", scrub: true } });
+
+    // stickers and dots parallax
+    gsap.fromTo(q(".intro-stk-1"), { y: 120, rotate: -30 }, { y: -140, rotate: 40, ease: "none", scrollTrigger: { trigger: ".who-intro", start: "top bottom", end: "bottom top", scrub: true } });
+    gsap.fromTo(q(".intro-stk-2"), { y: 200, rotate: 30 }, { y: -220, rotate: -50, ease: "none", scrollTrigger: { trigger: ".who-intro", start: "top bottom", end: "bottom top", scrub: true } });
+    gsap.fromTo(q(".intro-dots"), { y: 80 }, { y: -80, ease: "none", scrollTrigger: { trigger: ".who-intro", start: "top bottom", end: "bottom top", scrub: true } });
+
+    // lead: word-by-word
+    gsap.to(q(".lead .w"), {
+      opacity: 1, stagger: 0.1, ease: "none",
+      scrollTrigger: { trigger: ".lead", start: "top 85%", end: "bottom 50%", scrub: 0.6 },
+    });
+
+    // ── B. Story: textbook diagram → real circuit (pinned) ──
+    const steps = q(".step");
+    const railNs = q(".rail-n");
+    let current = 0;
+    const setStep = (i: number) => {
+      if (i === current) return;
+      const dir = i > current ? 1 : -1;
+      gsap.to(steps[current], { autoAlpha: 0, y: -30 * dir, duration: 0.35, ease: "power2.in", overwrite: true });
+      gsap.fromTo(steps[i], { autoAlpha: 0, y: 30 * dir }, { autoAlpha: 1, y: 0, duration: 0.45, delay: 0.15, ease: "power3.out", overwrite: true });
+      railNs.forEach((n, k) => n.classList.toggle("on", k <= i));
+      current = i;
+    };
+    railNs[0].classList.add("on");
+
+    const mm = gsap.matchMedia();
+    mm.add({ mobile: "(max-width: 899px)", desktop: "(min-width: 900px)" }, (ctx) => {
+      const { mobile } = ctx.conditions as { mobile: boolean };
+      const tl = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: ".story", start: "top top", end: mobile ? "+=220%" : "+=300%", scrub: 1, pin: ".story-pin", anticipatePin: 1,
+          onUpdate: (self) => {
+            const p = self.progress;
+            setStep(p < 0.36 ? 0 : p < 0.72 ? 1 : 2);
+          },
+        },
+      });
+
+      tl
+        // 1 — the page lies on a desk, tilts up to face us, the diagram draws itself
+        .fromTo(q(".story-svg"), { rotationX: 38, y: 60, scale: 0.88, transformOrigin: "50% 100%" }, { rotationX: 0, y: 0, scale: 1, duration: 0.8, ease: "power2.out" }, 0)
+        .to(q(".sch-wires .sch-draw"), { strokeDashoffset: 0, duration: 0.7, stagger: 0.15 }, 0.25)
+        .to(q(".sym .sch-draw"), { strokeDashoffset: 0, duration: 0.4, stagger: 0.06 }, 0.55)
+        .to(q(".rail-fill"), { scaleX: 1, duration: 3.2 }, 0)
+
+        // 2 — symbols lift off the page, the page slides away to reveal the grid
+        .to(q(".sym"), { y: -14, scale: 1.12, transformOrigin: "50% 50%", duration: 0.35, ease: "power2.out", stagger: 0.08 }, 1.15)
+        .to(q(".st-page"), { y: 760, x: -80, rotate: -16, transformOrigin: "0% 0%", duration: 0.8, ease: "power2.in" }, 1.3)
+        .to(q(".st-page"), { opacity: 0, duration: 0.25 }, 1.85)
+        .to(q(".sch-wires"), { opacity: 0, duration: 0.3 }, 1.7)
+
+        // symbols become real modules
+        .to(q(".sym"), { scale: 0, opacity: 0, duration: 0.3, ease: "power2.in", stagger: 0.1 }, 1.9)
+        .fromTo(q(".st-mod"), { opacity: 0, scale: 0.2, rotate: (i: number) => [-25, 20, -15][i], transformOrigin: "50% 50%" },
+          { opacity: 1, scale: 1, rotate: 0, duration: 0.45, ease: "back.out(2.2)", stagger: 0.1 }, 2.0)
+        .to(q(".st-draw"), { strokeDashoffset: 0, duration: 0.5, stagger: 0.06 }, 2.35)
+
+        // 3 — press the button: current flows, LED lights up, click!
+        .to(q(".st-mod-btn .btn-red"), { scale: 0.78, transformOrigin: "50% 50%", duration: 0.12, ease: "power2.in" }, 2.85)
+        .to(q(".st-mod-btn .btn-red"), { scale: 1, duration: 0.15, ease: "back.out(3)" }, 2.97)
+        .to(q(".st-flow"), { opacity: 1, duration: 0.05 }, 2.9)
+        .fromTo(q(".st-flow"), { strokeDashoffset: 100 }, { strokeDashoffset: -100, duration: 0.7, stagger: 0.1 }, 2.9)
+        .to(q(".led-dome"), { fill: "#FF2A2A", duration: 0.15 }, 3.0)
+        .to(q(".st-mod-c3 .c3-led"), { fill: "#FF3B30", duration: 0.15 }, 3.0)
+        .fromTo(q(".st-glow"), { opacity: 0, scale: 0.4, transformOrigin: "50% 50%" }, { opacity: 0.85, scale: 1, duration: 0.3, ease: "power2.out" }, 3.0)
+        .fromTo(q(".st-rays line"), { opacity: 0, scale: 0.5, transformOrigin: "495px 278px" }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(3)", stagger: 0.02 }, 3.02)
+        .set(q(".st-rays"), { opacity: 1 }, 3.0)
+        .fromTo(q(".st-click"), { opacity: 0, scale: 0, transformOrigin: "404px 112px" }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(3)" }, 3.1)
+        .to({}, { duration: 0.5 });
+
+      return () => { gsap.set(q(".step"), { clearProps: "all" }); current = 0; };
+    });
+
+    // ── C. Band: rows move with scroll, disc rotates ──
+    gsap.fromTo(q(".band-row-1"), { xPercent: 0 }, { xPercent: -36, ease: "none", scrollTrigger: { trigger: ".band", start: "top bottom", end: "bottom top", scrub: 0.5 } });
+    gsap.fromTo(q(".band-row-2"), { xPercent: -30 }, { xPercent: 0, ease: "none", scrollTrigger: { trigger: ".band", start: "top bottom", end: "bottom top", scrub: 0.5 } });
+    gsap.fromTo(q(".band-disc"), { rotate: -90, yPercent: 30 }, { rotate: 200, yPercent: -30, ease: "none", scrollTrigger: { trigger: ".band", start: "top bottom", end: "bottom top", scrub: 0.5 } });
+
+    // ── D. Stat cards drop in (scrubbed), numbers count once ──
+    gsap.from(q(".stat"), {
+      y: 140, rotate: (i: number) => [-8, 5, -4, 9][i], opacity: 0, ease: "back.out(1.6)", stagger: 0.12,
+      scrollTrigger: { trigger: ".stats", start: "top 95%", end: "top 55%", scrub: 1 },
+    });
+    q(".who-doodles .wd").forEach((el, i) => {
+      gsap.to(el, { y: -120 - i * 60, rotate: 60 * (i % 2 ? -1 : 1), ease: "none", scrollTrigger: { trigger: ".stats-block", start: "top bottom", end: "bottom top", scrub: true } });
+    });
+
+    q(".num").forEach((el) => {
+      const to = Number(el.getAttribute("data-to"));
+      const spin = el.hasAttribute("data-spin");
+      el.textContent = spin ? "9" : "0";
+      ScrollTrigger.create({
+        trigger: el, start: "top 85%", once: true,
+        onEnter: () => {
+          const obj = { v: 0 };
+          if (spin) {
+            gsap.to(obj, { v: 30, duration: 1.4, ease: "power3.out", onUpdate: () => (el.textContent = String(9 - (Math.floor(obj.v) % 10))), onComplete: () => (el.textContent = "0") });
+          } else {
+            gsap.to(obj, { v: to, duration: 1.6, ease: "power3.out", onUpdate: () => (el.textContent = String(Math.round(obj.v))) });
+          }
+        },
+      });
+    });
+  }
+</script>

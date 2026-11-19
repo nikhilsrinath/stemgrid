@@ -1,0 +1,42 @@
+---
+// Lab on Wheels van: chunky neo-brutalist side view with spinning wheels, beacon and speed lines.
+interface Props { class?: string }
+const { class: cls } = Astro.props;
+const id = "van-" + Math.random().toString(36).slice(2, 8);
+const body = "M38 40 H226 Q244 40 250 56 L256 72 H286 Q300 72 308 86 L326 120 Q332 130 332 142 V150 Q332 162 320 162 H38 Q20 162 20 144 V58 Q20 40 38 40 Z";
+---
+<svg viewBox="0 0 340 188" class={cls} aria-hidden="true" overflow="visible">
+  <defs><clipPath id={id}><path d={body} /></clipPath></defs>
+  <g class="vw-speed" stroke="#FFF3E0" stroke-width="7" stroke-linecap="round">
+    <path d="M-8 84h-40" /><path d="M-2 112h-62" /><path d="M-12 140h-30" />
+  </g>
+  <path class="vw-beam" d="M330 126 L400 104 L400 168 L330 146 Z" fill="#FFF3E0" opacity=".35" />
+  <g class="vw-body">
+    <path d={body} fill="#111" transform="translate(7 8)" />
+    <path d={body} fill="#FFF3E0" />
+    <g clip-path={`url(#${id})`}>
+      <rect x="0" y="118" width="340" height="14" fill="#E3121B" />
+    </g>
+    <path d={body} fill="none" stroke="#111" stroke-width="5" stroke-linejoin="round" />
+    <path d="M253 72 V160" stroke="#111" stroke-width="4" />
+    <path d="M262 84 H284 Q292 84 297 92 L310 112 H262 Z" fill="#111" />
+    <path d="M272 89 l-6 17" stroke="#FFF3E0" stroke-width="3" stroke-linecap="round" />
+    <rect x="266" y="134" width="16" height="5" rx="2.5" fill="#111" />
+    <text x="136" y="90" text-anchor="middle" font-family="Bagel Fat One, sans-serif" font-size="48" fill="#E3121B">LAB</text>
+    <text x="136" y="110" text-anchor="middle" font-family="Archivo Variable, sans-serif" font-weight="900" font-size="13" letter-spacing="3" fill="#111" style="font-stretch:125%">ON WHEELS</text>
+    <circle cx="324" cy="136" r="5" fill="#FFF3E0" stroke="#111" stroke-width="3" />
+    <rect x="298" y="156" width="38" height="10" rx="4" fill="#111" />
+    <rect x="60" y="30" width="28" height="12" rx="3" fill="#111" />
+    <path class="vw-beacon" d="M63 31 a11 11 0 0 1 22 0 Z" fill="#E3121B" stroke="#111" stroke-width="3" stroke-linejoin="round" />
+  </g>
+  <g class="vw-wheel">
+    <circle cx="84" cy="162" r="24" fill="#111" />
+    <circle cx="84" cy="162" r="10" fill="#FFF3E0" />
+    <path d="M84 154V170M76 162H92" stroke="#111" stroke-width="3" />
+  </g>
+  <g class="vw-wheel">
+    <circle cx="268" cy="162" r="24" fill="#111" />
+    <circle cx="268" cy="162" r="10" fill="#FFF3E0" />
+    <path d="M268 154V170M260 162H276" stroke="#111" stroke-width="3" />
+  </g>
+</svg>

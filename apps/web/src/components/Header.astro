@@ -1,0 +1,239 @@
+---
+const links = [
+  { href: "#who", label: "Who we are" },
+  { href: "#services", label: "What we do" },
+  { href: "#programs", label: "Programs" },
+  { href: "#kit", label: "Quark Kit" },
+];
+---
+<header class="site-header" data-header>
+  <nav class="nav" aria-label="Main">
+    <a href="#top" class="nav-logo" aria-label="StemGrid home">
+      <span class="nav-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><g fill="currentColor">{[5, 12, 19].map((x) => [5, 12, 19].map((y) => <circle cx={x} cy={y} r={x === 12 && y === 12 ? 3.2 : 2} />))}</g></svg>
+      </span>
+      <span class="nav-stem">stem</span><span class="nav-grid">GRID</span>
+    </a>
+
+    <ul class="nav-links" data-nav-links>
+      <li class="nav-pill" aria-hidden="true"></li>
+      {links.map((l) => <li><a href={l.href} data-nav-link>{l.label}</a></li>)}
+    </ul>
+
+    <div class="nav-right">
+      <a href="tel:+918925172636" class="nav-phone" aria-label="Call StemGrid">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.5h3l1.5 4-2 1.3a11 11 0 0 0 6.1 6.1l1.3-2 4 1.5v3a2 2 0 0 1-2.2 2A17 17 0 0 1 4.6 5.7a2 2 0 0 1 2-2.2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" /></svg>
+      </a>
+      <a href="#contact" class="nav-cta">
+        Book a demo
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </a>
+      <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="nav-sheet" data-nav-burger>
+        <span></span><span></span>
+      </button>
+    </div>
+
+    <span class="nav-progress" data-scroll-progress aria-hidden="true"><span></span></span>
+  </nav>
+
+  <div id="nav-sheet" class="nav-sheet" data-nav-sheet hidden>
+    <ul>
+      {links.map((l, i) => (
+        <li><a href={l.href} data-nav-link><span class="ns-n">0{i + 1}</span>{l.label}</a></li>
+      ))}
+    </ul>
+    <a href="tel:+918925172636" class="ns-phone">+91 89251 72636</a>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: fixed; inset: 12px 0 auto; z-index: 60;
+    display: flex; flex-direction: column; align-items: center; padding: 0 16px; pointer-events: none;
+    transition: transform .45s cubic-bezier(.2, .8, .2, 1);
+  }
+  .site-header.is-hidden { transform: translateY(calc(-100% - 24px)); }
+
+  .nav {
+    pointer-events: auto; position: relative; overflow: hidden;
+    display: flex; align-items: center; gap: 20px;
+    width: min(1180px, 100%); height: 58px; padding: 0 8px 0 14px;
+    background: rgba(255, 243, 224, .94); color: var(--color-ink);
+    -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2);
+    border: 2.5px solid var(--color-ink); border-radius: 16px;
+    box-shadow: 0 4px 0 0 var(--color-ink);
+  }
+
+  /* logo */
+  .nav-logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--color-ink); flex: none; }
+  .nav-mark {
+    display: grid; place-items: center; width: 32px; height: 32px; margin-right: 4px; border-radius: 9px;
+    background: var(--color-red); color: var(--color-cream); border: 2px solid var(--color-ink);
+    transition: rotate .4s cubic-bezier(.34, 1.8, .5, 1);
+  }
+  .nav-mark svg { width: 18px; height: 18px; }
+  .nav-logo:hover .nav-mark { rotate: 90deg; }
+  .nav-stem { font-family: var(--font-display); font-size: 24px; line-height: 1; color: var(--color-red); translate: 0 -1px; }
+  .nav-grid { font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 11px; letter-spacing: .24em; }
+
+  /* links with a sliding active pill */
+  .nav-links { position: relative; display: flex; gap: 2px; margin: 0 auto; padding: 4px; list-style: none; border-radius: 12px; background: rgba(17, 17, 17, .06); }
+  .nav-links a {
+    position: relative; z-index: 1; display: block; padding: 8px 14px; border-radius: 9px;
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: rgba(17, 17, 17, .7); text-decoration: none; transition: color .25s;
+  }
+  .nav-links a:hover { color: var(--color-ink); }
+  .nav-links a.is-active { color: var(--color-cream); }
+  .nav-pill {
+    position: absolute; z-index: 0; top: 4px; left: 0; height: calc(100% - 8px); width: 0; border-radius: 9px;
+    background: var(--color-ink); opacity: 0;
+    transition: transform .45s cubic-bezier(.3, 1.3, .5, 1), width .45s cubic-bezier(.3, 1.3, .5, 1), opacity .25s;
+  }
+
+  /* right side */
+  .nav-right { display: flex; align-items: center; gap: 8px; flex: none; }
+  .nav-phone {
+    display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px; color: var(--color-ink);
+    border: 2px solid var(--color-ink); transition: background .2s, color .2s;
+  }
+  .nav-phone svg { width: 18px; height: 18px; }
+  .nav-phone:hover { background: var(--color-ink); color: var(--color-cream); }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 11px;
+    background: var(--color-red); color: #fff; border: 2px solid var(--color-ink); box-shadow: 0 3px 0 var(--color-ink);
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    text-decoration: none; white-space: nowrap; transition: translate .15s, box-shadow .15s;
+  }
+  .nav-cta svg { width: 15px; height: 15px; transition: translate .2s; }
+  .nav-cta:hover { translate: 0 -1px; box-shadow: 0 4px 0 var(--color-ink); }
+  .nav-cta:hover svg { translate: 3px 0; }
+  .nav-cta:active { translate: 0 2px; box-shadow: 0 1px 0 var(--color-ink); }
+
+  .nav-burger {
+    display: none; position: relative; width: 40px; height: 40px; border-radius: 11px; border: 2px solid var(--color-ink);
+    background: var(--color-ink); cursor: pointer;
+  }
+  .nav-burger span { position: absolute; left: 10px; right: 10px; height: 2.5px; border-radius: 2px; background: var(--color-cream); transition: transform .3s, top .3s; }
+  .nav-burger span:nth-child(1) { top: 13px; }
+  .nav-burger span:nth-child(2) { top: 21px; }
+  .nav-burger[aria-expanded="true"] span:nth-child(1) { top: 17px; transform: rotate(45deg); }
+  .nav-burger[aria-expanded="true"] span:nth-child(2) { top: 17px; transform: rotate(-45deg); }
+
+  /* scroll progress along the bottom edge */
+  .nav-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; pointer-events: none; }
+  .nav-progress span { position: absolute; inset: 0; transform-origin: left; transform: scaleX(var(--p, 0)); background: var(--color-red); }
+
+  .nav a:focus-visible, .nav button:focus-visible, .nav-sheet a:focus-visible { outline: 2.5px solid var(--color-red); outline-offset: 2px; }
+
+  /* mobile sheet */
+  .nav-sheet {
+    pointer-events: auto; width: min(1180px, 100%); margin-top: 8px; padding: 10px; border-radius: 16px;
+    background: var(--color-ink); color: var(--color-cream); box-shadow: 0 4px 0 var(--color-red);
+    transform-origin: 50% 0; animation: sheet-in .3s cubic-bezier(.2, .9, .3, 1.2);
+  }
+  .nav-sheet[hidden] { display: none; }
+  @keyframes sheet-in { from { opacity: 0; transform: translateY(-8px) scale(.97); } }
+  .nav-sheet ul { list-style: none; margin: 0; padding: 0; display: grid; }
+  .nav-sheet li + li { border-top: 1px solid rgba(255, 243, 224, .12); }
+  .nav-sheet a:not(.ns-phone) {
+    display: flex; align-items: center; gap: 14px; padding: 14px 10px; color: var(--color-cream); text-decoration: none;
+    font-family: var(--font-display); font-size: 22px; line-height: 1;
+  }
+  .nav-sheet a.is-active { color: var(--color-red); }
+  .ns-n { font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 10px; letter-spacing: .16em; color: var(--color-coral); }
+  .ns-phone {
+    display: block; margin-top: 8px; padding: 13px; border-radius: 11px; text-align: center; background: var(--color-cream); color: var(--color-ink); text-decoration: none;
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 12px; letter-spacing: .1em;
+  }
+
+  @media (max-width: 900px) {
+    .nav-links, .nav-phone { display: none; }
+    .nav-burger { display: block; }
+    .nav { height: 54px; padding-left: 10px; justify-content: space-between; }
+  }
+  @media (min-width: 901px) { .nav-sheet { display: none !important; } }
+  @media (max-width: 400px) {
+    .nav-cta { padding: 0 12px; font-size: 9.5px; }
+    .nav-cta svg { display: none; }
+    .nav-stem { font-size: 21px; }
+    .nav-grid { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .site-header, .nav-pill { transition: none; }
+    .nav-sheet { animation: none; }
+  }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>("[data-header]")!;
+  const burger = header.querySelector<HTMLButtonElement>("[data-nav-burger]")!;
+  const sheet = header.querySelector<HTMLElement>("[data-nav-sheet]")!;
+  const list = header.querySelector<HTMLElement>("[data-nav-links]")!;
+  const pill = list.querySelector<HTMLElement>(".nav-pill")!;
+  const navLinks = [...header.querySelectorAll<HTMLAnchorElement>("[data-nav-link]")];
+
+  // ── Hide on scroll down, reveal on scroll up ──
+  let lastY = window.scrollY;
+  let menuOpen = false;
+  const THRESHOLD = 8;
+  const onScroll = () => {
+    const y = window.scrollY;
+    const dy = y - lastY;
+    if (Math.abs(dy) < THRESHOLD) return;
+    const hide = dy > 0 && y > 120 && !menuOpen && !header.contains(document.activeElement);
+    header.classList.toggle("is-hidden", hide);
+    lastY = y;
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  // keyboard users tabbing into the bar always see it
+  header.addEventListener("focusin", () => header.classList.remove("is-hidden"));
+
+  // ── Mobile menu ──
+  const setMenu = (open: boolean) => {
+    menuOpen = open;
+    burger.setAttribute("aria-expanded", String(open));
+    burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    sheet.hidden = !open;
+    if (open) header.classList.remove("is-hidden");
+  };
+  burger.addEventListener("click", () => setMenu(!menuOpen));
+  sheet.addEventListener("click", (e) => { if ((e.target as HTMLElement).closest("a")) setMenu(false); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && menuOpen) { setMenu(false); burger.focus(); } });
+  document.addEventListener("click", (e) => { if (menuOpen && !header.contains(e.target as Node)) setMenu(false); });
+
+  // ── Active section: sliding pill follows the section in view ──
+  const movePill = (a: HTMLAnchorElement | null) => {
+    if (!a || a.offsetParent === null) { pill.style.opacity = "0"; return; }
+    const li = a.parentElement!;
+    pill.style.opacity = "1";
+    pill.style.width = `${li.offsetWidth}px`;
+    pill.style.transform = `translateX(${li.offsetLeft}px)`;
+  };
+  const setActive = (id: string | null) => {
+    navLinks.forEach((a) => a.classList.toggle("is-active", a.getAttribute("href") === `#${id}`));
+    movePill(list.querySelector<HTMLAnchorElement>("a.is-active"));
+  };
+
+  const ids = [...new Set(navLinks.map((a) => a.getAttribute("href")!.slice(1)))];
+  const sections = ids.map((id) => document.getElementById(id)).filter((s): s is HTMLElement => !!s);
+  // Nested sections (e.g. #programs inside #services): the deepest one crossing the middle line wins.
+  const pick = () => {
+    const mid = window.innerHeight * 0.45;
+    let current: string | null = null;
+    for (const s of sections) {
+      const r = s.getBoundingClientRect();
+      if (r.top <= mid && r.bottom > mid) current = s.id;
+    }
+    setActive(current);
+  };
+  let ticking = false;
+  window.addEventListener("scroll", () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => { pick(); ticking = false; });
+  }, { passive: true });
+  window.addEventListener("resize", pick);
+  window.addEventListener("load", pick);
+  pick();
+</script>

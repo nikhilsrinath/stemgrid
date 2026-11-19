@@ -1,0 +1,11 @@
+---
+// White keyed JST / Zap socket, centred on (x, y).
+interface Props { x: number; y: number; rot?: number }
+const { x, y, rot = 0 } = Astro.props;
+---
+<g transform={`translate(${x} ${y}) rotate(${rot})`}>
+  <rect x="-20" y="-12" width="40" height="24" rx="5" fill="#F4F1EA" stroke="#111" stroke-width="3" />
+  <rect x="-12" y="-4" width="5" height="9" rx="1" fill="#111" />
+  <rect x="-2.5" y="-4" width="5" height="9" rx="1" fill="#111" />
+  <rect x="7" y="-4" width="5" height="9" rx="1" fill="#111" />
+</g>

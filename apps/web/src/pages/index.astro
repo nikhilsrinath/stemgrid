@@ -1,0 +1,36 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/Header.astro";
+import Hero from "../components/Hero.astro";
+import WhoWeAre from "../components/WhoWeAre.astro";
+import Services from "../components/Services.astro";
+---
+<Base
+  title="StemGrid | STEM Labs, Robotics Kits & Tutors for Schools"
+  description="StemGrid brings real electronics, coding and robotics into classrooms with plug-and-play Quark Kits, trained tutors and Lab on Wheels at ₹0 hardware cost."
+>
+  <Header />
+  <main>
+    <Hero />
+    <WhoWeAre />
+    <Services />
+  </main>
+
+  <!-- Temporary footer until the contact section is built -->
+  <footer id="contact" class="temp-footer">
+    <p class="tf-head">Ready to put your school on the grid?</p>
+    <a class="tf-phone" href="tel:+918925172636">+91 89251 72636</a>
+    <p class="tf-site">stemgrid.in</p>
+  </footer>
+</Base>
+
+<style>
+  .temp-footer { background: var(--color-ink); color: var(--color-cream); text-align: center; padding: 90px 16px; }
+  .tf-head { font-family: var(--font-display); font-size: clamp(1.8rem, 3.6vw, 2.8rem); margin: 0; line-height: 1.05; }
+  .tf-phone {
+    display: inline-block; margin-top: 26px; padding: 14px 28px; border-radius: 999px; background: var(--color-cream); color: var(--color-red);
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: clamp(1rem, 1.8vw, 1.3rem); letter-spacing: .06em;
+    text-decoration: none; box-shadow: 0 6px 0 var(--color-red);
+  }
+  .tf-site { margin-top: 18px; font-family: var(--font-label); font-weight: 900; font-stretch: 125%; letter-spacing: .16em; text-transform: uppercase; font-size: 12px; }
+</style>
