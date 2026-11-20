@@ -5,6 +5,8 @@ const links = [
   { href: "#programs", label: "Programs" },
   { href: "#kit", label: "Quark Kit" },
 ];
+
+import { SIMULATOR_URL as simulatorUrl } from "../lib/site";
 ---
 <header class="site-header" data-header>
   <nav class="nav" aria-label="Main">
@@ -18,6 +20,7 @@ const links = [
     <ul class="nav-links" data-nav-links>
       <li class="nav-pill" aria-hidden="true"></li>
       {links.map((l) => <li><a href={l.href} data-nav-link>{l.label}</a></li>)}
+      <li><a href={simulatorUrl} class="nav-sim" aria-label="Simulator (beta)">Simulator<span class="nav-beta" aria-hidden="true">Beta</span></a></li>
     </ul>
 
     <div class="nav-right">
@@ -41,6 +44,7 @@ const links = [
       {links.map((l, i) => (
         <li><a href={l.href} data-nav-link><span class="ns-n">0{i + 1}</span>{l.label}</a></li>
       ))}
+      <li><a href={simulatorUrl}><span class="ns-n">0{links.length + 1}</span>Simulator<span class="ns-tag">Beta</span></a></li>
     </ul>
     <a href="tel:+918925172636" class="ns-phone">+91 89251 72636</a>
   </div>
@@ -85,6 +89,13 @@ const links = [
   }
   .nav-links a:hover { color: var(--color-ink); }
   .nav-links a.is-active { color: var(--color-cream); }
+  .nav-links a.nav-sim { display: flex; align-items: center; gap: 6px; color: var(--color-red); }
+  .nav-links a.nav-sim:hover { color: var(--color-red-dark); }
+  .nav-beta {
+    padding: 3px 6px; border-radius: 6px; background: var(--color-red); color: #fff;
+    font-size: 8.5px; letter-spacing: .14em; line-height: 1;
+  }
+  .nav-links a.nav-sim:hover .nav-beta { background: var(--color-red-dark); }
   .nav-pill {
     position: absolute; z-index: 0; top: 4px; left: 0; height: calc(100% - 8px); width: 0; border-radius: 9px;
     background: var(--color-ink); opacity: 0;
@@ -142,6 +153,10 @@ const links = [
   }
   .nav-sheet a.is-active { color: var(--color-red); }
   .ns-n { font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 10px; letter-spacing: .16em; color: var(--color-coral); }
+  .ns-tag {
+    margin-left: auto; padding: 5px 8px; border-radius: 7px; background: var(--color-red); color: #fff;
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase;
+  }
   .ns-phone {
     display: block; margin-top: 8px; padding: 13px; border-radius: 11px; text-align: center; background: var(--color-cream); color: var(--color-ink); text-decoration: none;
     font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 12px; letter-spacing: .1em;
