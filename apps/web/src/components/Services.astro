@@ -308,11 +308,16 @@ const ways = [
               )}
               </div>
               <div class="stp-copy">
-                <div class="lvl-tags">
-                  <span class="lvl-name">{l.name}</span>
-                  <span class="lvl-grades">{l.grades}</span>
+                <div class="lvl-head">
+                  <p class="lvl-grade" aria-label={l.grades}>
+                    <small aria-hidden="true">Grades</small>
+                    <b aria-hidden="true">{l.ticks[0]}–{l.ticks[l.ticks.length - 1]}</b>
+                  </p>
+                  <div class="lvl-id">
+                    <span class="lvl-name">{l.name}</span>
+                    <h4 class="lvl-title">{l.title}</h4>
+                  </div>
                 </div>
-                <h4 class="lvl-title">{l.title}</h4>
                 <p class="lvl-body">{l.body}</p>
                 <p class="lvl-sub">What they build</p>
                 <ul class="lvl-builds">{l.builds.map((b) => <li>{b}</li>)}</ul>
@@ -610,11 +615,23 @@ const ways = [
   .stp-art .lvl-svg { position: absolute; left: 20px; top: 16px; width: calc(100% - 40px); height: calc(100% - 26px); overflow: visible; }
   .stp-copy { flex: 1; display: flex; flex-direction: column; padding: 18px 22px 22px; }
 
-  .lvl-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .lvl-name, .lvl-grades { font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; padding: 6px 10px; border-radius: 999px; }
-  .lvl-name { background: var(--color-red); color: #fff; }
-  .lvl-grades { border: 2px solid var(--color-ink); }
-  .lvl-title { margin: 12px 0 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.35rem, 1.9vw, 1.75rem); line-height: 1.08; }
+  /* the grade range leads the card: a big sticker beside the level name and title */
+  .lvl-head { display: flex; align-items: center; gap: 14px; }
+  .lvl-grade {
+    flex: none; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-width: 96px; padding: 9px 12px 11px; border-radius: 16px;
+    background: var(--color-ink); color: var(--color-cream);
+    box-shadow: 4px 4px 0 var(--color-red); transform: rotate(-4deg);
+    transition: transform .3s cubic-bezier(.3, 1.6, .5, 1), box-shadow .2s;
+  }
+  .lvl-grade small { font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--color-coral, #FF8A6B); }
+  .lvl-grade b { margin-top: 3px; font-family: var(--font-display); font-weight: 400; font-size: clamp(2rem, 3vw, 2.6rem); line-height: .95; white-space: nowrap; }
+  .stp-card:hover .lvl-grade { transform: rotate(0) scale(1.06); box-shadow: 6px 6px 0 var(--color-red); }
+  .lvl-id { min-width: 0; }
+  .lvl-head + .lvl-body { margin-top: 14px; }
+  .lvl-name { display: inline-block; font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: var(--color-red); color: #fff; }
+  .lvl-title { margin: 8px 0 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.25rem, 1.7vw, 1.6rem); line-height: 1.08; }
+  @media (prefers-reduced-motion: reduce) { .lvl-grade { transition: none; } }
   .lvl-body { margin: 8px 0 0; font-size: 14.5px; line-height: 1.55; }
   .lvl-sub { margin: 16px 0 0; font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--color-red); }
   .lvl-builds { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 6px; }

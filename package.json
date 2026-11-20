@@ -2,8 +2,12 @@
   "name": "stemgrid",
   "private": true,
   "scripts": {
-    "dev": "pnpm --filter web dev",
-    "build": "pnpm --filter web build",
+    "dev": "pnpm --parallel --filter web --filter simulator dev",
+    "dev:web": "pnpm --filter web dev",
+    "dev:sim": "pnpm --filter simulator dev",
+    "build": "pnpm --filter web --filter simulator build",
+    "build:web": "pnpm --filter web build",
+    "build:sim": "pnpm --filter simulator build",
     "preview": "pnpm --filter web preview"
   }
 }

@@ -1,0 +1,279 @@
+/* Landing page. StemGrid red, cream and ink, with condensed display type (Big Shoulders Display)
+   in solid and outline, Lexend for reading, and schematic symbols as decoration.
+   Scroll effects read --p (0..1), which Scrub.tsx sets on every [data-scrub] element. */
+.page {
+  --red: #E4121B; --red-deep: #B30912; --cream: #FFF2DF; --ink: #111111; --orange: #FF8044; --muted: #5f564d;
+  --display: 'Big Shoulders Display', Impact, 'Arial Narrow', sans-serif;
+  --body: Lexend, system-ui, sans-serif;
+  background: var(--red);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 16px;
+  overflow-x: clip;
+}
+.page *, .page *::before, .page *::after { box-sizing: border-box; }
+.page a:focus-visible, .page button:focus-visible, .page input:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.hero a:focus-visible, .mission a:focus-visible { outline-color: var(--cream); }
+
+.wrap { width: min(1180px, 100%); margin: 0 auto; padding: 0 clamp(16px, 4vw, 40px); }
+.h2 {
+  margin: 0; font: 900 clamp(40px, 5.2vw, 72px)/.9 var(--display);
+  text-transform: uppercase; letter-spacing: -.005em;
+}
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---------- buttons ---------- */
+.run {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 13px 24px;
+  background: #fff; color: var(--ink);
+  border: 3px solid var(--ink); border-radius: 999px;
+  box-shadow: 5px 5px 0 var(--ink);
+  font: 600 16px var(--body);
+  text-decoration: none;
+  transition: transform .08s, box-shadow .08s, background .12s;
+}
+.run svg { color: var(--red); }
+.run:hover { background: var(--cream); }
+.run:active { transform: translate(4px, 4px); box-shadow: 1px 1px 0 var(--ink); }
+.ghostBtn {
+  color: var(--cream); font-weight: 500; font-size: 15px;
+  text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 6px;
+}
+.ghostBtn:hover { text-decoration-thickness: 3px; }
+
+/* =================== hero =================== */
+.hero {
+  --p: 0;
+  position: relative; min-height: 100vh; min-height: 100svh;
+  display: flex; flex-direction: column;
+  color: var(--cream); overflow: hidden;
+  padding-bottom: 40px;
+}
+/* fallback dots until HeroGrid draws (same look as the canvas) */
+.hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(var(--red-deep) 7px, transparent 8px);
+  background-size: 28px 28px; opacity: .55;
+}
+/* scalloped edge into the cream section below: a row of half pin-holes */
+.hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 22px; z-index: 2;
+  background: radial-gradient(circle at 50% 100%, var(--cream) 0 13.5px, transparent 14px) 0 100% / 28px 22px repeat-x;
+}
+
+.doodles { position: absolute; inset: 0; pointer-events: none; }
+.doodle {
+  position: absolute; height: auto; overflow: visible;
+  fill: none; stroke: var(--cream); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round;
+  opacity: .8;
+  transform: translateY(calc(var(--p) * var(--dy))) rotate(calc(var(--r0) + var(--p) * var(--dr)));
+}
+
+.nav {
+  position: relative; z-index: 3;
+  display: flex; align-items: center; gap: 28px;
+  width: min(1180px, 100%); margin: 0 auto; padding: 18px clamp(16px, 4vw, 40px);
+}
+.logo {
+  color: var(--cream); text-decoration: none; white-space: nowrap;
+  font: 900 30px/1 var(--display); text-transform: uppercase; letter-spacing: .01em;
+}
+.beta {
+  display: inline-block; vertical-align: 5px; margin-left: 8px;
+  padding: 4px 8px; border-radius: 999px; background: var(--ink); color: #fff;
+  font: 600 10px/1 var(--body); letter-spacing: .08em; text-transform: uppercase;
+}
+.links { display: flex; gap: 24px; margin-left: auto; }
+.links a { color: var(--cream); font-size: 14px; font-weight: 500; text-decoration: none; }
+.links a:hover { text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 2px; }
+.navCta {
+  padding: 9px 18px; border-radius: 999px; background: var(--ink); color: #fff; text-decoration: none;
+  font-size: 14px; font-weight: 600; white-space: nowrap; box-shadow: 3px 3px 0 var(--red-deep);
+}
+.navCta:hover { background: #2a2a2a; }
+
+.heroMain {
+  position: relative; z-index: 1; flex: 1;
+  display: flex; flex-direction: column; justify-content: center;
+  width: min(1180px, 100%); margin: 0 auto; padding: 8px clamp(16px, 4vw, 40px) 0;
+  pointer-events: none;
+}
+.heroMain a, .heroMain ul { pointer-events: auto; }
+.heroTop { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.badge {
+  display: inline-flex; align-items: center; gap: 9px; margin: 0 0 20px;
+  padding: 6px 14px 6px 11px; border-radius: 999px; background: var(--ink); color: #fff;
+  font-size: 13px; font-weight: 500;
+}
+.badge i { width: 9px; height: 9px; border-radius: 50%; background: #2BD46B; box-shadow: 0 0 0 4px rgba(43, 212, 107, .25); animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 7px rgba(43, 212, 107, 0); } }
+
+.title {
+  margin: 0; font: 900 clamp(46px, min(10.5vw, 15vh), 128px)/.84 var(--display);
+  text-transform: uppercase; letter-spacing: -.005em;
+}
+.title > span { display: block; animation: rise .8s cubic-bezier(.2, .9, .2, 1) both; }
+.r1 { text-shadow: 5px 5px 0 var(--red-deep); transform: translateX(calc(var(--p) * -22vw)); }
+.r2 {
+  color: transparent; -webkit-text-stroke: 2.5px var(--cream);
+  animation-delay: .08s !important; transform: translateX(calc(var(--p) * 22vw));
+}
+.r3 { position: relative; text-shadow: 5px 5px 0 var(--red-deep); animation-delay: .16s !important; transform: translateX(calc(var(--p) * -12vw)); }
+@keyframes rise { from { opacity: 0; translate: 0 .3em; } }
+.sticker {
+  position: absolute; right: -.4em; bottom: -.1em;
+  padding: .45em .9em; border: 3px solid var(--ink); border-radius: 999px;
+  background: var(--orange); color: var(--ink); box-shadow: 4px 4px 0 var(--ink);
+  font: 700 clamp(13px, 1.5vw, 19px)/1 var(--body); font-style: normal; text-transform: none; text-shadow: none;
+  white-space: nowrap; -webkit-text-stroke: 0;
+  transform: rotate(calc(-9deg + var(--p) * 40deg));
+}
+
+.heroFoot {
+  display: flex; flex-direction: column; align-items: center; gap: clamp(28px, 5vh, 44px);
+  margin-top: clamp(30px, 5vh, 52px);
+}
+.ctas { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 14px 24px; }
+.facts { list-style: none; margin: 0; padding: 0; width: min(780px, 100%); display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.facts li { border-top: 2px solid rgba(255, 242, 223, .55); padding-top: 12px; }
+.facts b { display: block; font: 800 22px/1 var(--display); text-transform: uppercase; letter-spacing: .01em; }
+.facts span { display: block; margin-top: 6px; font-size: 13px; line-height: 1.45; opacity: .9; }
+
+/* =================== technical partner =================== */
+.partner {
+  --p: .5;
+  padding: clamp(80px, 10vw, 130px) 0;
+  background: var(--cream);
+  overflow: hidden;
+}
+.partnerIn { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(32px, 6vw, 88px); align-items: center; }
+.partnerArt { position: relative; min-height: clamp(320px, 36vw, 440px); display: grid; place-items: center; }
+.stack {
+  position: absolute; inset: 0; margin: 0;
+  display: flex; flex-direction: column; justify-content: space-between;
+  font: 900 clamp(70px, 9.5vw, 136px)/.82 var(--display); text-transform: uppercase;
+  color: transparent; -webkit-text-stroke: 2px var(--red);
+}
+.stack span:first-child { transform: translateX(calc((var(--p) - .5) * -140px)); }
+.stack span:last-child { transform: translateX(calc((var(--p) - .5) * 140px)); text-align: right; }
+.logoCard {
+  position: relative; margin: 0; width: min(370px, 78%);
+  padding: clamp(30px, 4vw, 52px) clamp(24px, 3.5vw, 44px) 18px;
+  background: #fff; border: 3px solid var(--ink); border-radius: 24px; box-shadow: 8px 8px 0 var(--ink);
+  transform: translateY(calc((.5 - var(--p)) * 90px)) rotate(calc(-10deg + var(--p) * 14deg));
+}
+.logoCard img { display: block; width: 100%; height: auto; }
+.logoCard figcaption { margin-top: clamp(22px, 3vw, 32px); padding-top: 12px; border-top: 2px dashed #d9cdbb; font-size: 13px; font-weight: 500; color: var(--muted); }
+.partnerText p { margin: 18px 0 0; max-width: 46ch; font-size: 16px; line-height: 1.7; color: var(--muted); }
+.partnerText p:first-of-type { margin-top: 22px; color: var(--ink); font-size: 17px; }
+
+/* =================== mission (pinned, rows light up) =================== */
+.mission {
+  position: relative;
+  background: var(--red); color: var(--cream);
+  border-top: 3px solid var(--ink);
+}
+.mission::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(var(--red-deep) 7px, transparent 8px);
+  background-size: 28px 28px; opacity: .4;
+}
+.missionTrack { --p: 0; position: relative; height: 220vh; }
+.missionPin {
+  position: sticky; top: 0; height: 100vh; height: 100svh;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+  padding: 40px clamp(16px, 4vw, 40px);
+}
+.missionH { margin: 0 0 18px; font: 800 clamp(20px, 2vw, 26px)/1 var(--display); text-transform: uppercase; letter-spacing: .06em; }
+.rows { margin: 0; font: 900 clamp(54px, min(11vw, 16vh), 150px)/.84 var(--display); text-transform: uppercase; }
+.rows span {
+  --on: clamp(0, calc(var(--p) * 4.4 - var(--i) - .5), 1);
+  display: block;
+  color: rgb(255 242 223 / var(--on));
+  /* unlit: thin cream outline. lit: cream fill with an ink outline drawn outside the letters */
+  -webkit-text-stroke: calc(2.5px + var(--on) * 5.5px) color-mix(in srgb, var(--ink) calc(var(--on) * 100%), var(--cream));
+  paint-order: stroke fill;
+  text-shadow:
+    calc(var(--on) * 6px) calc(var(--on) * 6px) 0 rgb(179 9 18 / var(--on)),
+    0 0 calc(var(--on) * 30px) rgb(255 128 68 / calc(var(--on) * .7));
+  opacity: calc(.45 + var(--on) * .55);
+  transform: scale(calc(.96 + var(--on) * .04));
+}
+.missionP { margin: 28px 0 0; max-width: 56ch; font-size: clamp(15px, 1.3vw, 17px); line-height: 1.7; }
+.pillars {
+  position: relative;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(20px, 3vw, 44px);
+  padding-bottom: clamp(70px, 9vw, 110px);
+}
+.pillars > div { border-top: 3px solid var(--cream); padding-top: 16px; }
+.pillars h3 { margin: 0; font: 800 26px/1 var(--display); text-transform: uppercase; }
+.pillars p { margin: 10px 0 0; font-size: 15px; line-height: 1.6; max-width: 34ch; opacity: .92; }
+
+/* =================== waitlist =================== */
+.waitlist {
+  --p: .5;
+  position: relative; overflow: hidden;
+  padding: clamp(80px, 10vw, 130px) clamp(16px, 4vw, 40px);
+  background: var(--orange);
+  border-top: 3px solid var(--ink);
+}
+/* a tiled sheet of schematic symbols that slides sideways as you scroll */
+.pattern {
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='140' fill='none' stroke='%23111' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 34h16l6-14 12 28 12-28 12 28 6-14h16'/%3E%3Cpath d='M160 14v22M140 36h40M148 46h24M156 56h8'/%3E%3Cpath d='M14 106h30M44 88v36M58 88v36M58 106h30'/%3E%3Ccircle cx='170' cy='106' r='17'/%3E%3C/svg%3E");
+  background-size: 220px 140px;
+  background-position: calc(var(--p) * 360px) calc(var(--p) * -120px);
+  opacity: .22;
+}
+.wlCard {
+  position: relative; max-width: 620px; margin: 0 auto; text-align: center;
+  padding: clamp(30px, 5vw, 52px) clamp(20px, 5vw, 52px);
+  background: var(--cream); border: 3px solid var(--ink); border-radius: 26px; box-shadow: 10px 10px 0 var(--ink);
+  transform: translateY(calc((.5 - var(--p)) * 80px)) rotate(calc((.5 - var(--p)) * -3deg));
+}
+.wlP { margin: 16px auto 0; max-width: 44ch; font-size: 16px; line-height: 1.65; color: var(--muted); }
+.form { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+.form input {
+  flex: 1 1 220px; min-width: 0; padding: 14px 20px;
+  border: 3px solid var(--ink); border-radius: 999px; background: #fff;
+  font: 400 16px var(--body); color: var(--ink);
+}
+.form input[aria-invalid="true"] { border-color: var(--red); }
+.form button {
+  flex: none; padding: 14px 24px; cursor: pointer;
+  border: 3px solid var(--ink); border-radius: 999px; background: var(--red); color: #fff;
+  box-shadow: 5px 5px 0 var(--ink); font: 600 16px var(--body);
+  transition: transform .08s, box-shadow .08s;
+}
+.form button:active { transform: translate(4px, 4px); box-shadow: 1px 1px 0 var(--ink); }
+.form button:disabled { opacity: .7; cursor: progress; }
+.wlErr { flex-basis: 100%; margin: 4px 0 0; min-height: 1.4em; font-size: 14px; color: var(--red-deep); font-weight: 500; text-align: left; padding-left: 20px; }
+.wlErr:empty { margin: 0; min-height: 0; }
+.wlDone { margin: 26px 0 0; padding: 14px 18px; border: 3px solid var(--ink); border-radius: 18px; background: #fff; font-weight: 500; line-height: 1.5; }
+.wlAlt { margin: 18px 0 0; font-size: 14px; color: var(--muted); }
+.wlAlt a { color: var(--ink); font-weight: 600; text-underline-offset: 3px; }
+
+/* =================== responsive =================== */
+@media (max-width: 960px) {
+  .links { display: none; }
+  .nav { justify-content: space-between; }
+  .partnerIn { grid-template-columns: 1fr; }
+  .pillars { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .doodles { display: none; }  /* they cross the headline at phone width */
+  .navCta { padding: 8px 14px; font-size: 13px; }
+  /* phones: the title is the hero. Bigger, so each row wraps onto two lines, centred in the screen */
+  .heroMain { padding-bottom: 24px; }
+  .title { font-size: clamp(44px, 16vw, 76px); line-height: .86; }
+  .r2 { -webkit-text-stroke-width: 1.8px; }
+  .sticker { right: 0; bottom: -1.5em; }
+  .facts { display: none; }
+  .rows { font-size: clamp(48px, 15vw, 80px); }
+  .form button { flex: 1 1 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title > span, .badge i { animation: none; }
+}
