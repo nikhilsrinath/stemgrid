@@ -80,7 +80,8 @@ renderLibrary();
 const stage = document.getElementById('stage');
 const canvas = document.getElementById('c');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+// the landing-page demo is always shown scaled down, so it needs fewer pixels (keeps scrolling smooth)
+renderer.setPixelRatio(Math.min(devicePixelRatio, DEMO ? 1.25 : 1.5));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 renderer.shadowMap.autoUpdate = false;

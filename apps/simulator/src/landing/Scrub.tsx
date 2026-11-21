@@ -16,27 +16,33 @@ export default function Scrub() {
   useEffect(() => {
     const els = [...document.querySelectorAll<HTMLElement>('[data-scrub]')];
     const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const last = els.map(() => '');
     let raf = 0;
     const update = () => {
-      raf = 0;
+      cancelAnimationFrame(raf); raf = 0;
       const vh = innerHeight;
-      for (const el of els) {
-        const r = el.getBoundingClientRect();
+      // read every rect first, then write: interleaving would force a layout per element
+      const rects = els.map(el => el.getBoundingClientRect());
+      els.forEach((el, i) => {
+        const r = rects[i];
         const mode = (el.dataset.scrub || 'through') as keyof typeof REST;
         let p = mode === 'pin' ? -r.top / Math.max(1, r.height - vh)
           : mode === 'out' ? -r.top / Math.max(1, r.height)
           : (vh - r.top) / (vh + r.height);
         if (still) p = REST[mode] ?? 0.5;
-        el.style.setProperty('--p', Math.min(1, Math.max(0, p)).toFixed(4));
-      }
+        const v = Math.min(1, Math.max(0, p)).toFixed(4);
+        if (v !== last[i]) { last[i] = v; el.style.setProperty('--p', v); }   // off-screen ones stay put: no restyle
+      });
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
     update();
     addEventListener('scroll', onScroll, { passive: true });
+    addEventListener('sg:scroll', update);   // SmoothScroll.tsx, same frame as it scrolls
     addEventListener('resize', onScroll);
     return () => {
       cancelAnimationFrame(raf);
       removeEventListener('scroll', onScroll);
+      removeEventListener('sg:scroll', update);
       removeEventListener('resize', onScroll);
     };
   }, []);

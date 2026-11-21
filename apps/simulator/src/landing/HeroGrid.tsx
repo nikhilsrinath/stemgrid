@@ -55,14 +55,18 @@ export default function HeroGrid() {
           const rad = (now - r.t0) * 0.75, d = Math.abs(Math.hypot(x - r.x, y - r.y) - rad);
           if (d < 46) target = Math.max(target, (1 - d / 46) * Math.max(0, 1 - rad / 1400));
         }
-        const v = lit[k] = Math.max(lit[k] * 0.93, target) ;
+        const prev = lit[k];
+        let v = Math.max(prev * 0.93, target);
+        if (v < 0.03 && target === 0) v = 0;            // snap the tail of the fade so it can settle
+        lit[k] = v;
         const l = v * dim[k];
-        if (l > 0.01) any = true;
+        if (Math.abs(v - prev) > 0.002) any = true;   // still fading or brightening
         ctx.fillStyle = colour(l);
         ctx.beginPath(); ctx.arc(x, y, R + l * 1.5, 0, Math.PI * 2); ctx.fill();
       }
       for (let n = ripples.length - 1; n >= 0; n--) if ((now - ripples[n].t0) * 0.75 > 1400 + 60) ripples.splice(n, 1);
-      return any || ripples.length > 0 || active;
+      // keep looping only while something changes; a resting pointer wakes it again on move
+      return any || ripples.length > 0;
     };
 
     const loop = (now: number) => {

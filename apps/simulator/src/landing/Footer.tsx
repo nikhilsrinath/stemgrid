@@ -9,6 +9,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import f from './footer.module.css';
+import { smoothTo } from './SmoothScroll';
 
 const WORD = 'STEMGRID'.split('');
 
@@ -138,7 +139,7 @@ export default function Footer({ siteUrl }: { siteUrl: string }) {
 
         <div className={f.bar}>
           <p>© {new Date().getFullYear()} StemGrid. All rights reserved.</p>
-          <a href="#top" className={f.top} onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }}>
+          <a href="#top" className={f.top} onClick={(e) => { e.preventDefault(); smoothTo(0); }}>
             Back to top
             <span className={f.topBtn} aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7" /></svg>

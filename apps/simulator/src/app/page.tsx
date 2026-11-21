@@ -4,6 +4,7 @@ import BuildDemo from '../landing/BuildDemo';
 import Footer from '../landing/Footer';
 import HeroGrid from '../landing/HeroGrid';
 import Scrub from '../landing/Scrub';
+import SmoothScroll from '../landing/SmoothScroll';
 import Waitlist from '../landing/Waitlist';
 import s from './landing.module.css';
 
@@ -30,6 +31,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NODE_ENV === '
 export default function Home() {
   return (
     <main className={s.page}>
+      <SmoothScroll />
       <Scrub />
 
       {/* ---------- hero ---------- */}

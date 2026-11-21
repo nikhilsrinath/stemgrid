@@ -46,15 +46,19 @@ export default function BuildDemo() {
   /* scroll → p → drive the simulator every frame while the section is on screen */
   useEffect(() => {
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let cur = -1, raf = 0, on = false, lastStep = -1, lastDone = false;
+    let cur = -1, raf = 0, on = false, lastStep = -1, lastDone = false, lastT = 0, isReady = false;
     const target = () => {
       const r = sec.current!.getBoundingClientRect();
       return clamp(-r.top / Math.max(1, r.height - innerHeight));
     };
-    const loop = () => {
+    const loop = (now: number) => {
       raf = on ? requestAnimationFrame(loop) : 0;
+      // light, frame-rate independent catch-up: SmoothScroll already eases wheel scrolling,
+      // this only softens jumps (keys, scrollbar, touch flicks) without stacking lag
+      const dt = lastT ? Math.min((now - lastT) / 1000, 0.05) : 1 / 60;
+      lastT = now;
       const t = target();
-      cur = cur < 0 || reduce ? t : cur + (t - cur) * 0.12;
+      cur = cur < 0 || reduce ? t : cur + (t - cur) * (1 - Math.exp(-dt * 16));
       if (Math.abs(t - cur) < 0.0002) cur = t;
       if (bar.current) bar.current.style.transform = `scaleX(${cur})`;
       let st = 0; STEP_AT.forEach((a, i) => { if (cur >= a) st = i; });
@@ -63,7 +67,7 @@ export default function BuildDemo() {
 
       const demo = (frame.current?.contentWindow as (Window & { __sgDemo?: Demo }) | null)?.__sgDemo;
       if (!demo) return;
-      setReady(true);
+      if (!isReady) { isReady = true; setReady(true); }
       const f = demo.set(cur);
       const c = cursor.current;
       if (c) {
@@ -88,7 +92,7 @@ export default function BuildDemo() {
     };
     const io = new IntersectionObserver(([e]) => {
       on = e.isIntersecting;
-      if (on && !raf) raf = requestAnimationFrame(loop);
+      if (on && !raf) { lastT = 0; raf = requestAnimationFrame(loop); }
     }, { rootMargin: '200px' });
     io.observe(sec.current!);
     return () => { io.disconnect(); cancelAnimationFrame(raf); on = false; };

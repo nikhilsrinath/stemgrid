@@ -68,6 +68,7 @@
   fill: none; stroke: var(--cream); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round;
   opacity: .8;
   transform: translateY(calc(var(--p) * var(--dy))) rotate(calc(var(--r0) + var(--p) * var(--dr)));
+  will-change: transform;
 }
 
 .nav {
@@ -113,7 +114,7 @@
   margin: 0; font: 900 clamp(46px, min(10.5vw, 15vh), 128px)/.84 var(--display);
   text-transform: uppercase; letter-spacing: -.005em;
 }
-.title > span { display: block; animation: rise .8s cubic-bezier(.2, .9, .2, 1) both; }
+.title > span { display: block; animation: rise .8s cubic-bezier(.2, .9, .2, 1) both; will-change: transform; }
 .r1 { text-shadow: 5px 5px 0 var(--red-deep); transform: translateX(calc(var(--p) * -22vw)); }
 .r2 {
   color: transparent; -webkit-text-stroke: 2.5px var(--cream);
@@ -128,6 +129,7 @@
   font: 700 clamp(13px, 1.5vw, 19px)/1 var(--body); font-style: normal; text-transform: none; text-shadow: none;
   white-space: nowrap; -webkit-text-stroke: 0;
   transform: rotate(calc(-9deg + var(--p) * 40deg));
+  will-change: transform;
 }
 
 .heroFoot {
@@ -155,6 +157,7 @@
   font: 900 clamp(70px, 9.5vw, 136px)/.82 var(--display); text-transform: uppercase;
   color: transparent; -webkit-text-stroke: 2px var(--red);
 }
+.stack span { will-change: transform; }
 .stack span:first-child { transform: translateX(calc((var(--p) - .5) * -140px)); }
 .stack span:last-child { transform: translateX(calc((var(--p) - .5) * 140px)); text-align: right; }
 .logoCard {
@@ -162,6 +165,7 @@
   padding: clamp(30px, 4vw, 52px) clamp(24px, 3.5vw, 44px) 18px;
   background: #fff; border: 3px solid var(--ink); border-radius: 24px; box-shadow: 8px 8px 0 var(--ink);
   transform: translateY(calc((.5 - var(--p)) * 90px)) rotate(calc(-10deg + var(--p) * 14deg));
+  will-change: transform;
 }
 .logoCard img { display: block; width: 100%; height: auto; }
 .logoCard figcaption { margin-top: clamp(22px, 3vw, 32px); padding-top: 12px; border-top: 2px dashed #d9cdbb; font-size: 13px; font-weight: 500; color: var(--muted); }
@@ -218,12 +222,14 @@
   background: var(--orange);
   border-top: 3px solid var(--ink);
 }
-/* a tiled sheet of schematic symbols that slides sideways as you scroll */
+/* a tiled sheet of schematic symbols that slides sideways as you scroll. Oversized and moved
+   with a transform (composited) rather than background-position (a full repaint per frame). */
 .pattern {
-  position: absolute; inset: 0;
+  position: absolute; top: 0; right: 0; bottom: -140px; left: -440px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='140' fill='none' stroke='%23111' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10 34h16l6-14 12 28 12-28 12 28 6-14h16'/%3E%3Cpath d='M160 14v22M140 36h40M148 46h24M156 56h8'/%3E%3Cpath d='M14 106h30M44 88v36M58 88v36M58 106h30'/%3E%3Ccircle cx='170' cy='106' r='17'/%3E%3C/svg%3E");
   background-size: 220px 140px;
-  background-position: calc(var(--p) * 360px) calc(var(--p) * -120px);
+  transform: translate3d(calc(var(--p) * 360px), calc(var(--p) * -120px), 0);
+  will-change: transform;
   opacity: .22;
 }
 .wlCard {
@@ -231,6 +237,7 @@
   padding: clamp(30px, 5vw, 52px) clamp(20px, 5vw, 52px);
   background: var(--cream); border: 3px solid var(--ink); border-radius: 26px; box-shadow: 10px 10px 0 var(--ink);
   transform: translateY(calc((.5 - var(--p)) * 80px)) rotate(calc((.5 - var(--p)) * -3deg));
+  will-change: transform;
 }
 .wlP { margin: 16px auto 0; max-width: 44ch; font-size: 16px; line-height: 1.65; color: var(--muted); }
 .form { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
