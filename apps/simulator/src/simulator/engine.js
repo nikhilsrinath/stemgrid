@@ -7,7 +7,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 
-export function startSimulator() {
+// opts.onChange(): called after any change to the build (parts, wiring, code, panel settings).
+export function startSimulator(opts = {}) {
   // Window and document listeners are tracked so stop() can remove them.
   // The original script calls the global addEventListener (window) directly; this shadows it.
   const offs = [];
@@ -1962,6 +1963,8 @@ insp.addEventListener('click', e => {
   if (a === 'breathe') breathe(selected);
   if (selected?.def) selected.def.sim?.action?.(selected, a);
 });
+insp.addEventListener('input', () => opts.onChange?.());
+insp.addEventListener('click', () => opts.onChange?.());
 insp.addEventListener('input', e => {
   const o = selected; if (o?.type !== 'module') return;
   if (e.target.id === 'usRange' && o.kind === 'ultrasonic') { o.state.distance = +e.target.value; syncUs(o); kick(); }
@@ -2371,10 +2374,13 @@ const clearBtn = document.getElementById('clearBtn'); let clearArmed = 0;
 clearBtn.onclick = () => {
   if (!clearArmed) { clearArmed = setTimeout(() => { clearArmed = 0; clearBtn.classList.remove('armed'); clearBtn.textContent = 'Clear all'; }, 2500); clearBtn.classList.add('armed'); clearBtn.textContent = 'Click again to clear'; return; }
   clearTimeout(clearArmed); clearArmed = 0; clearBtn.classList.remove('armed'); clearBtn.textContent = 'Clear all';
+  clearScene(); changed();
+};
+function clearScene() {
   [...cables].forEach(removeCable); [...modules].forEach(removeModule); [...plates].forEach(removePlate);
   Object.keys(counters).forEach(k => counters[k] = 0);
-  select(null); changed();
-};
+  select(null);
+}
 
 /* =====================================================================
    UI STATE
@@ -2389,6 +2395,7 @@ function changed() {
     `<span class="chip ${links ? 'on' : ''}"><i></i>${links} plugged in</span>`;
   emptyEl.classList.toggle('hide', plates.length > 0 || !!sideDrag || !!drag);
   renderInspector(); renderCode(); kick();
+  if (!DEMO) opts.onChange?.();
 }
 const toastEl = document.getElementById('toast'); let toastT;
 function toast(s) { toastEl.textContent = s; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 2200); }
@@ -3275,6 +3282,7 @@ function placeCodeLine() {
   ceLine.style.display = line ? 'block' : 'none'; ceLine.classList.toggle('err', !!err);
   if (line) ceLine.style.top = (10 + (line - 1) * 20 - ceTa.scrollTop) + 'px';
 }
+ceTa.addEventListener('input', () => { if (!DEMO) opts.onChange?.(); });
 ceTa.addEventListener('input', () => { if (codeBoard) { codeBoard.code = ceTa.value; if (codeBoard.codeErr && !codeBoard.prog) { codeBoard.codeErr = null; updateCodeUI(true); } } paintCode(); });
 ceTa.addEventListener('scroll', syncCodeScroll);
 ceTa.addEventListener('keydown', e => {
@@ -3730,10 +3738,133 @@ while True:
   };
 }
 
+/* =====================================================================
+   SAVE + LOAD
+   serialize() turns the build into plain JSON (the page saves it to Supabase);
+   load(data) rebuilds it, snapping everything into place with no fly-in.
+   Format v1:
+     { v, camera: { pos, target },
+       plates:  [{ id, name, x, z }],
+       modules: [{ id, kind, name, plate (plate id | null), lx, lz, yaw, pos?, code?, state? }],
+       cables:  [{ id, name, plugs: [ { port: [moduleId, portIdx], flipped } | { rest: [x, y, z], yaw, flipped } ] x2 }] }
+   Only what the student set is saved: each kind's knobs are listed in PERSIST. Running
+   programs are not saved (projects reopen stopped). New engine state worth keeping
+   must be added here.
+   ===================================================================== */
+const SAVE_V = 1;
+const PERSIST = {
+  ultrasonic: ['distance'], dht11: ['temp', 'hum'], light: ['room', 'covered'], pot: ['v'],
+  servo: ['target', 'mode', 'follow'], buzzer: ['vol', 'mode', 'follow'],
+};
+const r3 = n => Math.round(n * 1000) / 1000;
+const xyz = v => [r3(v.x), r3(v.y), r3(v.z)];
+function serialize() {
+  const plugOut = p => {
+    const at = p.state === 'connected' ? p.port : p.state === 'insert' ? { module: p.insert.m, idx: p.insert.idx } : null;
+    if (at) return { port: [at.module.id, at.idx], flipped: p.flipped };
+    const w = p.state === 'rest' ? p.target : p.group.position;
+    return { rest: xyz(w), yaw: r3(p.yawT), flipped: p.flipped };
+  };
+  return {
+    v: SAVE_V,
+    camera: { pos: xyz(camera.position), target: xyz(controls.target) },
+    plates: plates.map(p => ({ id: p.id, name: p.name, x: r3(p.target.x), z: r3(p.target.z) })),
+    modules: modules.map(m => {
+      const o = { id: m.id, kind: m.kind, name: m.name, plate: m.plate?.id ?? null, lx: r3(m.lx), lz: r3(m.lz), yaw: r3(m.yaw) };
+      if (!m.plate) o.pos = xyz(m.dragging ? m.group.position : m.raw);
+      if (m.def.board && m.code != null) o.code = m.code;
+      const keys = PERSIST[m.kind];
+      if (keys) o.state = Object.fromEntries(keys.map(k => [k, m.state[k]]));
+      return o;
+    }),
+    cables: cables.map(c => ({ id: c.id, name: c.name, plugs: c.plugs.map(plugOut) })),
+  };
+}
+function load(data) {
+  modules.forEach(m => m.prog && stopCode(m, true));
+  clearScene();
+  if (codeOpen) toggleCode(false);
+  ceTa.dataset.board = '';
+  if (!data || !Array.isArray(data.plates)) { changed(); return; }
+  const byId = new Map();
+  let maxId = 0, skipped = 0;
+  const seen = id => { maxId = Math.max(maxId, id | 0); return id; };
+  for (const d of data.plates) {
+    const p = makePlate(); p.id = seen(d.id); if (d.name) p.name = d.name;
+    p.target.set(+d.x || 0, 0, +d.z || 0); p.group.position.copy(p.target);
+    byId.set('p' + p.id, p);
+  }
+  for (const d of data.modules || []) {
+    if (!MODULES[d.kind]) { skipped++; continue; }
+    const m = makeModule(d.kind); m.id = seen(d.id); if (d.name) m.name = d.name;
+    m.yaw = +d.yaw || 0; m.group.rotation.y = m.yaw;
+    const plate = d.plate != null ? byId.get('p' + d.plate) : null;
+    if (plate) {
+      m.plate = plate; m.lx = +d.lx || 0; m.lz = +d.lz || 0;
+      m.group.position.set(plate.target.x + m.lx, PT, plate.target.z + m.lz); settle(m);
+    } else {
+      m.plate = null; m.raw.set(...(d.pos || [0, PT, 0])); m.group.position.copy(m.raw);
+    }
+    m.group.updateMatrixWorld(true);
+    if (m.def.board && typeof d.code === 'string') m.code = d.code;
+    const keys = PERSIST[m.kind];
+    if (keys && d.state) for (const k of keys) if (k in d.state && typeof d.state[k] === typeof m.state[k]) m.state[k] = d.state[k];
+    // jump the smoothed values straight to the saved settings
+    const s = m.state;
+    if (m.kind === 'dht11') { s.st = s.temp; s.sh = s.hum; s.read = { t: s.temp, h: s.hum }; }
+    if (m.kind === 'light') { s.coverK = s.covered ? 1 : 0; s.level = s.read = s.room; }
+    if (m.kind === 'pot') s.read = Math.round(s.v);
+    if (m.kind === 'servo') s.ang = s.target;
+    byId.set('m' + m.id, m);
+  }
+  for (const d of data.cables || []) {
+    const c = makeCable(); c.id = seen(d.id); if (d.name) c.name = d.name;
+    (d.plugs || []).slice(0, 2).forEach((pd, i) => {
+      const p = c.plugs[i]; p.flipped = !!pd.flipped; p.inner.rotation.z = p.flipped ? Math.PI : 0;
+      const m = pd.port && byId.get('m' + pd.port[0]), pt = m?.ports[pd.port[1]];
+      if (pt && !pt.plug) {
+        p.state = 'connected'; p.port = { module: m, idx: pd.port[1] }; pt.plug = p;
+        p.group.position.copy(m.group.localToWorld(portLocal(pt, 0, pt.y, -INSERT_DEPTH)));
+        p.group.rotation.y = p.yawT = m.group.rotation.y + pt.rot;
+      } else {
+        const w = pd.rest ? V(...pd.rest) : m ? m.group.localToWorld(V(0, 0, m.def.foot.z1 + 1.2)) : V(0, 0, 0);
+        p.state = 'rest'; p.target.copy(w); p.target.y = surfaceY(w.x, w.z) + REST_Y; p.group.position.copy(p.target);
+        p.group.rotation.y = p.yawT = +pd.yaw || 0;
+      }
+    });
+  }
+  uid = maxId + 1;
+  for (const [k, list] of [['plate', plates], ['module', modules], ['cable', cables]]) {
+    counters[k] = list.reduce((n, o) => Math.max(n, +(/(\d+)$/.exec(o.name)?.[1] ?? 0)), 0);
+  }
+  const cam = data.camera;
+  if (cam?.pos && cam?.target) {
+    camTween = null; camera.position.set(...cam.pos); controls.target.set(...cam.target);
+    zoomDist = camera.position.distanceTo(controls.target); controls.update();
+  }
+  if (skipped) toast(`${skipped} part${skipped > 1 ? 's' : ''} in this build aren't in the simulator any more, so they were left out.`);
+  changed();
+}
+// a small picture of the table for the projects page (webp Blob, 480 x 300)
+function snapshot() {
+  return new Promise(resolve => {
+    const was = selFrame.visible; selFrame.visible = false;
+    renderer.render(scene, camera);
+    const W = 480, H = 300, out = document.createElement('canvas'); out.width = W; out.height = H;
+    const sw = canvas.width, sh = canvas.height, k = Math.max(W / sw, H / sh);
+    const cw = W / k, ch = H / k;
+    out.getContext('2d').drawImage(canvas, (sw - cw) / 2, (sh - ch) / 2, cw, ch, 0, 0, W, H);
+    selFrame.visible = was; kick();
+    out.toBlob(b => resolve(b), 'image/webp', 0.82);
+  });
+}
+
 changed();
   /* ======================== original script ends ======================== */
 
-  return function stop() {
+  return { stop, serialize, load, snapshot, toast, isEmpty: () => !plates.length && !modules.length && !cables.length };
+
+  function stop() {
     renderer.setAnimationLoop(null);
     resizeObs.disconnect();
     offs.forEach(off => off());
@@ -3748,5 +3879,5 @@ changed();
     document.querySelectorAll('.dragchip').forEach(c => c.remove());
     renderer.dispose();
     renderer.forceContextLoss();
-  };
+  }
 }

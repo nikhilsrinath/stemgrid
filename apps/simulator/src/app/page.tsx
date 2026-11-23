@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import BuildDemo from '../landing/BuildDemo';
 import Footer from '../landing/Footer';
 import HeroGrid from '../landing/HeroGrid';
+import NavAccount from '../landing/NavAccount';
 import Scrub from '../landing/Scrub';
 import SmoothScroll from '../landing/SmoothScroll';
 import Waitlist from '../landing/Waitlist';
@@ -55,6 +56,7 @@ export default function Home() {
             <a href="#partner">Partner</a>
             <a href="#mission">Mission</a>
             <a href={SITE_URL}>StemGrid ↗</a>
+            <NavAccount />
           </div>
           <a href="#waitlist" className={s.navCta}>Join the waitlist</a>
         </nav>
