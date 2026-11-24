@@ -1,11 +1,11 @@
-/* Scroll-scrubbed build: the real simulator in an iframe (1280×800, scaled to fit). */
+/* Scroll-scrubbed build: the real simulator in an iframe (1280×800, scaled to fit; keep .stage and
+   the iframe at exactly 1280×800, the W/H that BuildDemo.tsx scales by).
+   Inherits the landing tokens (--ink, --red, --paper, --grey ...) from .page. */
 .sec {
-  --red: #E4121B; --cream: #FFF2DF; --ink: #111111; --orange: #FF8044;
   position: relative;
   height: 640vh;
-  background: var(--cream);
+  background: #fff;
   color: var(--ink);
-  border-bottom: 3px solid var(--ink);
 }
 .sticky {
   position: sticky;
@@ -13,83 +13,105 @@
   height: 100vh;
   height: 100svh;
   display: grid;
-  grid-template-columns: minmax(270px, 330px) 1fr;
-  gap: 36px;
+  grid-template-columns: minmax(297px, 374px) 1fr;
+  gap: 44px;
   align-items: center;
-  padding: 28px clamp(16px, 3vw, 48px);
+  padding: 30.8px clamp(17.6px, 3vw, 52.8px);
   box-sizing: border-box;
   overflow: hidden;
 }
 
 /* ---------- left: the steps ---------- */
-.h2 { margin: 0 0 22px; font: 900 clamp(38px, 3.6vw, 56px)/.88 var(--display, Impact, sans-serif); text-transform: uppercase; }
-.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.h2 { margin: 0 0 22px; font: 600 clamp(26.4px, 2.2vw, 35.2px)/1.12 var(--display, 'Plus Jakarta Sans', sans-serif); letter-spacing: -.035em; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 4.4px; }
 .steps li {
-  display: grid; grid-template-columns: 34px 1fr; gap: 12px;
-  padding: 12px 14px;
-  border: 2.5px solid transparent; border-radius: 16px;
-  opacity: .38;
-  transition: opacity .25s, background .25s, border-color .25s, box-shadow .25s;
+  display: grid; grid-template-columns: 35.2px 1fr; gap: 13.2px;
+  padding: 13.2px 15.4px;
+  border-radius: 19.8px;
+  opacity: .4;
+  transition: opacity .25s, background .25s, box-shadow .25s;
 }
-.steps li.past { opacity: .62; }
-.steps li.on { opacity: 1; background: #fff; border-color: var(--ink); box-shadow: 5px 5px 0 var(--ink); }
-.steps b { display: block; font-size: 15.5px; font-weight: 600; line-height: 1.3; }
-.steps p { margin: 4px 0 0; font-size: 13.5px; line-height: 1.55; color: #4d463f; display: none; }
+.steps li.past { opacity: .6; }
+.steps li.on { opacity: 1; background: var(--paper, #F3F3F5); }
+.steps b { display: block; font-size: 16px; font-weight: 600; line-height: 1.35; letter-spacing: -.01em; }
+.steps p { margin: 5.5px 0 0; font-size: 14.3px; line-height: 1.6; color: var(--grey, #5E5E69); display: none; }
 .steps li.on p { display: block; }
-.n { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; border: 2.5px solid var(--ink); font: 800 17px/1 var(--display, sans-serif); background: #fff; box-sizing: border-box; }
-.on .n { background: var(--orange); }
-.past .n { background: var(--ink); color: #fff; }
-.rail { margin-top: 20px; height: 8px; border: 2px solid var(--ink); border-radius: 99px; overflow: hidden; background: #fff; }
-.rail i { display: block; height: 100%; background: var(--red); transform-origin: left; transform: scaleX(0); }
-.done { margin: 18px 0 0; font: 800 24px/1 var(--display, sans-serif); text-transform: uppercase; opacity: 0; transform: translateY(8px); transition: opacity .3s, transform .3s; }
+.n { width: 33px; height: 33px; border-radius: 50%; display: grid; place-items: center; font: 600 15.4px/1 var(--body, sans-serif); background: var(--paper, #F3F3F5); color: var(--grey, #5E5E69); box-shadow: inset 0 0 0 1px var(--line, #E4E4EA); }
+.on .n { background: var(--red); color: #fff; box-shadow: 0 0 0 5.5px rgb(228 18 27 / .14); }
+.past .n { background: var(--ink); color: #fff; box-shadow: none; }
+.rail { margin-top: 24.2px; height: 6.6px; border-radius: 108.9px; overflow: hidden; background: var(--paper, #F3F3F5); }
+.rail i { display: block; height: 100%; border-radius: 108.9px; background: var(--red); transform-origin: left; transform: scaleX(0); }
+.done { margin: 19.8px 0 0; font-size: 17.6px; font-weight: 600; letter-spacing: -.02em; opacity: 0; transform: translateY(8.8px); transition: opacity .3s, transform .3s; }
 .done.doneOn { opacity: 1; transform: none; }
 
 /* ---------- right: the simulator ---------- */
-.fit { position: relative; height: min(80vh, 700px); min-width: 0; display: grid; place-items: center; }
+.fit { position: relative; height: min(76vh, 704px); min-width: 0; display: grid; place-items: center; }
 .frame {
   position: relative; overflow: hidden;
-  border: 3px solid var(--ink); border-radius: 20px;
-  box-shadow: 10px 10px 0 var(--ink);
+  border-radius: 28.6px;
+  box-shadow: 0 0 0 8.8px var(--paper, #F3F3F5), 0 44px 88px -44px rgb(23 23 28 / .45);
   background: var(--red);
 }
 .stage { position: absolute; left: 0; top: 0; width: 1280px; height: 800px; transform-origin: 0 0; pointer-events: none; }
 .stage iframe { display: block; width: 1280px; height: 800px; border: 0; }
-.loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--cream); font-weight: 800; font-size: 16px; background: var(--red); }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-weight: 600; font-size: 17.6px; background: var(--red); }
 
 /* pointer + the part card it carries out of the parts list */
 .cursor { position: absolute; left: 0; top: 0; width: 0; height: 0; opacity: 0; z-index: 3; }
-.cursor svg { position: absolute; left: -7px; top: -5px; filter: drop-shadow(4px 5px 0 rgba(17, 17, 17, .35)); transition: transform .12s; }
+.cursor svg { position: absolute; left: -7.7px; top: -5.5px; filter: drop-shadow(0 6.6px 8.8px rgba(23, 23, 28, .35)); transition: transform .12s; }
 .cursor.down svg { transform: scale(.85); }
-.ring { position: absolute; left: -44px; top: -44px; width: 88px; height: 88px; border-radius: 50%; border: 6px solid #fff; opacity: 0; box-sizing: border-box; }
+.ring { position: absolute; left: -48.4px; top: -48.4px; width: 96.8px; height: 96.8px; border-radius: 50%; border: 6.6px solid #fff; opacity: 0; box-sizing: border-box; }
 .card {
   position: absolute; left: 0; top: 0; z-index: 2; opacity: 0; transform-origin: 0 0;
-  display: flex; align-items: center; gap: 10px;
-  padding: 7px 14px 7px 7px;
-  background: #fff; border: 2.5px solid var(--ink); border-radius: 14px; box-shadow: 5px 5px 0 var(--ink);
-  font-family: Poppins, system-ui, sans-serif;
+  display: flex; align-items: center; gap: 11px;
+  padding: 7.7px 15.4px 7.7px 7.7px;
+  background: #fff; border-radius: 17.6px; box-shadow: 0 15.4px 33px -11px rgba(23, 23, 28, .45);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
 }
-.card img { width: 52px; height: 52px; object-fit: cover; border-radius: 10px; background: var(--cream); }
-.card b { font-size: 15px; font-weight: 800; white-space: nowrap; }
+.card img { width: 57.2px; height: 57.2px; object-fit: cover; border-radius: 12.1px; background: #F3F3F5; }
+.card b { font-size: 16.5px; font-weight: 600; white-space: nowrap; }
 
-/* ---------- small screens: steps on top, simulator below ---------- */
-@media (max-width: 900px) {
+/* ---------- stacked (phones, tablets): one composed screen ----------
+   heading + progress on top, the simulator filling every pixel in between (BuildDemo.tsx scales it
+   to the slot's height and pans it to follow the pointer), and the current step as a card floating
+   over its bottom edge. .copy dissolves (display: contents) so its parts can sit around the window. */
+@media (max-width: 990px) {
   .sec { height: 560vh; }
-  .sticky { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 14px; padding-top: 20px; padding-bottom: 24px; align-items: start; }
-  .h2 { font-size: 32px; margin-bottom: 12px; }
-  .steps li { display: none; padding: 10px 12px; }
-  .steps li.on { display: grid; }
-  .rail { margin-top: 12px; }
+  .sticky {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-areas: "head" "rail" "sim" "step";
+    gap: 0; align-items: stretch;
+    padding: 19.8px 13.2px 15.4px;
+  }
+  .copy { display: contents; }
+  .h2 { grid-area: head; margin: 0; font-size: clamp(22px, 6.2vw, 28.6px); text-wrap: balance; }
+  .rail { grid-area: rail; margin: 13.2px 0 15.4px; height: 5.5px; }
+  .fit { grid-area: sim; height: auto; min-height: 0; display: block; }
+  .frame {
+    border-radius: 24.2px;
+    box-shadow: 0 0 0 5.5px var(--paper, #F3F3F5), 0 26.4px 52.8px -30.8px rgb(23 23 28 / .5);
+  }
+  .steps { grid-area: step; position: relative; z-index: 4; margin: -48.4px 11px 0; }
+  .steps li { display: none; }
+  .steps li.on {
+    display: grid; opacity: 1; min-height: 121px; align-content: start;
+    padding: 15.4px 17.6px 17.6px;
+    background: rgb(255 255 255 / .94);
+    -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4);
+    box-shadow: 0 22px 44px -22px rgb(23 23 28 / .45), 0 0 0 1px rgb(23 23 28 / .05);
+  }
+  .steps b { font-size: 16.5px; }
+  .steps p { font-size: 14.3px; line-height: 1.55; }
   .done { display: none; }
-  .fit { height: 100%; }
-  .frame { box-shadow: 6px 6px 0 var(--ink); border-radius: 14px; }
 }
 
 /* short laptop screens: tighten the steps so the last line fits */
-@media (min-width: 901px) and (max-height: 720px) {
-  .h2 { font-size: 36px; margin-bottom: 14px; }
-  .steps li { padding: 8px 12px; }
-  .steps b { font-size: 14.5px; }
-  .steps p { font-size: 13px; }
-  .rail { margin-top: 12px; }
-  .done { margin-top: 10px; font-size: 20px; }
+@media (min-width: 991.1px) and (max-height: 792px) {
+  .h2 { font-size: 26.4px; margin-bottom: 15.4px; }
+  .steps li { padding: 8.8px 13.2px; }
+  .steps b { font-size: 16px; }
+  .steps p { font-size: 14.3px; }
+  .rail { margin-top: 13.2px; }
+  .done { margin-top: 11px; font-size: 18.7px; }
 }

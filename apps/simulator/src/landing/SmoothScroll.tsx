@@ -3,7 +3,7 @@
 /* Inertial smooth scrolling for the landing page (no dependency).
    - Mouse wheels and trackpads: the wheel sets a target and the page eases towards it every
      frame, so notched Windows wheels glide instead of jumping 100px at a time.
-   - In-page links (#how, #waitlist…) and smoothTo() run a timed ease to the target.
+   - In-page links (#how, #partners…) and smoothTo() run a timed ease to the target.
    - Anything else that scrolls the page (scrollbar drag, keys, find-in-page, touch) is left
      native; we just follow it.
    After every frame it scrolls, it fires 'sg:scroll' so Scrub.tsx can update --p in the same

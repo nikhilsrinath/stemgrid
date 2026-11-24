@@ -977,7 +977,7 @@ function buzzerPanel(m) {
 // the sound itself: one square-wave oscillator per buzzer, softened a little so it isn't harsh in headphones
 function buzzSound(m, f) {
   if (!f && !m.snd) return;
-  try { actx = actx || new AudioContext(); } catch { return; }
+  try { audio(); } catch { return; }
   if (!m.snd) {
     const o = actx.createOscillator(), lp = actx.createBiquadFilter(), g = actx.createGain();
     o.type = 'square'; lp.type = 'lowpass'; lp.frequency.value = 3500; g.gain.value = 0;
@@ -2399,10 +2399,15 @@ function changed() {
 }
 const toastEl = document.getElementById('toast'); let toastT;
 function toast(s) { toastEl.textContent = s; toastEl.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove('show'), 2200); }
-let actx;
+let actx, muted = false;
+// the one audio context for every sound; created on first use, and born paused while muted (demo off screen)
+function audio() {
+  if (!actx) { actx = new AudioContext(); if (muted) actx.suspend(); }
+  return actx;
+}
 function click(pitch = 1) {
   try {
-    actx = actx || new AudioContext();
+    audio();
     const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime;
     o.type = 'square'; o.frequency.setValueAtTime(1800 * pitch, t); o.frequency.exponentialRampToValueAtTime(400 * pitch, t + 0.05);
     g.gain.setValueAtTime(0.08, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
@@ -3713,6 +3718,12 @@ while True:
   }
 
   window.__sgDemo = {
+    // the landing page switches sound off whenever the demo is off screen, so the buzzer can't
+    // keep beeping after you scroll past it
+    sound(on) {
+      muted = !on;
+      if (actx) (on ? actx.resume() : actx.suspend()).catch(() => {});
+    },
     set(p) {
       // bring the next part into view in the parts list, like scrolling to it by hand
       const next = S.mods.find(d => p < d.t[0] + (d.t[1] - d.t[0]) * 0.3);

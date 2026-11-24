@@ -7,8 +7,8 @@
 
 import { useEffect, useRef } from 'react';
 
-const GAP = 28, R = 7.5;
-const DEEP: [number, number, number] = [201, 13, 22];     // unlit hole: #B30912 at 55% over the red, same as the CSS fallback
+const GAP = 28.6, R = 5; // matches the .hero::before fallback in landing.module.css
+const DEEP: [number, number, number] = [196, 10, 19];     // unlit hole: a darker red, same as the CSS fallback in landing.module.css
 const HOT: [number, number, number] = [255, 128, 68];     // #FF8044, module orange
 const CREAM: [number, number, number] = [255, 242, 223];  // #FFF2DF
 
@@ -50,7 +50,7 @@ export default function HeroGrid() {
       for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
         const k = j * cols + i, x = i * GAP + GAP / 2, y = j * GAP + GAP / 2;
         let target = 0;
-        if (active) { const d = Math.hypot(x - px, y - py); if (d < 150) target = (1 - d / 150) ** 1.6; }
+        if (active) { const d = Math.hypot(x - px, y - py); if (d < 165) target = (1 - d / 165) ** 1.6; }
         for (const r of ripples) {
           const rad = (now - r.t0) * 0.75, d = Math.abs(Math.hypot(x - r.x, y - r.y) - rad);
           if (d < 46) target = Math.max(target, (1 - d / 46) * Math.max(0, 1 - rad / 1400));
@@ -62,7 +62,7 @@ export default function HeroGrid() {
         const l = v * dim[k];
         if (Math.abs(v - prev) > 0.002) any = true;   // still fading or brightening
         ctx.fillStyle = colour(l);
-        ctx.beginPath(); ctx.arc(x, y, R + l * 1.5, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y, R + l * 3, 0, Math.PI * 2); ctx.fill();
       }
       for (let n = ripples.length - 1; n >= 0; n--) if ((now - ripples[n].t0) * 0.75 > 1400 + 60) ripples.splice(n, 1);
       // keep looping only while something changes; a resting pointer wakes it again on move

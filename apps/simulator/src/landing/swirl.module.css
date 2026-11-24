@@ -1,0 +1,10 @@
+/* Swirl.tsx: a fixed full-screen layer. Sections that should sit above it need position + z-index 1. */
+.clip { position: fixed; inset: 0; z-index: 0; pointer-events: none; visibility: hidden; overflow: hidden; }
+.reveal { position: absolute; inset: 0; background: #A1070E; }
+/* a square that covers any screen at any rotation */
+.svg {
+  position: absolute; left: 50%; top: 50%;
+  width: 150vmax; height: 150vmax;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}

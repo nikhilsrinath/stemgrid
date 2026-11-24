@@ -1,0 +1,97 @@
+/* The problem section (Problem.tsx). A tall track with a sticky stage: the story on the left, the
+   plate-hole globe on the right. Problem.tsx sets --p (0..1) on the track and, on each beat,
+   --v (0..1, how visible it is) and --dir (1 entering from below, -1 leaving upwards).
+   Sizes follow the rest of the landing page (laid out for 100% zoom, a touch larger than usual). */
+
+.problem { position: relative; z-index: 1; }   /* above the swirl layer, so the globe dives over it */
+.track { --p: 0; position: relative; height: 700vh; }
+.stage {
+  position: sticky; top: 0; height: 100vh; height: 100svh;
+  width: min(1298px, 100%); margin: 0 auto;
+  padding: 0 clamp(17.6px, 3vw, 35.2px);
+  display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); align-items: center;
+  gap: clamp(17.6px, 3vw, 44px);
+}
+
+/* ---------- the story: beats stacked in one spot, crossfading ---------- */
+.story { position: relative; z-index: 1; height: min(462px, 72svh); }
+.beat {
+  --v: 0; --dir: 1;
+  position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center;
+  opacity: var(--v);
+  translate: 0 calc((1 - var(--v)) * var(--dir) * 39.6px);
+  filter: blur(calc((1 - var(--v)) * 6px));
+  visibility: hidden;
+  will-change: opacity, translate;
+}
+.beat:first-child { --v: 1; visibility: visible; }
+
+.lead {
+  margin: 0; max-width: 15em;
+  font: 600 clamp(28.6px, 3.3vw, 46.2px)/1.1 var(--display); letter-spacing: -.03em; text-wrap: balance;
+}
+.stat {
+  margin: 0; color: var(--ink);
+  font: 700 clamp(70.4px, 9.2vw, 154px)/.95 var(--display); letter-spacing: -.055em;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.body {
+  margin: 19.8px 0 0; max-width: 40ch;
+  color: var(--grey); font-size: clamp(15.4px, 1.2vw, 17.6px); line-height: 1.6; text-wrap: pretty;
+}
+.stat + .body { margin-top: 15.4px; color: var(--ink); }
+.src { margin: 17.6px 0 0; color: var(--grey-2); font-size: 12.1px; line-height: 1.5; }
+
+.limits { list-style: none; margin: 26.4px 0 0; padding: 0; display: grid; gap: 11px; max-width: 32em; }
+.limits li {
+  position: relative; padding-left: 28.6px;
+  color: var(--ink); font-size: clamp(15.4px, 1.2vw, 17.6px); line-height: 1.5;
+}
+/* a dead LED for a bullet */
+.limits li::before {
+  content: ""; position: absolute; left: 2.2px; top: .45em;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #D6D6DD, #9C9CA6);
+  box-shadow: inset 0 1px 2px rgb(23 23 28 / .25);
+}
+
+/* the turn: the number goes red */
+.turn .stat { color: var(--red); }
+.turn .body { max-width: 42ch; }
+
+/* ---------- the 3D scene ---------- */
+/* the canvas covers the whole stage (so the globe can never be clipped by its column); .globe only
+   marks where the ball sits, and the camera is offset to put it there */
+.canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; z-index: 0; pointer-events: none; }
+.globe { position: relative; height: 100%; min-height: 0; }
+
+/* ---------- progress: a row of plate holes, lit as the story moves on ---------- */
+.rail {
+  position: absolute; z-index: 1; left: clamp(17.6px, 3vw, 35.2px); bottom: clamp(22px, 5svh, 44px);
+  list-style: none; margin: 0; padding: 0; display: flex; gap: 8.8px;
+  opacity: calc(1 - clamp(0, (var(--p) - .88) * 12, 1));      /* gone before the swirl takes over */
+}
+.rail li {
+  width: 9.9px; height: 9.9px; border-radius: 50%;
+  background: #D4D4DB; box-shadow: inset 0 1px 2px rgb(23 23 28 / .22);
+  transition: background .3s, box-shadow .3s;
+}
+.rail li[data-on] { background: var(--red-hot); box-shadow: 0 0 0 3.3px rgb(255 42 51 / .16), 0 0 11px rgb(255 42 51 / .6); }
+
+/* ---------- smaller screens: globe on top, story underneath ---------- */
+@media (max-width: 1056px) {
+  .stage { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; align-items: stretch; gap: 0; padding-top: 8.8px; }
+  .globe { grid-row: 1; }
+  .story { grid-row: 2; height: clamp(242px, 36svh, 352px); }
+  .beat { justify-content: flex-start; }
+  .rail { left: auto; right: clamp(17.6px, 3vw, 35.2px); bottom: auto; top: 22px; }
+}
+@media (max-width: 704px) {
+  .stat { font-size: clamp(57.2px, 17vw, 88px); }
+  .src { font-size: 11px; }
+  .limits { gap: 6.6px; margin-top: 17.6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .beat { filter: none; translate: none; }
+}

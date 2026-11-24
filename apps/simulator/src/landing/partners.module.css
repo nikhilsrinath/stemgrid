@@ -1,0 +1,129 @@
+/* Partners (Partners.tsx): a red card like the hero's, pinned while its word rolls. Everything
+   moves off --p (0..1 across the pinned stretch), which Scrub.tsx sets on the track
+   (data-scrub="pin"); with reduced motion it rests at 1 (the last word, everything in place). */
+
+.partners { padding-bottom: clamp(35.2px, 4vw, 52.8px); }
+/* one screen of card, plus a scroll's worth of travel for each change of word */
+.track { --p: 0; position: relative; height: 330vh; }
+.pin {
+  position: sticky; top: 0; height: 100vh; height: 100svh;
+  display: grid; padding: clamp(8.8px, 1.2vw, 17.6px);
+}
+.card {
+  position: relative; overflow: hidden; isolation: isolate; min-height: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(39.6px, 7svh, 88px) clamp(19.8px, 5vw, 66px);
+  border-radius: clamp(22px, 2.4vw, 35.2px);
+  background:
+    radial-gradient(60% 50% at 50% 38%, rgb(255 80 70 / .3), transparent 70%),
+    radial-gradient(130% 100% at 50% 0%, #EC1A22 0%, var(--red) 50%, #C20D16 100%);
+  color: #fff; text-align: center;
+}
+/* the plate holes, drifting up a little slower than the page */
+.card::before {
+  content: ""; position: absolute; inset: -60px 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(rgb(170 6 14 / .38) 5px, transparent 6.1px);
+  background-size: 28.6px 28.6px;
+  translate: 0 calc((var(--p) - .5) * 60px);
+}
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ---------- real renders, floating at different depths ---------- */
+.float {
+  position: absolute; z-index: -1; pointer-events: none; height: auto;
+  filter: drop-shadow(0 26px 30px rgb(90 0 6 / .45));
+  translate: 0 calc((var(--p) - .5) * -190px * var(--d));
+  rotate: calc((var(--p) - .5) * var(--r) * 2deg);
+}
+.f1 { width: clamp(132px, 17vw, 264px); left: -2%; top: 6%; }
+.f2 { width: clamp(110px, 13vw, 209px); right: 1%; top: 4%; }
+.f3 { width: clamp(110px, 11vw, 198px); left: -2.5%; bottom: 3%; }
+.f4 { width: clamp(121px, 12.5vw, 220px); right: -3.5%; bottom: 2%; }
+
+/* ---------- the line, with its rolling last word ---------- */
+.h2 {
+  margin: 0 auto; display: grid; justify-items: center; gap: .1em;
+  font: 600 clamp(36.3px, min(5.6vw, 9.5svh), 88px)/1.06 var(--display); letter-spacing: -.045em;
+}
+.drum {
+  display: inline-block; height: 1.2em; overflow: hidden; vertical-align: top;
+  padding: 0 .3em; border-radius: .24em;
+  background: #fff; color: var(--ink); font-style: italic; letter-spacing: -.04em;
+  box-shadow: 0 .12em .34em rgb(110 0 8 / .35);
+  rotate: calc(-2deg + (var(--p) - .5) * 3deg);
+}
+/* school -> academy -> institute -> university across the pinned stretch.
+   --q runs 0..3; each step only turns over in the middle quarter of its unit, so every word
+   holds, then rolls quickly to the next */
+.roll {
+  --q: calc((var(--p) - .04) / .88 * 3);
+  --k: calc(clamp(0, (var(--q) - .375) * 4, 1) + clamp(0, (var(--q) - 1.375) * 4, 1) + clamp(0, (var(--q) - 2.375) * 4, 1));
+  display: block; translate: 0 calc(var(--k) * -1.2em);
+}
+.roll span { display: block; height: 1.2em; line-height: 1.2; text-align: center; }
+
+.lede {
+  margin: clamp(19.8px, 2.4vw, 30.8px) auto 0; max-width: 50ch;
+  font-size: clamp(15.4px, 1.25vw, 18.7px); line-height: 1.6; color: rgb(255 255 255 / .86);
+}
+
+/* ---------- ways to work together ---------- */
+.ways {
+  list-style: none; margin: clamp(26.4px, 5svh, 61.6px) auto 0; padding: 0; max-width: 1056px; width: 100%;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(11px, 1.4vw, 17.6px); text-align: left;
+}
+.ways li {
+  padding: 22px 22px 24.2px; border-radius: 22px;
+  background: rgb(255 255 255 / .1);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / .2);
+}
+.ways h3 { display: flex; align-items: center; gap: 9.9px; margin: 0; font-size: clamp(17.6px, 1.4vw, 20.9px); font-weight: 600; letter-spacing: -.02em; }
+/* a lit LED for a bullet */
+.ways h3::before { content: ""; flex: none; width: 9.9px; height: 9.9px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3.3px rgb(255 255 255 / .2), 0 0 12px #fff; }
+.ways p { margin: 8.8px 0 0; font-size: 14.9px; line-height: 1.55; color: rgb(255 255 255 / .82); }
+
+/* ---------- call to action ---------- */
+.ctaRow { display: flex; justify-content: center; gap: 8.8px; flex-wrap: wrap; margin-top: clamp(22px, 4svh, 48.4px); }
+.go, .call {
+  display: inline-flex; align-items: center; justify-content: center; padding: 14.3px 26.4px; border-radius: 14.3px;
+  font: 600 15.4px var(--body); text-decoration: none; white-space: nowrap; transition: transform .15s, background .15s;
+}
+.go { background: #fff; color: var(--red); box-shadow: 0 17.6px 35.2px -17.6px rgb(90 0 6 / .7); }
+.go:hover { background: #FFF2F2; }
+.call { color: #fff; box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / .55); }
+.call:hover { background: rgb(255 255 255 / .12); }
+.go:active, .call:active { transform: scale(.97); }
+.card a:focus-visible { outline-color: #fff !important; }
+
+/* ---------- smaller screens ---------- */
+@media (max-width: 860px) {
+  .ways { grid-template-columns: minmax(0, 1fr); max-width: 520px; gap: 8.8px; }
+  .ways li { padding: 13.2px 17.6px 15.4px; }
+  .ways p { font-size: 13.8px; margin-top: 4.4px; }
+  .f1 { width: 30vw; left: -8%; top: 1.5%; }
+  .f2 { width: 24vw; right: -5%; top: 1%; }
+  .f3, .f4 { display: none; }
+}
+/* phones: one centred column that fits the screen. A single render on top, the line, a short
+   lede, the three ways as compact rows, and both buttons full width. */
+@media (max-width: 560px) {
+  .pin { padding: 8.8px; }
+  .card { justify-content: center; padding: 22px 17.6px 22px; }
+  .card::before { background-size: 24.2px 24.2px; }
+  .f1, .f2, .f3 { display: none; }
+  .f4 {
+    display: block; position: relative; inset: auto; z-index: 0; align-self: center;
+    width: min(52vw, 26svh); margin: 0 0 6.6px;
+    translate: 0 calc((var(--p) - .5) * -16px); rotate: calc((var(--p) - .5) * -6deg);
+  }
+  .h2 { font-size: clamp(28.6px, 8.6vw, 37.4px); line-height: 1.08; text-wrap: balance; }
+  .lead { max-width: 9.5em; }
+  .lede { margin-top: 13.2px; max-width: 32ch; font-size: 14.3px; line-height: 1.5; }
+  .ways { margin-top: 19.8px; gap: 6.6px; }
+  .ways li { padding: 11px 15.4px; border-radius: 15.4px; }
+  .ways h3 { font-size: 15.4px; }
+  .ways p { display: none; }
+  .ctaRow { flex-direction: column; gap: 8.8px; margin-top: 17.6px; }
+  .go, .call { width: 100%; padding: 14.3px 13.2px; }
+}
