@@ -1,0 +1,10 @@
+[
+  { "key": "staff", "label": "StemGrid staff", "host": "admin", "email": "staff@demo.local", "password": "demo-staff-123", "home": "/enquiries" },
+  { "key": "bright-admin", "label": "Bright Minds admin", "host": "learn", "slug": "bright-minds", "email": "admin@brightminds.demo", "password": "demo-admin-123", "home": "/bright-minds/admin/dashboard" },
+  { "key": "bright-priya", "label": "Priya (teacher, 2 batches)", "host": "learn", "slug": "bright-minds", "email": "priya@brightminds.demo", "password": "demo-teacher-123", "home": "/bright-minds/teacher/batches" },
+  { "key": "bright-arun", "label": "Arun (teacher, 1 batch)", "host": "learn", "slug": "bright-minds", "email": "arun@brightminds.demo", "password": "demo-teacher-123", "home": "/bright-minds/teacher/batches" },
+  { "key": "bright-ravi", "label": "Ravi (student)", "host": "learn", "slug": "bright-minds", "username": "ravi-k", "pin": "482915", "home": "/bright-minds/student/home" },
+  { "key": "bright-meera", "label": "Meera (student)", "host": "learn", "slug": "bright-minds", "username": "meera-s", "pin": "735102", "home": "/bright-minds/student/home" },
+  { "key": "nova-admin", "label": "Nova Robotics admin", "host": "learn", "slug": "nova-robotics", "email": "admin@nova.demo", "password": "demo-admin-123", "home": "/nova-robotics/admin/dashboard" },
+  { "key": "spark-admin", "label": "Spark STEM admin", "host": "learn", "slug": "spark-stem", "email": "admin@spark.demo", "password": "demo-admin-123", "home": "/spark-stem/admin/dashboard" }
+]

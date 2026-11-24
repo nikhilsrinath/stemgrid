@@ -5,9 +5,13 @@
     "dev": "pnpm --parallel --filter web --filter simulator dev",
     "dev:web": "pnpm --filter web dev",
     "dev:sim": "pnpm --filter simulator dev",
-    "build": "pnpm --filter web --filter simulator build",
+    "build": "pnpm --filter web --filter simulator --filter portal build",
     "build:web": "pnpm --filter web build",
     "build:sim": "pnpm --filter simulator build",
-    "preview": "pnpm --filter web preview"
+    "preview": "pnpm --filter web preview",
+    "dev:portal": "pnpm --filter portal dev",
+    "build:portal": "pnpm --filter portal build",
+    "portal:local": "pnpm --filter portal local",
+    "portal:reset": "pnpm --filter portal reset"
   }
 }

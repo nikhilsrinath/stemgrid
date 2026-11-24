@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>StemGrid Portal · UI preview (demo data)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Same design as apps/portal/src/ui/ui.module.css (class names without the CSS-module hashing). */
+:root {
+  --red:#E3121B; --red-deep:#B20912; --red-soft:#FDE8E8; --cream:#FFF3E0; --cream-2:#FFF8EE;
+  --ink:#18181B; --label:#3F3F46; --dim:#71717A; --dim-2:#A1A1AA; --line:rgb(24 24 27/.08);
+  --ok:#15803D; --ok-soft:#DCFCE7; --warn:#B45309; --warn-soft:#FEF3C7; --bad:#B91C1C; --bad-soft:#FEE2E2;
+  --card:rgb(255 255 255/.78); --shadow:0 1px 2px rgb(24 24 27/.04),0 8px 28px rgb(24 24 27/.07);
+  --shadow-lg:0 2px 6px rgb(24 24 27/.05),0 24px 60px rgb(24 24 27/.12); --font:'Plus Jakarta Sans',system-ui,sans-serif;
+}
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; }
+.root { min-height:100vh; color:var(--ink); font:400 14.5px/1.5 var(--font); -webkit-font-smoothing:antialiased; padding-bottom:70px;
+  background: radial-gradient(1200px 600px at 100% -10%, rgb(227 18 27/.07), transparent 60%), radial-gradient(900px 500px at -10% 110%, rgb(255 160 80/.12), transparent 60%), var(--cream-2); }
+.root a { color:inherit; } .root h1,.root h2,.root h3,.root p { margin:0; }
+.root :focus-visible { outline:2px solid var(--red); outline-offset:2px; }
+.logo { display:inline-flex; align-items:center; gap:9px; text-decoration:none; font:700 16px/1 var(--font); letter-spacing:-.02em; }
+.mark { display:grid; grid-template-columns:1fr 1fr; gap:2.4px; width:22px; height:22px; padding:4.6px; border-radius:6px; background:var(--red); flex:none; }
+.mark i { border-radius:50%; background:#fff; }
+.instInitials { display:grid; place-items:center; width:34px; height:34px; border-radius:9px; background:var(--ink); color:#fff; font-weight:700; font-size:13px; flex:none; }
+.instInitials.lg { width:64px; height:64px; border-radius:16px; font-size:22px; }
+.instInitials.red { background:linear-gradient(135deg,#E3121B,#9E0710); }
+.top { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:18px; padding:10px clamp(14px,3vw,28px); background:rgb(255 251 245/.72); backdrop-filter:saturate(1.4) blur(14px); box-shadow:0 1px 0 var(--line); }
+.brand { display:flex; align-items:center; gap:10px; min-width:0; text-decoration:none; cursor:pointer; }
+.brandName { font-weight:700; letter-spacing:-.01em; white-space:nowrap; display:block; }
+.brandSub { display:block; color:var(--dim); font-size:11.5px; font-weight:500; }
+.nav { display:flex; gap:2px; margin-left:8px; overflow-x:auto; scrollbar-width:none; }
+.navLink { padding:7px 12px; border-radius:9px; text-decoration:none; color:var(--label); font-weight:600; font-size:13.5px; white-space:nowrap; cursor:pointer; }
+.navLink:hover { background:rgb(24 24 27/.05); }
+.navLink.on { background:#fff; color:var(--ink); box-shadow:var(--shadow); }
+.who { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.whoName { text-align:right; font-weight:600; font-size:13px; line-height:1.2; } .whoName span { display:block; color:var(--dim); font-weight:500; font-size:11.5px; }
+.main { width:min(1160px,100%); margin:0 auto; padding:26px clamp(14px,3vw,28px) 60px; }
+.narrow { width:min(760px,100%); margin:0 auto; }
+.pageHead { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:20px; }
+.h1 { font:700 clamp(24px,3vw,30px)/1.15 var(--font); letter-spacing:-.03em; }
+.h2 { font:700 17px/1.3 var(--font); letter-spacing:-.015em; margin-bottom:12px !important; }
+.h3 { font:700 14.5px/1.3 var(--font); }
+.lead { color:var(--dim); margin-top:4px !important; max-width:70ch; }
+.muted { color:var(--dim); } .small { font-size:12.5px; }
+.mono { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; letter-spacing:.02em; }
+.code { font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:700; font-size:20px; letter-spacing:.14em; }
+.card { background:var(--card); border-radius:18px; box-shadow:var(--shadow); padding:clamp(16px,2.4vw,22px); backdrop-filter:blur(10px); }
+.cardTight { background:var(--card); border-radius:18px; box-shadow:var(--shadow); overflow:hidden; }
+.stack { display:flex; flex-direction:column; gap:16px; }
+.row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.between { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+.grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+.grid3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+.grid4 { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+.mb { margin-bottom:16px; }
+.divider { height:1px; background:var(--line); margin:14px 0; border:0; }
+.stat { background:var(--card); border-radius:18px; box-shadow:var(--shadow); padding:clamp(16px,2.4vw,22px); display:flex; flex-direction:column; gap:4px; }
+.statLabel { color:var(--dim); font-size:12.5px; font-weight:600; } .statValue { font:700 26px/1.1 var(--font); letter-spacing:-.03em; } .statNote { color:var(--dim); font-size:12.5px; }
+.meter { height:10px; border-radius:99px; background:rgb(24 24 27/.07); overflow:hidden; margin:4px 0; }
+.meter i { display:block; height:100%; border-radius:99px; background:var(--ok); }
+.meter.warn i { background:#F59E0B; } .meter.full i { background:var(--red); }
+.banner { display:flex; gap:12px; align-items:flex-start; padding:12px 16px; border-radius:14px; font-weight:500; }
+.info { background:#EEF2FF; color:#3730A3; } .okBox { background:var(--ok-soft); color:var(--ok); } .warnBox { background:var(--warn-soft); color:var(--warn); } .badBox { background:var(--bad-soft); color:var(--bad); }
+.badge { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:99px; font-size:11.5px; font-weight:700; white-space:nowrap; background:rgb(24 24 27/.06); color:var(--label); }
+.badge.ok { background:var(--ok-soft); color:var(--ok); } .badge.warn { background:var(--warn-soft); color:var(--warn); } .badge.bad { background:var(--bad-soft); color:var(--bad); } .badge.red { background:var(--red-soft); color:var(--red-deep); } .badge.blue { background:#E0E7FF; color:#3730A3; }
+.form { display:flex; flex-direction:column; gap:14px; }
+.formRow { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; }
+.field { display:flex; flex-direction:column; gap:6px; min-width:0; }
+.label { font-size:13px; font-weight:600; color:var(--label); } .hint { font-size:12px; color:var(--dim); font-weight:400; }
+.input,.select,.textarea { width:100%; padding:10px 12px; border:0; border-radius:11px; background:#fff; color:var(--ink); font:500 14.5px var(--font); box-shadow:inset 0 0 0 1px rgb(24 24 27/.12),0 1px 2px rgb(24 24 27/.04); }
+.input:focus,.select:focus,.textarea:focus { outline:none; box-shadow:inset 0 0 0 1.5px var(--red),0 0 0 4px rgb(227 18 27/.1); }
+.textarea { min-height:90px; resize:vertical; }
+.pinInput { width:100%; padding:10px 12px; border:0; border-radius:11px; background:#fff; box-shadow:inset 0 0 0 1px rgb(24 24 27/.12); font:700 22px/1 ui-monospace,Menlo,Consolas,monospace; letter-spacing:.4em; text-align:center; }
+.check { display:flex; gap:10px; align-items:flex-start; font-size:13.5px; line-height:1.45; } .check input { margin-top:3px; accent-color:var(--red); width:16px; height:16px; flex:none; }
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; border:0; border-radius:11px; cursor:pointer; text-decoration:none; white-space:nowrap; font:700 14px/1.1 var(--font); background:var(--red); color:#fff !important; box-shadow:0 1px 2px rgb(178 9 18/.3),0 6px 18px rgb(227 18 27/.22); }
+.btn:hover { background:#CC0F18; }
+.btnGhost { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 16px; border:0; border-radius:11px; cursor:pointer; text-decoration:none; white-space:nowrap; font:700 14px/1.1 var(--font); background:#fff; color:var(--ink) !important; box-shadow:inset 0 0 0 1px rgb(24 24 27/.1),0 1px 2px rgb(24 24 27/.05); }
+.btnGhost:hover { background:#fafafa; } .btnDanger { color:var(--bad) !important; }
+.btnDark { background:var(--ink) !important; box-shadow:0 6px 18px rgb(24 24 27/.2) !important; }
+.btnSmall { padding:7px 11px !important; font-size:13px !important; border-radius:9px !important; }
+.btnLink { border:0; background:none; padding:0; color:var(--red-deep); font:600 13.5px var(--font); cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.full { width:100%; }
+.seg { display:inline-grid; grid-auto-flow:column; gap:3px; padding:4px; border-radius:13px; background:rgb(24 24 27/.06); }
+.seg button,.seg a { border:0; border-radius:10px; padding:8px 16px; background:none; font:700 13.5px var(--font); color:var(--label); cursor:pointer; text-decoration:none; text-align:center; }
+.seg .on { background:#fff; color:var(--ink); box-shadow:var(--shadow); }
+.tableWrap { overflow-x:auto; }
+.table { width:100%; border-collapse:collapse; font-size:13.5px; }
+.table th { text-align:left; padding:10px 14px; color:var(--dim); font-size:12px; font-weight:700; white-space:nowrap; background:rgb(24 24 27/.025); }
+.table td { padding:11px 14px; border-top:1px solid var(--line); vertical-align:middle; }
+.table tr.dim td { color:var(--dim-2); }
+.table a { font-weight:600; text-decoration:none; cursor:pointer; } .table a:hover { text-decoration:underline; }
+.num { text-align:right !important; font-variant-numeric:tabular-nums; }
+.empty { padding:32px 18px; text-align:center; color:var(--dim); }
+.list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+.list li { display:flex; gap:10px; align-items:center; justify-content:space-between; padding:10px 0; border-top:1px solid var(--line); }
+.list li:first-child { border-top:0; }
+.checklist { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.checklist li { display:flex; gap:12px; align-items:center; padding:12px 14px; border-radius:13px; background:#fff; box-shadow:var(--shadow); }
+.tick { display:grid; place-items:center; width:24px; height:24px; border-radius:50%; flex:none; background:rgb(24 24 27/.07); color:var(--dim); font-size:13px; font-weight:800; }
+.tick.done { background:var(--ok); color:#fff; }
+details.more > summary { cursor:pointer; font-weight:600; color:var(--label); list-style:none; } details.more > summary::-webkit-details-marker { display:none; }
+.centered { min-height:calc(100vh - 60px); display:grid; place-items:center; padding:28px 16px 60px; }
+.authCard { background:var(--card); border-radius:18px; width:min(440px,100%); padding:clamp(22px,4vw,34px); box-shadow:var(--shadow-lg); }
+.authCard.wide { width:min(640px,100%); }
+.authHead { display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; margin-bottom:22px; }
+.poweredBy { display:inline-flex; align-items:center; gap:6px; color:var(--dim); font-size:12px; font-weight:600; }
+.poweredBy .mark { width:16px; height:16px; padding:3.4px; gap:1.8px; border-radius:4.5px; }
+.authFoot { margin-top:18px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap; font-size:12.5px; color:var(--dim); } .authFoot a { color:var(--dim); }
+.steps { display:flex; gap:6px; justify-content:center; margin-bottom:18px; } .steps i { width:26px; height:5px; border-radius:99px; background:rgb(24 24 27/.1); } .steps i.on { background:var(--red); }
+.slips { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px; }
+.slip { background:#fff; border-radius:14px; padding:14px 16px; box-shadow:var(--shadow); }
+.slip dl { margin:8px 0 0; display:grid; grid-template-columns:auto 1fr; gap:4px 10px; font-size:13px; } .slip dt { color:var(--dim); } .slip dd { margin:0; font-weight:700; word-break:break-all; }
+.slipPin { font:800 18px ui-monospace,Menlo,Consolas,monospace !important; letter-spacing:.2em; }
+.overlay { position:fixed; inset:0; z-index:100; overflow:auto; background:rgb(255 251 245/.97); backdrop-filter:blur(6px); padding:24px clamp(14px,3vw,28px) 80px; }
+.overlayInner { width:min(1000px,100%); margin:0 auto; }
+.projects { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+.project { background:var(--card); border-radius:18px; box-shadow:var(--shadow); overflow:hidden; display:flex; flex-direction:column; text-decoration:none; cursor:pointer; }
+.thumb { aspect-ratio:16/10; background:linear-gradient(135deg,#f4f4f5,#e4e4e7); display:grid; place-items:center; color:var(--dim-2); font-weight:700; font-size:12px; overflow:hidden; }
+.thumb img { width:100%; height:100%; object-fit:contain; display:block; padding:8px; }
+.projectBody { padding:12px 14px; display:flex; flex-direction:column; gap:8px; }
+.sticky { position:sticky; top:64px; z-index:5; }
+
+/* ---- the simulator screen (approximation of the real simulator UI inside the portal) ---- */
+.sim { position:fixed; inset:0; bottom:52px; display:grid; grid-template-rows:54px 1fr; background:#F3EEE6; font-family:Poppins,sans-serif; z-index:30; }
+.simBar { display:flex; align-items:center; gap:10px; padding:0 14px; background:#fff; box-shadow:0 1px 0 rgb(0 0 0/.08); }
+.simBar .home { width:34px; height:34px; border-radius:10px; display:grid; place-items:center; background:#f4f4f5; cursor:pointer; font-size:17px; }
+.simBar .doc { font-weight:600; font-size:15px; padding:4px 8px; border-radius:8px; }
+.simBar .doc:hover { background:#f4f4f5; }
+.simBar .state { font-size:12px; font-weight:600; padding:4px 10px; border-radius:99px; background:#DCFCE7; color:#15803D; }
+.simBar .state.view { background:#E0E7FF; color:#3730A3; }
+.simBar .r { margin-left:auto; display:flex; gap:8px; align-items:center; }
+.simBar .sbtn { border:0; border-radius:10px; padding:8px 14px; font:600 13px Poppins,sans-serif; cursor:pointer; background:#f4f4f5; }
+.simBar .sbtn.red { background:#E4121B; color:#fff; }
+.acct { width:34px; height:34px; border-radius:50%; background:#18181B; color:#fff; display:grid; place-items:center; font-weight:700; font-size:12px; cursor:pointer; position:relative; }
+.acctMenu { position:absolute; right:0; top:42px; width:230px; background:#fff; border-radius:14px; box-shadow:0 12px 40px rgb(0 0 0/.18); padding:8px; text-align:left; z-index:5; color:#18181B; font-weight:500; }
+.acctMenu b { display:block; padding:6px 10px 0; } .acctMenu span { display:block; padding:0 10px 8px; color:#71717A; font-size:12px; border-bottom:1px solid #eee; margin-bottom:6px; }
+.acctMenu a { display:block; padding:8px 10px; border-radius:8px; font-size:13px; cursor:pointer; } .acctMenu a:hover { background:#f4f4f5; } .acctMenu a.out { color:#B91C1C; }
+.simBody { display:grid; grid-template-columns:220px 1fr 260px; min-height:0; }
+.parts { background:#fff; overflow:auto; padding:12px; box-shadow:1px 0 0 rgb(0 0 0/.06); }
+.parts h4 { margin:12px 4px 6px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#71717A; }
+.part { display:flex; align-items:center; gap:10px; padding:6px; border-radius:10px; font-size:12.5px; font-weight:500; cursor:grab; }
+.part:hover { background:#f4f4f5; } .part img { width:38px; height:38px; object-fit:contain; background:#fafafa; border-radius:8px; }
+.part .soon { margin-left:auto; font-size:10px; color:#A1A1AA; }
+.stage { position:relative; display:grid; place-items:center; overflow:hidden; background: radial-gradient(circle at 50% 40%, #fff 0%, #F3EEE6 70%); }
+.stage img { max-width:78%; max-height:78%; filter:drop-shadow(0 30px 40px rgb(0 0 0/.18)); }
+.stage .hintPill { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); background:rgb(24 24 27/.85); color:#fff; font-size:12px; padding:6px 12px; border-radius:99px; }
+.insp { background:#fff; padding:16px; box-shadow:-1px 0 0 rgb(0 0 0/.06); overflow:auto; font-size:13px; }
+.insp h5 { margin:0 0 4px; font-size:15px; } .insp .k { color:#71717A; font-size:12px; margin-top:12px; }
+.insp input[type=range] { width:100%; accent-color:#E4121B; }
+.insp pre { background:#18181B; color:#E4E4E7; border-radius:10px; padding:10px; font-size:11.5px; overflow:auto; }
+
+/* ---- prototype switcher (not part of the real UI) ---- */
+#proto { position:fixed; left:0; right:0; bottom:0; z-index:1000; display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:8px 12px; background:rgba(24,24,27,.95); color:#fff; font:600 12.5px var(--font); box-shadow:0 -6px 24px rgb(0 0 0/.2); }
+#proto .tag { padding:4px 9px; border-radius:99px; background:#E3121B; font-size:10.5px; letter-spacing:.06em; }
+#proto button, #proto select { all:unset; cursor:pointer; padding:6px 11px; border-radius:9px; background:rgba(255,255,255,.1); white-space:nowrap; }
+#proto button.on { background:#fff; color:#18181B; }
+#proto select { appearance:auto; background:#3f3f46; }
+#proto .sp { margin-left:auto; opacity:.65; font-weight:500; }
+@media (max-width:900px) { .simBody { grid-template-columns:160px 1fr; } .insp { display:none; } }
+@media (max-width:760px) { .top { flex-wrap:wrap; gap:8px; } .nav { order:3; width:100%; margin-left:0; } .whoName { display:none; } }
+</style>
+</head>
+<body>
+<div class="root" id="app"></div>
+<div id="overlay"></div>
+
+<div id="proto" aria-label="Preview switcher (not part of the real UI)">
+  <span class="tag">UI PREVIEW · DEMO DATA</span>
+  <button data-go="console/enquiries" data-role="console">StemGrid console</button>
+  <button data-go="admin/dashboard" data-role="admin">Institute admin</button>
+  <button data-go="teacher/batches" data-role="teacher">Teacher</button>
+  <button data-go="student/home" data-role="student">Student</button>
+  <button data-go="public/login" data-role="public">Sign-in &amp; join</button>
+  <button data-go="activate/1" data-role="activate">New institute activation</button>
+  <select id="stateSel" title="Show the admin pages in another institute state">
+    <option value="free">State: free period</option>
+    <option value="near">State: near the limit (88/90)</option>
+    <option value="grace">State: payment due (grace)</option>
+    <option value="suspended">State: suspended (read-only)</option>
+  </select>
+  <span class="sp">Every page is clickable · nothing is saved</span>
+</div>
+
+<script>
+/* ============================================================ demo data (same as the local demo seed) */
+const IMG = '../../simulator/public/assets/';
+const INST = { name: 'Bright Minds Academy', slug: 'bright-minds', wave: 'Founding Partners', member: 1 };
+const inr = n => '₹' + Number(n).toLocaleString('en-IN');
+const FIRST = ['Aarav','Diya','Ishaan','Ananya','Vihaan','Saanvi','Arjun','Kavya','Rohan','Nila','Kabir','Tara','Dev','Mira','Aditya','Riya','Karthik','Sneha','Varun','Pooja','Lavanya','Pranav','Janani','Yash','Keerthi','Divya','Siddharth','Harini'];
+const LAST = ['Iyer','Reddy','Nair','Menon','Kumar','Shah','Das','Rao','Pillai','Sharma','Bose','Khan'];
+const BATCHES = [
+  { id: 'b1', name: 'Robotics Saturday', course: 'Electronics Level 1', schedule: 'Sat 10:00–12:00', teachers: ['Priya Sharma'], code: 'K7MPQ2', self: false, count: 24, status: 'active' },
+  { id: 'b2', name: 'Coding Club Weekdays', course: 'Python with Quark', schedule: 'Mon & Wed 17:00', teachers: ['Priya Sharma'], code: 'H3XN8R', self: false, count: 24, status: 'active' },
+  { id: 'b3', name: 'Junior Makers', course: 'Intro to sensors', schedule: 'Fri 16:00', teachers: ['Arun Kumar'], code: 'BRT7KQ', self: true, count: 16, status: 'active' },
+  { id: 'b4', name: 'Summer Camp 2026', course: 'Holiday camp', schedule: 'May 2026', teachers: [], code: 'MW4ZT9', self: false, count: 20, status: 'archived' },
+];
+const STUDENTS = [{ name: 'Ravi Kumar', user: 'ravi-k', batches: ['Robotics Saturday'], last: '25 Nov 2026, 9:42 am', status: 'active' },
+  { name: 'Meera Srinivasan', user: 'meera-s', batches: ['Robotics Saturday'], last: '24 Nov 2026, 4:10 pm', status: 'active' }];
+for (let i = 0; i < 26; i++) {
+  const f = FIRST[i % FIRST.length], l = LAST[(i * 5) % LAST.length];
+  const b = i < 12 ? ['Robotics Saturday'] : i < 20 ? ['Robotics Saturday', 'Coding Club Weekdays'] : ['Junior Makers'];
+  STUDENTS.push({ name: `${f} ${l}`, user: `${f.toLowerCase()}-${l[0].toLowerCase()}`, batches: b, last: i % 7 === 6 ? 'Never' : `${20 + (i % 5)} Nov 2026, ${1 + (i % 11)}:${String((i * 7) % 60).padStart(2, '0')} pm`, status: i === 25 ? 'archived' : 'active' });
+}
+const PEOPLE = [
+  { name: 'Anita Rao', email: 'admin@brightminds.demo', role: 'Admin', batches: '—', last: '25 Nov 2026, 9:05 am' },
+  { name: 'Priya Sharma', email: 'priya@brightminds.demo', role: 'Teacher', batches: 'Robotics Saturday, Coding Club Weekdays', last: '25 Nov 2026, 8:30 am' },
+  { name: 'Arun Kumar', email: 'arun@brightminds.demo', role: 'Teacher', batches: 'Junior Makers', last: '23 Nov 2026, 6:12 pm' },
+];
+const PROJECTS = [
+  { name: 'Distance alarm', mods: 3, when: '25 Nov 2026, 9:51 am', img: 'landing/cut-build.webp' },
+  { name: 'Parking sensor', mods: 4, when: '22 Nov 2026, 11:20 am', img: 'landing/cut-quark.webp' },
+  { name: 'Room thermometer', mods: 3, when: '18 Nov 2026, 5:02 pm', img: 'landing/cut-thermo.webp' },
+  { name: 'Plug and play test', mods: 2, when: '12 Nov 2026, 4:40 pm', img: 'landing/cut-plug.webp' },
+];
+const ENQ = [
+  { ref: 'SG-7KQ2MX', org: 'Sunrise Science Academy', type: 'Academy / coaching centre', city: 'Coimbatore, Tamil Nadu', contact: 'Lakshmi Narayan', email: 'lakshmi@sunrise.demo', learners: '100–250', timeline: 'This month', date: '24 Nov 2026', status: 'new' },
+  { ref: 'SG-4HD9PA', org: 'Little Inventors STEM Centre', type: 'STEM centre', city: 'Bengaluru, Karnataka', contact: 'Rahul Desai', email: 'rahul@littleinventors.demo', learners: '50–100', timeline: 'Next 3 months', date: '23 Nov 2026', status: 'new' },
+  { ref: 'SG-9TRW3C', org: 'Greenfield Public School', type: 'School', city: 'Madurai, Tamil Nadu', contact: 'Fatima Begum', email: 'principal@greenfield.demo', learners: '500+', timeline: 'Next academic year', date: '20 Nov 2026', status: 'contacted' },
+  { ref: 'SG-2LTS8B', org: 'Lotus Learning Hub', type: 'Academy / coaching centre', city: 'Chennai, Tamil Nadu', contact: 'Deepa Krishnan', email: 'deepa@lotus.demo', learners: '50–100', timeline: 'This month', date: '18 Nov 2026', status: 'proposal' },
+  { ref: 'SG-6XQN4V', org: 'Quick Cash Tuition', type: 'Other', city: 'Pune, Maharashtra', contact: 'Test Person', email: 'test@spam.demo', learners: 'Under 50', timeline: 'Just exploring', date: '15 Nov 2026', status: 'lost' },
+];
+const INSTS = [
+  { id: 'i1', name: 'Bright Minds Academy', slug: 'bright-minds', city: 'Chennai', status: 'free_period', wave: 'Founding Partners', member: 1, plan: '—', ends: '9 Jan 2027', active: 62 },
+  { id: 'i2', name: 'Spark STEM Centre', slug: 'spark-stem', city: 'Bengaluru', status: 'grace', wave: 'Founding Partners', member: 2, plan: 'Starter', ends: '16 Oct 2026', active: 19 },
+  { id: 'i3', name: 'Orbit Coding Club', slug: 'orbit-coding', city: 'Madurai', status: 'active', wave: 'Founding Partners', member: 3, plan: 'Starter', ends: '16 Sep 2026', active: 17 },
+  { id: 'i4', name: 'Nova Robotics', slug: 'nova-robotics', city: 'Hyderabad', status: 'active', wave: 'Charter Members', member: 4, plan: 'Growth', ends: '26 Sep 2026', active: 88 },
+  { id: 'i5', name: 'Lotus Learning Hub', slug: 'lotus-learning', city: 'Chennai', status: 'approved', wave: 'Charter Members', member: null, plan: '—', ends: '—', active: 0 },
+];
+const STATUS = { approved: ['Approved', 'blue'], awaiting_payment: ['Awaiting payment', 'warn'], paid: ['Paid', 'ok'], onboarding: ['Onboarding', 'blue'], free_period: ['Free period', 'ok'], active: ['Active', 'ok'], grace: ['Grace (payment due)', 'warn'], suspended: ['Suspended', 'bad'], lapsed: ['Lapsed', 'bad'] };
+const PLANS = [['Starter', 30, 2, 350000, 500000], ['Growth', 90, 5, 900000, 1200000], ['Pro', 180, 10, 1600000, 2000000]];
+
+/* ============================================================ helpers */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const go = h => { location.hash = '#/' + h; };
+const link = (h, text, cls = '') => `<a class="${cls}" onclick="go('${h}')">${text}</a>`;
+const badge = (t, tone = '') => `<span class="badge ${tone}">${t}</span>`;
+const status = s => badge(STATUS[s][0], STATUS[s][1]);
+const meter = (v, m) => { const p = Math.min(100, v / m * 100); return `<div class="meter ${p >= 100 ? 'full' : p >= 80 ? 'warn' : ''}"><i style="width:${p}%"></i></div>`; };
+const stat = (l, v, n = '') => `<div class="stat"><span class="statLabel">${l}</span><span class="statValue">${v}</span>${n ? `<span class="statNote">${n}</span>` : ''}</div>`;
+const head = (t, lead = '', right = '') => `<div class="pageHead"><div><h1 class="h1">${t}</h1>${lead ? `<p class="lead">${lead}</p>` : ''}</div>${right ? `<div class="row">${right}</div>` : ''}</div>`;
+const mark = '<span class="mark"><i></i><i></i><i></i><i></i></span>';
+const field = (label, input, hint = '') => `<label class="field"><span class="label">${label}</span>${input}${hint ? `<span class="hint">${hint}</span>` : ''}</label>`;
+const toast = msg => { const t = document.createElement('div'); t.className = 'banner okBox'; t.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:200;box-shadow:var(--shadow-lg)'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); };
+let STATE = 'free';
+
+function shell({ brand, sub, initials, nav, who, whoSub, banners = '', body, isConsole }) {
+  // the current section: "admin/batch/b1" highlights "admin/batches", "console/enquiry/…" highlights "console/enquiries"
+  const key = location.hash.slice(2).split('?')[0].split('/').slice(0, 2).join('/');
+  const on = nav.find(([h]) => h === key || h === key + 's' || h === key.replace(/y$/, 'ies'));
+  return `<header class="top">
+    <a class="brand" onclick="go('${nav[0][0]}')">${isConsole ? mark : `<span class="instInitials red">${initials}</span>`}<span><span class="brandName">${brand}</span><span class="brandSub">${sub}</span></span></a>
+    <nav class="nav">${nav.map(([h, l]) => `<a class="navLink ${on && on[0] === h ? 'on' : ''}" onclick="go('${h}')">${l}</a>`).join('')}</nav>
+    <div class="who"><span class="whoName">${who}<span>${whoSub}</span></span><button class="btnGhost btnSmall" onclick="go('${isConsole ? 'console/login' : 'public/login'}')">Sign out</button></div>
+  </header><main class="main">${banners ? `<div class="stack" style="margin-bottom:18px">${banners}</div>` : ''}${body}</main>`;
+}
+function frame(title, body, { wide, inst = true, sub } = {}) {
+  return `<div class="centered"><div class="authCard ${wide ? 'wide' : ''}"><div class="authHead">
+    ${inst ? `<span class="instInitials lg red">BM</span><h1 class="h1" style="font-size:24px">${INST.name}</h1><span class="poweredBy">${mark} StemGrid</span>` : `${mark}<h1 class="h1">${title}</h1>`}
+    ${sub ? `<p class="muted">${sub}</p>` : ''}</div>${body}
+    <div class="authFoot"><a onclick="go('public/help')" style="cursor:pointer">Help</a><a>Privacy</a><a onclick="go('public/find')" style="cursor:pointer">Not your institute?</a></div></div></div>`;
+}
+
+/* ============================================================ admin */
+const ADMIN_NAV = [['admin/dashboard', 'Dashboard'], ['admin/batches', 'Batches'], ['admin/teachers', 'Teachers'], ['admin/students', 'Students'], ['admin/billing', 'Billing'], ['admin/settings', 'Settings'], ['student/simulator', 'Simulator']];
+function adminBanners() {
+  if (STATE === 'grace') return `<div class="banner warnBox"><span><b>Payment due.</b> Everything keeps working until 2 Dec 2026. After that students can't sign in and staff accounts become read-only. See ${link('admin/billing', 'Billing')}.</span></div>`;
+  if (STATE === 'suspended') return `<div class="banner badBox"><span><b>Read-only.</b> The payment is overdue, so students can't sign in and changes are paused. Contact StemGrid to get running again. Your data is safe.</span></div>`;
+  if (STATE === 'near') return `<div class="banner warnBox"><span><b>97% of this month's student limit used</b> (88 of 90).</span></div>`;
+  return '';
+}
+const usage = () => STATE === 'near' ? [88, 90] : [62, 300];
+const admin = body => shell({ brand: INST.name, sub: `Admin · ${STATE === 'grace' ? 'Grace (payment due)' : STATE === 'suspended' ? 'Suspended' : STATE === 'near' ? 'Active' : 'Free period'}`, initials: 'BM', nav: ADMIN_NAV, who: 'Anita Rao', whoSub: 'admin@brightminds.demo', banners: adminBanners(), body });
+
+const V = {};
+V['admin/dashboard'] = () => { const [c, l] = usage(); return admin(`${head('Dashboard', `Nov 2026 at ${INST.name}`)}
+  <div class="banner info mb"><span>Finish setting up: add your logo. ${link('admin/setup', 'Open the checklist')}</span></div>
+  <div class="grid3 mb">
+    ${stat('Active students this month', `${c} / ${l}`, `${meter(c, l)}<span>${Math.round(c / l * 100)}% used. A student counts once a month, the first time they sign in.</span>`)}
+    ${STATE === 'free' ? stat('Free period', '45 days left', 'Unlimited until 9 Jan 2027 (fair use: 300 students a month)') : stat('Next bill', STATE === 'near' ? inr(10000) : inr(3500), `On 10 Dec 2026 · ${STATE === 'near' ? 'Growth' : 'Starter'} plan, + GST`)}
+    ${stat('People', 66, 'students · 2 teachers · 3 active batches')}
+  </div>
+  <div class="grid2">
+    <div class="card"><h2 class="h2">Quick actions</h2><div class="row">
+      <a class="btn" onclick="go('admin/students?add')">Add students</a><a class="btnGhost" onclick="go('admin/batches?new')">New batch</a>
+      <a class="btnGhost" onclick="go('admin/teachers')">Invite a teacher</a><a class="btnGhost" onclick="go('student/simulator')">Open simulator</a></div></div>
+    <div class="card"><h2 class="h2">Recent activity</h2><ul class="list">
+      ${[['students created', 'Anita Rao (institute_admin)', '25 Nov 2026, 9:12 am'], ['student pin reset', 'Priya Sharma (teacher)', '24 Nov 2026, 5:40 pm'], ['batch created', 'Anita Rao (institute_admin)', '22 Nov 2026, 11:03 am'], ['invite accepted', 'Arun Kumar (teacher)', '21 Nov 2026, 7:15 pm'], ['institute logo updated', 'Anita Rao (institute_admin)', '20 Nov 2026, 10:30 am']]
+        .map(([a, w, t]) => `<li><span><b>${a}</b><br><span class="small muted">${w}</span></span><span class="small muted">${t}</span></li>`).join('')}</ul></div>
+  </div>`); };
+
+V['admin/setup'] = () => admin(`<div class="narrow">${head(`Welcome, ${INST.name}`, 'Four quick steps and your portal is ready for students.')}
+  <ol class="checklist">${[['Add your logo', 'Students see it on your sign-in page.', false, 'admin/settings'], ['Complete your profile', 'Address and state appear on your GST invoices.', true, 'admin/settings'], ['Invite your first teacher', 'Teachers manage their own batches and students.', true, 'admin/teachers'], ['Create your first batch', 'Batches are unlimited. Each gets a join code.', true, 'admin/batches']]
+    .map(([t, h, d, g], i) => `<li><span class="tick ${d ? 'done' : ''}">${d ? '✓' : i + 1}</span><span style="flex:1"><b>${t}</b><br><span class="small muted">${h}</span></span><a class="${d ? 'btnGhost' : 'btn'} btnSmall" onclick="go('${g}')">${d ? 'Edit' : 'Start'}</a></li>`).join('')}</ol>
+  <p style="margin-top:20px">${link('admin/dashboard', 'Go to the dashboard', 'btnGhost')}</p></div>`);
+
+V['admin/batches'] = q => { const arch = q === 'archived'; const list = BATCHES.filter(b => b.status === (arch ? 'archived' : 'active'));
+  return admin(`${head('Batches', 'Create as many as you need. Each batch has its own join code.', `<div class="seg"><a class="${arch ? '' : 'on'}" onclick="go('admin/batches')">Active</a><a class="${arch ? 'on' : ''}" onclick="go('admin/batches?archived')">Archived</a></div>`)}
+  <div class="stack"><details class="card more" ${q === 'new' ? 'open' : ''}><summary class="h3">+ New batch</summary><div class="form" style="margin-top:14px">
+    <div class="formRow">${field('Name', '<input class="input" placeholder="Robotics Saturday">')}${field('Course', '<input class="input" placeholder="Electronics Level 1">')}${field('Schedule', '<input class="input" placeholder="Sat 10–12">')}</div>
+    <div class="formRow">${field('Starts', '<input class="input" type="date">')}${field('Ends', '<input class="input" type="date">')}${field('Teacher', '<select class="select"><option>Assign later</option><option>Priya Sharma</option><option>Arun Kumar</option></select>')}</div>
+    <label class="check"><input type="checkbox"> <span>Let students join on their own with the batch code (they pick up a username and PIN themselves)</span></label>
+    <div><button class="btn" onclick="go('admin/batch/b1?created')">Create batch</button></div></div></details>
+  <div class="cardTight"><div class="tableWrap"><table class="table"><thead><tr><th>Batch</th><th>Schedule</th><th>Teachers</th><th class="num">Students</th><th>Join code</th></tr></thead><tbody>
+    ${list.map(b => `<tr><td>${link('admin/batch/' + b.id, b.name)}<br><span class="small muted">${b.course}</span></td><td class="small">${b.schedule}</td><td class="small">${b.teachers.join(', ') || '<span class="muted">None yet</span>'}</td><td class="num">${b.count}</td><td><span class="mono">${b.code}</span>${b.self ? ' ' + badge('self-join', 'blue') : ''}</td></tr>`).join('')}
+  </tbody></table></div></div></div>`); };
+
+function studentTable(rows, { batch, archive = true, base = 'admin/student' } = {}) {
+  return `<div id="bulk"></div><div class="cardTight"><div class="tableWrap"><table class="table"><thead><tr><th style="width:36px"><input type="checkbox" onchange="selAll(this)"></th><th>Name</th><th>Username</th><th>Batches</th><th>Last sign-in</th><th>Status</th></tr></thead><tbody>
+    ${rows.map((r, i) => `<tr class="${r.status === 'active' ? '' : 'dim'}"><td><input type="checkbox" class="sel" data-i="${i}" onchange="selChanged(${!!batch},${archive})"></td><td>${base ? link(base + '/' + r.user, r.name) : r.name}</td><td class="mono">${r.user}</td><td class="small">${r.batches.join(', ')}</td><td class="small">${r.last}</td><td>${r.status === 'active' ? badge('active', 'ok') : badge('archived')}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+window.selAll = el => { document.querySelectorAll('.sel').forEach(c => (c.checked = el.checked)); selChanged(!!document.querySelector('[data-inbatch]'), true); };
+window.selChanged = (inBatch, archive) => {
+  const n = document.querySelectorAll('.sel:checked').length, box = $('#bulk');
+  box.innerHTML = n ? `<div class="card sticky mb"><div class="row"><b>${n} selected</b>
+    <button class="btn btnSmall" onclick="showSlips(${n})">New PINs + print slips</button>
+    <select class="select" style="width:auto"><option>${inBatch ? 'Move to…' : 'Add to batch…'}</option>${BATCHES.slice(0, 3).map(b => `<option>${b.name}</option>`).join('')}</select><button class="btnGhost btnSmall" onclick="toast('${inBatch ? 'Moved.' : 'Added to the batch.'}')">${inBatch ? 'Move' : 'Add'}</button>
+    ${inBatch ? `<button class="btnGhost btnSmall" onclick="toast('Removed from the batch.')">Remove from batch</button>` : ''}
+    ${archive ? `<button class="btnGhost btnDanger btnSmall" onclick="toast('Archived (they can no longer sign in; this month\\'s count is unchanged).')">Archive</button>` : ''}
+    <button class="btnLink" onclick="document.querySelectorAll('.sel').forEach(c=>c.checked=false);selChanged(${inBatch},${archive})">Clear</button></div></div>` : '';
+};
+window.showSlips = (n = 1, names) => {
+  const list = (names ?? STUDENTS.slice(0, n)).map(s => ({ ...s, pin: String(100000 + Math.floor(Math.random() * 899999)) }));
+  $('#overlay').innerHTML = `<div class="overlay root" style="padding-bottom:80px"><div class="overlayInner">
+    <div class="between" style="margin-bottom:16px"><div><h2 class="h1">Login slips</h2><p class="lead">Print these now or write them down. <b>PINs are shown only once</b>; you can always set a new PIN later.</p></div>
+    <div class="row"><button class="btn" onclick="window.print()">Print slips</button><button class="btnGhost" onclick="$('#overlay').innerHTML=''">Done</button></div></div>
+    <div class="slips">${list.map(s => `<div class="slip"><b>${s.name}</b><span class="muted"> · ${s.batches?.[0] ?? 'Robotics Saturday'}</span><dl><dt>Go to</dt><dd>learn.stemgrid.in/bright-minds/login</dd><dt>Username</dt><dd>${s.user}</dd><dt>PIN</dt><dd class="slipPin">${s.pin}</dd></dl></div>`).join('')}</div></div></div>`;
+};
+function addStudents(open, fixed) {
+  if (!open) return `<div><button class="btn" onclick="this.parentElement.outerHTML=addStudents(true${fixed ? `,'${fixed}'` : ''})">Add students</button></div>`;
+  return `<div class="card" id="addBox"><div class="between" style="margin-bottom:14px"><div class="seg"><button class="on" onclick="addTab(this,'one')">One student</button><button onclick="addTab(this,'csv')">Upload CSV</button></div></div>
+    <div id="addOne" class="form"><div class="formRow">${field("Student's name", '<input class="input" id="newName" placeholder="Ravi Kumar">', 'First name and last name, e.g. Ravi Kumar')}
+    ${fixed ? '' : field('Batch', `<select class="select">${BATCHES.slice(0, 3).map(b => `<option>${b.name}</option>`).join('')}<option>No batch yet</option></select>`)}
+    ${field('Username (optional)', '<input class="input">', 'Leave blank to use firstname-lastinitial')}</div>
+    <p class="small muted">A random 6-digit PIN is created and shown once on a printable login slip. We never ask for a student's email, phone or date of birth.</p>
+    <div><button class="btn" onclick="const n=($('#newName').value||'Test Learner').trim(); const p=n.toLowerCase().split(/\\s+/); showSlips(1,[{name:n,user:p[0]+(p[1]?'-'+p[1][0]:''),batches:['${fixed ?? 'Robotics Saturday'}']}])">Add student</button></div></div>
+    <div id="addCsv" class="stack" style="display:none"><p class="muted">Columns: <span class="mono">name${fixed ? '' : ', batch'}</span> and optionally <span class="mono">username</span>. Up to 300 rows. <a class="btnLink">Download a sample</a>.</p>
+    <input class="input" type="file"><div><button class="btnGhost" onclick="$('#csvPrev').style.display='block'">Check the file</button></div>
+    <div id="csvPrev" style="display:none" class="stack"><div class="cardTight"><table class="table"><thead><tr><th>Line</th><th>Name</th><th>Batch</th><th>Username</th><th>Check</th></tr></thead><tbody>
+    ${[['Asha Menon', 'Robotics Saturday', 'asha-m', ''], ['Kiran Raj', 'Robotics Saturday', 'kiran-r', ''], ['Divya Shankar', 'Coding Club Weekdays', 'divya-s', ''], ['Farhan Ali', 'Coding Club Weekdays', 'divya-test', ''], ['New Learner', 'Drama Club', '', 'No batch called "Drama Club"']]
+      .map((r, i) => `<tr class="${r[3] ? 'dim' : ''}"><td>${i + 2}</td><td>${r[0]}</td><td>${r[1]}</td><td class="mono">${r[2]}</td><td>${r[3] ? badge(r[3], 'bad') : badge('OK', 'ok')}</td></tr>`).join('')}</tbody></table></div>
+    <div><button class="btn" onclick="showSlips(4,[{name:'Asha Menon',user:'asha-m'},{name:'Kiran Raj',user:'kiran-r'},{name:'Divya Shankar',user:'divya-s',batches:['Coding Club Weekdays']},{name:'Farhan Ali',user:'divya-test',batches:['Coding Club Weekdays']}])">Create 4 students (skip 1)</button></div></div></div></div>`;
+}
+window.addStudents = addStudents;
+window.addTab = (btn, t) => { btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('on')); btn.classList.add('on'); $('#addOne').style.display = t === 'one' ? '' : 'none'; $('#addCsv').style.display = t === 'csv' ? '' : 'none'; };
+
+V['admin/students'] = q => admin(`${head('Students', 'Students sign in with a username and a 6-digit PIN. Select students to give new PINs, print slips, move or archive them.')}
+  <div class="stack">${addStudents(q === 'add')}
+  <div class="row"><input class="input" style="max-width:260px" placeholder="Search name or username"><select class="select" style="max-width:220px"><option>All batches</option>${BATCHES.slice(0, 3).map(b => `<option>${b.name}</option>`).join('')}</select><select class="select" style="max-width:160px"><option>Active</option><option>Archived</option></select><button class="btnGhost">Filter</button><span class="muted" style="margin-left:auto">${STUDENTS.length} shown</span></div>
+  ${studentTable(STUDENTS)}</div>`);
+
+V['admin/student'] = user => { const s = STUDENTS.find(x => x.user === user) ?? STUDENTS[0];
+  return admin(`${head(s.name, `<span class="mono">${s.user}</span> · last sign-in ${s.last}`, link('admin/students', 'All students', 'btnGhost'))}
+  <div class="grid2"><div class="stack">
+    <div class="card"><h2 class="h2">Sign-in</h2><p class="muted" style="margin-bottom:12px">PINs are never stored where anyone can read them. If ${s.name.split(' ')[0]} forgets theirs, give a new one.</p><button class="btn" onclick='showSlips(1,[${JSON.stringify(s)}])'>New PIN + login slip</button></div>
+    <div class="card"><h2 class="h2">Batches</h2><ul class="list">${s.batches.map(b => `<li><span>${b} <span class="small muted">· joined 26 Oct 2026 (added)</span></span><button class="btnLink">Remove</button></li>`).join('')}</ul>
+      <div class="row" style="margin-top:8px"><select class="select" style="flex:1"><option>Junior Makers</option></select><button class="btnGhost btnSmall">Add to batch</button></div></div>
+    <div class="card"><h2 class="h2">Details</h2><div class="form">${field('Display name', `<input class="input" value="${s.name}">`)}<div><button class="btnGhost">Save</button></div></div><hr class="divider"><button class="btnGhost btnDanger">Archive student</button></div>
+  </div><div class="stack">
+    <div class="card"><h2 class="h2">Projects</h2><ul class="list">${PROJECTS.slice(0, 2).map(p => `<li>${link('student/simulator?view', p.name)}<span class="small muted">${p.mods} modules · ${p.when}</span></li>`).join('')}</ul></div>
+    <div class="card"><h2 class="h2">Active months</h2><p class="muted">Nov 2026, Oct 2026, Sep 2026</p></div>
+  </div></div>`); };
+
+V['admin/batch'] = (id, q) => { const b = BATCHES.find(x => x.id === id) ?? BATCHES[0];
+  const rows = STUDENTS.filter(s => s.batches.includes(b.name) || b.status === 'archived').slice(0, 14);
+  return admin(`${head(b.name, `${b.course} · ${b.schedule} · ${b.count} students ${b.status === 'archived' ? badge('archived') : ''}`, `${link('admin/batches', 'All batches', 'btnGhost')}<button class="btnGhost" onclick="toast('Copied as “${b.name} (copy)” with a new code.')">Copy</button><button class="btnGhost">${b.status === 'active' ? 'Archive' : 'Restore'}</button>`)}
+  ${q === 'created' ? '<p class="banner okBox mb">Batch created. Share the join code with students, or add them below.</p>' : ''}
+  <div class="grid3 mb">
+    <div class="card"><h2 class="h2">Join code</h2><p class="code">${b.code}</p><p class="small muted">learn.stemgrid.in/bright-minds/join/${b.code}</p>
+      <p class="small" style="margin:6px 0 10px">${b.self ? badge('Self-join on', 'blue') : badge('Self-join off: existing students only')}</p>
+      <div class="form">${field('New code expires after', '<select class="select"><option>Never</option><option>1 day</option><option>7 days</option><option>30 days</option></select>')}<div><button class="btnGhost btnSmall" onclick="toast('New join code: P8WQ3N')">Reset code</button></div></div></div>
+    <div class="card"><h2 class="h2">Teachers</h2><ul class="list">${b.teachers.map(t => `<li><span>${t}</span><button class="btnLink">Remove</button></li>`).join('') || '<li class="muted">No teacher yet.</li>'}</ul>
+      <div class="row" style="margin-top:8px"><select class="select" style="flex:1"><option>Arun Kumar</option></select><button class="btnGhost btnSmall">Assign</button></div></div>
+    <details class="card more"><summary class="h2">Edit details</summary><div class="form">${field('Name', `<input class="input" value="${b.name}">`)}${field('Course', `<input class="input" value="${b.course}">`)}${field('Schedule', `<input class="input" value="${b.schedule}">`)}<label class="check"><input type="checkbox" ${b.self ? 'checked' : ''}> <span>Students can join on their own with the code</span></label><div><button class="btn">Save</button></div></div></details>
+  </div>
+  <h2 class="h2" style="margin:8px 0 12px" data-inbatch>Students</h2><div class="stack">${addStudents(false, b.name)}${studentTable(rows, { batch: b })}</div>`); };
+
+V['admin/teachers'] = () => admin(`${head('Teachers and admins', '2 active teachers. Teacher accounts aren\'t limited during your free period.')}
+  <div class="grid2"><div class="stack"><div class="cardTight"><div class="tableWrap"><table class="table"><thead><tr><th>Name</th><th>Role</th><th>Batches</th><th>Last sign-in</th><th></th></tr></thead><tbody>
+    ${PEOPLE.map((p, i) => `<tr><td>${p.name}<br><span class="small muted">${p.email}</span></td><td>${badge(p.role, p.role === 'Admin' ? 'red' : '')}</td><td class="small">${p.batches}</td><td class="small">${p.last}</td><td>${i ? '<button class="btnGhost btnSmall">Deactivate</button>' : ''}</td></tr>`).join('')}
+  </tbody></table></div></div>
+  <div class="card"><h2 class="h2">Pending invites</h2><ul class="list"><li><span>kavitha@brightminds.demo <span class="muted">· Teacher · expires 2 Dec 2026</span></span><button class="btnLink">Cancel</button></li></ul></div></div>
+  <div class="card"><h2 class="h2">Invite someone</h2><div class="form">${field('Email', '<input class="input" type="email">')}${field('Name (optional)', '<input class="input">')}
+    <div class="formRow">${field('Role', '<select class="select"><option>Teacher</option><option>Admin</option></select>')}${field('Batch (teachers)', `<select class="select"><option>Assign later</option>${BATCHES.slice(0, 3).map(b => `<option>${b.name}</option>`).join('')}</select>`)}</div>
+    <p class="small muted">They get an email with a link to set their password. The link works once and expires in 7 days.</p><div><button class="btn" onclick="toast('Invite sent.')">Send invite</button></div></div></div></div>`);
+
+V['admin/billing'] = () => { const [c, l] = usage(); const free = STATE === 'free';
+  return admin(`${head('Billing', 'Your membership, prices and invoices. All prices are before 18% GST.')}
+  <div class="grid4 mb">${stat('Membership', 'Founding Partners', 'Member #1')}${stat('Plan', free ? 'Free period' : STATE === 'near' ? 'Growth' : 'Starter', free ? 'Unlimited until 9 Jan 2027' : STATE === 'near' ? '90 students · 5 teachers · ₹9,000/month' : '30 students · 2 teachers · ₹3,500/month')}
+    ${stat('Price lock', '9 Jan 2030', 'Your member prices stay while your membership is continuous')}${stat('Minimum term ends', '9 Apr 2027', '3 paid months after the free period')}</div>
+  <div class="grid2"><div class="stack">
+    <div class="card"><h2 class="h2">This month</h2><p style="font-size:22px;font-weight:700">${c} <span class="muted" style="font-size:15px">of ${l} active students</span></p>${meter(c, l)}<p class="small muted" style="margin-top:8px">A student counts once per calendar month, the first time they sign in. Archiving a student later doesn't lower the month's count.</p></div>
+    ${free ? `<div class="card"><h2 class="h2">Your plan after the free period</h2><p>Your busiest month so far: <b>62 active students</b>. We recommend <b>Growth</b>.</p><div class="form" style="margin-top:10px">
+      ${field('Choose your plan', `<select class="select"><option>Growth: 90 students, 5 teachers · ₹9,000/month</option><option>Pro: 180 students, 10 teachers · ₹16,000/month</option></select>`, 'Confirm by 2 Dec 2026 or we\'ll apply the recommendation. You can choose bigger, not smaller than your usage.')}<div><button class="btn" onclick="toast('Plan confirmed. It starts when your free period ends.')">Confirm plan</button></div></div></div>` : ''}
+    <div class="card"><h2 class="h2">Your locked member prices (Founding Partners)</h2><table class="table"><thead><tr><th>Plan</th><th class="num">Students</th><th class="num">Teachers</th><th class="num">Member price</th><th class="num">Regular</th></tr></thead><tbody>
+      ${PLANS.map(p => `<tr><td>${p[0]}</td><td class="num">${p[1]}</td><td class="num">${p[2]}</td><td class="num"><b>${inr(p[3] / 100)}</b></td><td class="num"><s>${inr(p[4] / 100)}</s></td></tr>`).join('')}</tbody></table>
+      <p class="small muted" style="margin-top:10px">Extra students: ₹1,600 per pack of 10 · Extra teacher account: ₹500 · per month.</p></div>
+    <div class="card"><h2 class="h2">Payment method</h2><p class="muted">AutoPay (UPI or card mandate) arrives in January 2027; we'll ask you to set it up before your free period ends. Until then StemGrid will contact you about payment.</p><p style="margin-top:8px">${badge('AutoPay not set up')}</p></div>
+  </div><div class="stack">
+    <div class="cardTight"><div style="padding:16px 18px 4px"><h2 class="h2">Invoices</h2></div><table class="table"><thead><tr><th>Number</th><th>Date</th><th class="num">Total</th><th></th></tr></thead><tbody>
+      <tr><td class="mono">SG/2026-27/0001</td><td>4 Oct 2026</td><td class="num">₹6,490</td><td><a class="btnLink" onclick="toast('Downloads the GST invoice PDF')">Download PDF</a></td></tr></tbody></table></div>
+    <div class="cardTight"><div style="padding:16px 18px 4px"><h2 class="h2">Usage history</h2></div><table class="table"><thead><tr><th>Month</th><th class="num">Active students</th><th class="num">Limit</th><th>Plan</th></tr></thead><tbody>
+      <tr><td>Nov 2026 ${badge('now', 'blue')}</td><td class="num">${c}</td><td class="num">${l}</td><td>${free ? 'Free period' : 'Starter'}</td></tr>
+      <tr><td>Oct 2026</td><td class="num">52</td><td class="num">300</td><td>Free period</td></tr><tr><td>Sep 2026</td><td class="num">46</td><td class="num">300</td><td>Free period</td></tr></tbody></table></div>
+  </div></div>`); };
+
+V['admin/settings'] = () => admin(`${head('Settings', 'Your portal address: <b>learn.stemgrid.in/bright-minds</b>. To change it, contact StemGrid.')}
+  <div class="grid2"><div class="card"><h2 class="h2">Profile</h2><div class="form">${field('Institute name', '<input class="input" value="Bright Minds Academy">')}${field('Type', '<input class="input" value="Academy / coaching centre">')}${field('Address', '<textarea class="textarea">12 Demo Street, Anna Nagar</textarea>')}
+    <div class="formRow">${field('City', '<input class="input" value="Chennai">')}${field('State', '<input class="input" value="Tamil Nadu">', 'Decides CGST+SGST or IGST on invoices.')}</div>
+    <div class="formRow">${field('GSTIN', '<input class="input">')}${field('Contact phone', '<input class="input" value="+91 90000 00000">')}</div>${field('Contact person', '<input class="input" value="Anita Rao">')}<div><button class="btn" onclick="toast('Profile saved.')">Save profile</button></div></div></div>
+  <div class="card"><h2 class="h2">Logo</h2><div class="row" style="margin-bottom:14px"><span class="instInitials lg red">BM</span><span class="muted">Shown above StemGrid's logo on your sign-in page. Square works best. PNG, JPG or WebP, under 1 MB.</span></div>
+    <div class="form"><input class="input" type="file"><div><button class="btn">Upload logo</button></div></div></div></div>`);
+
+/* ============================================================ teacher */
+const teacher = body => shell({ brand: INST.name, sub: 'Teacher', initials: 'BM', nav: [['teacher/batches', 'My batches'], ['student/simulator', 'Simulator'], ['public/help', 'Help']], who: 'Priya Sharma', whoSub: 'priya@brightminds.demo', banners: STATE === 'grace' || STATE === 'suspended' ? adminBanners().replace(/ See .*?Billing<\/a>\./, '') : '', body });
+V['teacher/batches'] = () => teacher(`${head('Hello, Priya', 'Your batches. Open one to see the roster, add students or give a new PIN.')}
+  <div class="grid3">${BATCHES.slice(0, 2).map(b => `<a class="card" style="text-decoration:none;cursor:pointer" onclick="go('teacher/batch/${b.id}')"><h2 class="h2" style="margin-bottom:4px!important">${b.name}</h2><p class="muted">${b.course}</p><p class="muted">${b.schedule}</p><p style="margin-top:10px"><b>${b.count}</b> students · code <span class="mono">${b.code}</span></p></a>`).join('')}</div>`);
+V['teacher/batch'] = id => { const b = BATCHES.find(x => x.id === id) ?? BATCHES[0]; const rows = STUDENTS.filter(s => s.batches.includes(b.name) && s.status === 'active');
+  return teacher(`${head(b.name, `${b.course} · ${b.schedule} · join code <span class="mono">${b.code}</span>`, link('teacher/batches', 'My batches', 'btnGhost'))}
+  <div class="stack"><span data-inbatch></span>${addStudents(false, b.name)}${studentTable(rows, { batch: b, archive: false, base: '' })}
+  <div class="card"><h2 class="h2">Recent student builds</h2><ul class="list">${PROJECTS.slice(0, 3).map((p, i) => `<li><span>${link('student/simulator?view', p.name)} <span class="muted">by ${rows[i]?.name}</span></span><span class="small muted">${p.mods} modules · ${p.when}</span></li>`).join('')}</ul>
+  <p class="small muted" style="margin-top:8px">You can open your students' builds read-only.</p></div></div>`); };
+
+/* ============================================================ student */
+const student = body => shell({ brand: INST.name, sub: 'Student', initials: 'BM', nav: [['student/home', 'Home'], ['student/projects', 'My projects'], ['student/simulator', 'Simulator']], who: 'Ravi Kumar', whoSub: 'ravi-k', body });
+const projCard = p => `<a class="project" onclick="go('student/simulator')"><div class="thumb"><img src="${IMG + p.img}" alt=""></div><div class="projectBody"><b>${p.name}</b><span class="small muted">${p.mods} modules · ${p.when}</span></div></a>`;
+V['student/home'] = () => student(`${head('Hi, Ravi!', 'Build, wire and code the Quark kit in the simulator. Your builds save automatically.', `<a class="btn" onclick="go('student/simulator')">New build</a>`)}
+  <div class="grid2"><div class="card"><h2 class="h2">Recent builds</h2><div class="projects">${PROJECTS.slice(0, 2).map(projCard).join('')}</div><p style="margin-top:12px">${link('student/projects', 'All my projects')}</p></div>
+  <div class="stack"><div class="card"><h2 class="h2">My batches</h2><ul class="list"><li><span><b>Robotics Saturday</b><br><span class="small muted">Electronics Level 1 · Sat 10:00–12:00</span></span></li></ul></div>
+  <div class="card"><h2 class="h2">Got a batch code?</h2><div class="form">${field('Batch code', '<input class="input" maxlength="6" style="text-transform:uppercase;letter-spacing:.2em">')}<div><button class="btnGhost" onclick="toast('You\\'ve joined Junior Makers.')">Join batch</button></div></div></div></div></div>`);
+V['student/projects'] = () => student(`${head('My projects', 'Your saved builds. Open, rename, copy or delete them.')}
+  <div class="projects"><a class="project" style="display:grid;place-content:center;min-height:200px;text-align:center" onclick="go('student/simulator')"><b style="font-size:28px;color:var(--red)">+</b><b>New build</b></a>
+  ${PROJECTS.map(p => `<div class="project"><a class="thumb" onclick="go('student/simulator')"><img src="${IMG + p.img}" alt=""></a><div class="projectBody"><b>${p.name}</b><span class="small muted">${p.mods} modules · ${p.when}</span><div class="row"><button class="btnLink">Rename</button><button class="btnLink">Duplicate</button><button class="btnLink">Delete</button></div></div></div>`).join('')}</div>`);
+
+const MODS = [['Base plates', [['module-12_base-plate.png', 'Base plate']]], ['Controllers', [['module-01_quark-c3-controller.png', 'Quark C3 controller']]], ['Sensors', [['module-02_ultrasonic-sensor.png', 'Ultrasonic'], ['module-03_temp-humidity-dht11.png', 'DHT11 temp & humidity'], ['module-04_light-sensor.png', 'Light sensor'], ['module-05_ir-receiver.png', 'IR receiver', 1], ['module-07_rfid-reader.png', 'RFID reader', 1], ['module-10_potentiometer.png', 'Potentiometer'], ['module-11_dual-push-button.png', 'Dual push button', 1]]], ['Outputs', [['module-06_oled-display.png', 'OLED display', 1], ['module-08_servo-motor.png', 'Servo motor'], ['module-09_buzzer.png', 'Buzzer']]], ['Wiring', [['module-13_zap-connectors.png', 'Zap connector']]]];
+V['student/simulator'] = q => { const view = q === 'view';
+  return `<div class="sim"><div class="simBar"><span class="home" title="Back to the portal" onclick="history.back()">⌂</span><span class="doc" contenteditable="${!view}">${view ? 'Distance alarm' : 'Untitled build'}</span>
+    <span class="state ${view ? 'view' : ''}">${view ? "View only · Ravi Kumar's build" : 'Saved'}</span>
+    <div class="r"><button class="sbtn">Code</button><button class="sbtn">Run ▶</button>${view ? '' : '<button class="sbtn red" onclick="toast(\'Saved\')">Save</button>'}
+    <span class="acct" onclick="this.querySelector('.acctMenu').hidden=!this.querySelector('.acctMenu').hidden">RK<div class="acctMenu" hidden><b>Ravi Kumar</b><span>ravi-k · Bright Minds Academy</span><a onclick="go('student/home')">Back to portal</a><a onclick="go('student/projects')">My projects</a><a onclick="go('student/simulator')">New build</a><a class="out" onclick="go('public/login')">Sign out</a></div></span></div></div>
+  <div class="simBody"><div class="parts">${MODS.map(([cat, items]) => `<h4>${cat}</h4>${items.map(([img, n, soon]) => `<div class="part"><img src="${IMG}modules/${img}" alt="">${n}${soon ? '<span class="soon">Soon</span>' : ''}</div>`).join('')}`).join('')}</div>
+  <div class="stage"><img src="${IMG}landing/cut-build.webp" alt="A build in the simulator"><span class="hintPill">Preview image · the real 3D simulator runs here (drag parts in, wire them, write code)</span></div>
+  <div class="insp"><h5>Ultrasonic 1</h5><span class="muted">Distance sensor · port 2 of Quark C3 1</span><div class="k">Distance</div><input type="range" value="42"><div class="small">42 cm</div><div class="k">Program (Quark C3 1)</div><pre>while True:
+    d = ultrasonic.distance()
+    if d &lt; 20:
+        buzzer.tone(880)
+    sleep(0.2)</pre></div></div></div>`; };
+
+/* ============================================================ public pages */
+let tab = 'student';
+V['public/find'] = () => `<div class="centered"><div class="authCard wide"><div class="authHead">${mark}<h1 class="h1">Find your institute</h1><p class="muted">Search for your school, academy or centre to get to its sign-in page.</p></div>
+  <div class="row"><input class="input" style="flex:1" value="bright" placeholder="Institute name"><button class="btn">Search</button></div>
+  <ul class="list" style="margin-top:16px"><li><span class="row"><span class="instInitials red">BM</span><span><b>Bright Minds Academy</b><br><span class="small muted">Chennai</span></span></span><a class="btnGhost btnSmall" onclick="go('public/login')">Sign in</a></li></ul>
+  <div class="authFoot"><a>Privacy</a><a>Membership terms</a><a>info@stemgrid.in</a></div></div></div>`;
+V['public/login'] = q => frame('', `${q === 'elsewhere' ? '<p class="banner warnBox" style="margin-bottom:14px">You were signed out because this account signed in on another device.</p>' : q === 'limit' ? '<p class="banner warnBox" style="margin-bottom:14px">Your institute has reached this month\'s student limit. Please ask your institute to add more places.</p>' : ''}
+  <div class="stack"><div class="seg" style="align-self:center"><button class="${tab === 'student' ? 'on' : ''}" onclick="tab='student';render()">Student</button><button class="${tab === 'staff' ? 'on' : ''}" onclick="tab='staff';render()">Teacher / Admin</button></div>
+  ${tab === 'student' ? `<div class="form">${field('Username', '<input class="input" value="ravi-k">')}${field('PIN', '<input class="pinInput" type="password" value="482915">', 'The 6 numbers on your login slip.')}
+    <button class="btn full" onclick="go('student/home')">Sign in</button><p class="small muted" style="text-align:center">New here with a batch code? ${link('public/join', 'Join a batch')}</p>
+    <p class="small" style="text-align:center"><a class="btnLink" onclick="go('public/login?wrong')">See a wrong-PIN message</a> · <a class="btnLink" onclick="go('public/login?limit')">limit message</a> · <a class="btnLink" onclick="go('public/login?elsewhere')">signed in elsewhere</a></p></div>`
+  : `<div class="form">${field('Email', '<input class="input" value="admin@brightminds.demo">')}${field('Password', '<input class="input" type="password" value="demo-admin-123">')}
+    <button class="btn full" onclick="go('admin/dashboard')">Sign in</button><p class="small muted" style="text-align:center">${link('public/reset', 'Forgot your password?')}</p></div>`}
+  ${q === 'wrong' ? `<p class="banner badBox">That PIN didn't work. Try again, or ask your teacher for a new one.</p>` : ''}</div>`);
+V['public/join'] = () => frame('', `<div class="form">${field('Batch code', '<input class="pinInput" value="BRT7KQ">', '6 letters and numbers, from your teacher.')}<button class="btn full" onclick="go('public/joincode')">Continue</button></div>
+  <p class="small muted" style="text-align:center;margin-top:14px">Already have a username and PIN? ${link('public/login', 'Sign in')}</p>`, { sub: 'Join a batch' });
+V['public/joincode'] = q => frame('', q === 'done' ? `<div class="stack"><p class="banner okBox">Welcome, Nila! Write these down: your PIN is shown only once.</p><div class="slip"><dl><dt>Username</dt><dd>nila-r</dd><dt>PIN</dt><dd class="slipPin">305718</dd></dl></div>
+    <div class="form">${field('Type your PIN to sign in', '<input class="pinInput" type="password">')}<button class="btn full" onclick="go('student/home')">Sign in</button></div></div>`
+  : `<div class="form">${field('Your name', '<input class="input" value="Nila Reddy">', 'First and last name, so your teacher knows who you are.')}<button class="btn full" onclick="go('public/joincode?done')">Get my username and PIN</button>
+    <p class="small muted" style="text-align:center">Already have an account? ${link('public/login', 'Sign in instead')}</p></div>`, { sub: 'Join Junior Makers' });
+V['public/reset'] = () => frame('', `<div class="form">${field('Email', '<input class="input" type="email">')}<button class="btn full" onclick="toast('If that email has an account here, we have sent a reset link.')">Email me a reset link</button></div>
+  <p class="small muted" style="margin-top:14px;text-align:center">Students: ask your teacher for a new PIN. ${link('public/login', 'Back to sign in')}</p>`, { sub: 'Reset your password (teachers and admins)' });
+V['public/invite'] = () => frame('', `<div class="form">${field('Email', '<input class="input" value="kavitha@brightminds.demo" disabled>')}${field('Your name', '<input class="input" value="Kavitha Menon">')}${field('Password', '<input class="input" type="password">', 'At least 8 characters.')}${field('Password again', '<input class="input" type="password">')}<button class="btn full" onclick="go('teacher/batches')">Accept invite</button></div>`, { sub: "You're invited as teacher" });
+V['public/help'] = () => frame('', `<div class="stack"><h2 class="h2">Help</h2>
+  ${[["I'm a student and forgot my PIN", 'Ask your teacher or your institute admin. They can give you a new PIN straight away.'], ['It says “Too many tries”', 'After 5 wrong PINs the account waits 15 minutes. Ask your teacher for a new PIN, or try again later.'], ['I was signed out suddenly', 'Each account can be signed in on one device at a time. Signing in somewhere else signs out the other device.'], ['I have a batch code', 'Go to Join a batch and type the 6-character code.']].map(([q, a], i) => `<details class="more" ${i ? '' : 'open'}><summary>${q}</summary><p class="muted">${a}</p></details>`).join('')}
+  <hr class="divider"><p>Still stuck? Contact StemGrid: info@stemgrid.in · +91 89251 72636</p><p>${link('public/login', 'Back to sign in', 'btnGhost')}</p></div>`, { wide: true });
+V['public/closed'] = () => frame('', `<div class="stack" style="text-align:center"><p class="banner warnBox">Student sign-in is paused for your institute right now. Please ask your institute. Your work is safe.</p><p class="muted">StemGrid: info@stemgrid.in · +91 89251 72636</p></div>`);
+
+/* ============================================================ activation */
+V['activate'] = stepStr => { const step = +stepStr || 1;
+  const steps = `<div class="steps">${[1, 2, 3, 4].map(i => `<i class="${i <= step ? 'on' : ''}"></i>`).join('')}</div>`;
+  const bodies = {
+    1: `<h2 class="h2">1. Verify your email</h2><p class="muted">We'll send a 6-digit code to <b>lakshmi@sunrise.demo</b>.</p><div><button class="btnGhost" onclick="toast('We sent a 6-digit code to lakshmi@sunrise.demo.')">Send code</button></div>
+      <div class="form">${field('Code', '<input class="pinInput" value="418302">')}<div><button class="btn" onclick="go('activate/2')">Verify</button></div></div>`,
+    2: `<h2 class="h2">2. Create your admin account</h2><p class="muted">You'll sign in with <b>lakshmi@sunrise.demo</b>. You can invite more admins and teachers later.</p>
+      <div class="form">${field('Your name', '<input class="input" value="Lakshmi Narayan">')}${field('Password', '<input class="input" type="password">', 'At least 8 characters.')}${field('Password again', '<input class="input" type="password">')}<div><button class="btn" onclick="go('activate/3')">Create account</button></div></div>`,
+    3: `<h2 class="h2">3. Membership terms</h2><ul class="list"><li><span>Wave</span><b>Founding Partners</b></li><li><span>Unlimited free period</span><b>3 months in total (1 paid + 2 free)</b></li><li><span>Fair use during the free period</span><b>300 active students a month</b></li><li><span>Price lock</span><b>36 months after the free period, while continuous</b></li><li><span>Minimum term</span><b>3 paid months after the free period</b></li></ul>
+      <div class="form"><p class="small muted">For your GST invoice:</p>${field('Address', '<input class="input">')}<div class="formRow">${field('City', '<input class="input" value="Coimbatore">')}${field('State', '<input class="input" value="Tamil Nadu">')}${field('GSTIN (optional)', '<input class="input">')}</div>
+      <label class="check"><input type="checkbox" checked> <span>I accept the StemGrid membership terms (version 2026-11-v1) on behalf of Sunrise Science Academy.</span></label>
+      <label class="check"><input type="checkbox" checked> <span>I declare that Sunrise Science Academy has obtained parental consent for every student under 18 for whom it creates a StemGrid account, as required by the Digital Personal Data Protection Act, 2023.</span></label><div><button class="btn" onclick="go('activate/4')">Continue</button></div></div>`,
+    4: `<h2 class="h2">4. Pay to join</h2><ul class="list"><li><span>First month</span><span>₹3,500</span></li><li><span>Onboarding and training</span><span>₹2,500</span></li><li><span>Bundle saving</span><span>− ₹500</span></li><li><span>Joining amount</span><b>₹5,500</b></li><li><span>GST 18%</span><span>₹990</span></li><li><b>Total today</b><b>₹6,490</b></li></ul>
+      <p class="small muted">Your Founding Partners place is confirmed when the payment arrives. If the wave fills while you are paying, we'll offer the next wave or a full refund.</p><div><button class="btn" onclick="go('activate/pay')">Pay ₹6,490</button></div>`,
+  };
+  const top = `<div class="authHead"><span class="instInitials lg">SS</span><h1 class="h1">Sunrise Science Academy</h1><span class="poweredBy">${mark} StemGrid membership</span></div>`;
+  if (stepStr === 'pay') return `<div class="centered"><div class="authCard"><div class="authHead">${mark}<h1 class="h1">Payment</h1><p class="muted">In production this is Razorpay's payment page (UPI, cards, netbanking).</p></div>
+    <ul class="list"><li><span>For</span><b>Sunrise Science Academy</b></li><li><span>Amount</span><span>₹5,500 + GST ₹990</span></li><li><b>Total</b><b>₹6,490</b></li></ul><div class="stack" style="margin-top:14px"><button class="btn" onclick="go('activate/done')">Pay successfully</button><button class="btnGhost" onclick="go('activate/4')">Cancel</button></div></div></div>`;
+  if (stepStr === 'done') return `<div class="centered"><div class="authCard wide">${top}<div class="stack" style="text-align:center"><p class="banner okBox" style="justify-content:center">Payment received. Welcome to StemGrid!</p>
+    <p style="font-size:18px">You are member <b>#5</b> · Founding Partners</p><p class="muted">Invoice SG/2026-27/0007 is on your billing page.</p><p class="muted">Our team will contact you to schedule onboarding and training. Your free period starts when onboarding is complete (or 7 days after payment, whichever comes first).</p>
+    <p><a class="btn" onclick="go('admin/setup')">Set up your portal</a></p></div></div></div>`;
+  return `<div class="centered"><div class="authCard wide">${top}<div class="stack">${steps}${bodies[step]}</div><div class="authFoot"><a>Membership terms</a><a>Privacy</a><a>info@stemgrid.in</a><span>+91 89251 72636</span></div></div></div>`;
+};
+
+/* ============================================================ console */
+const CONSOLE_NAV = [['console/enquiries', 'Enquiries'], ['console/institutes', 'Institutes'], ['console/onboarding', 'Onboarding'], ['console/members', 'Members'], ['console/payments', 'Payments'], ['console/team', 'Team']];
+const con = body => shell({ brand: 'StemGrid console', sub: 'Institute memberships', nav: CONSOLE_NAV, who: 'Demo Staff', whoSub: 'StemGrid team', body, isConsole: true });
+const ETONE = { new: 'red', contacted: 'blue', meeting: 'blue', proposal: 'warn', won: 'ok', lost: 'bad', spam: 'bad' };
+V['console/login'] = () => `<div class="centered"><div class="authCard"><div class="authHead">${mark}<h1 class="h1">StemGrid console</h1><p class="muted">For the StemGrid team only.</p></div>
+  <div class="form" id="clogin">${field('Email', '<input class="input" value="staff@stemgrid.in">')}${field('Password', '<input class="input" type="password" value="xxxxxxxx">')}<button class="btn full" onclick="$('#clogin').innerHTML=totp()">Sign in</button></div></div></div>`;
+window.totp = () => `<p>Enter the 6-digit code from your authenticator app.</p>${field('Code', '<input class="pinInput" value="652 104">')}<button class="btn full" onclick="go('console/enquiries')">Verify</button>`;
+V['console/enquiries'] = () => con(`${head('Enquiries', 'From the institution form on the simulator site. Approve one to create the institute and send its activation link.')}
+  <div class="seg mb">${['Open', 'New', 'Contacted', 'Meeting', 'Proposal', 'Won', 'Lost', 'Spam', 'All'].map((k, i) => `<a class="${i ? '' : 'on'}">${k}</a>`).join('')}</div>
+  <div class="cardTight"><div class="tableWrap"><table class="table"><thead><tr><th>Ref</th><th>Institution</th><th>City</th><th>Contact</th><th>Learners</th><th>Timeline</th><th>Received</th><th>Status</th></tr></thead><tbody>
+  ${ENQ.map(e => `<tr><td class="mono">${link('console/enquiry/' + e.ref, e.ref)}</td><td>${link('console/enquiry/' + e.ref, e.org)}<br><span class="small muted">${e.type}</span></td><td>${e.city}</td><td>${e.contact}<br><span class="small muted">${e.email}</span></td><td>${e.learners}</td><td>${e.timeline}</td><td>${e.date}</td><td>${badge(e.status, ETONE[e.status])}</td></tr>`).join('')}
+  </tbody></table></div></div>`);
+V['console/enquiry'] = ref => { const e = ENQ.find(x => x.ref === ref) ?? ENQ[0];
+  return con(`${head(e.org, `<span class="mono">${e.ref}</span> · received ${e.date}, 9:12 am · ${badge(e.status)}`, link('console/enquiries', 'All enquiries', 'btnGhost'))}
+  <div class="grid2"><div class="card"><h2 class="h2">Details</h2><table class="table"><tbody>
+    ${[['Type', e.type], ['Location', e.city + ', India'], ['Learners', e.learners], ['Levels', 'Grades 6–8, Grades 9–10'], ['Contact', e.contact + ' (Director)'], ['Email', e.email], ['Phone', '+91 90000 11111'], ['Interests', 'Simulator for students, Teacher training'], ['Timeline', e.timeline], ['Heard from', 'DIDAC 2026']].map(([k, v]) => `<tr><td class="muted" style="width:140px">${k}</td><td>${v}</td></tr>`).join('')}</tbody></table>
+    <h3 class="h3" style="margin-top:14px">Message</h3><p>We saw the simulator at DIDAC and want it for our weekend batches.</p></div>
+  <div class="stack"><div class="card"><h2 class="h2">Approve</h2><div class="form">${field('Institute name', `<input class="input" value="${e.org}">`)}
+    ${field('Portal address', `<input class="input" value="${e.org.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '')}">`, 'learn.stemgrid.in/&lt;this&gt;. 3–40 lowercase letters, digits, hyphens; never reused.')}
+    ${field('Wave offered', '<select class="select"><option>Founding Partners: 7 of 10 left · join ₹5,500 + GST</option><option>Charter Members: 9 of 10 left · join ₹6,000 + GST</option></select>', 'A place is only taken when payment arrives.')}
+    ${field('Send the activation link to', `<input class="input" value="${e.email}">`)}<div><button class="btn" onclick="go('console/institute/i5?approved')">Approve and send activation link</button></div></div></div>
+  <div class="card"><h2 class="h2">Reject</h2><div class="form">${field("Reason (kept in the enquiry's notes)", '<input class="input">')}<label class="check"><input type="checkbox"> Mark as spam</label><div><button class="btnGhost btnDanger">Reject</button></div></div></div></div></div>`); };
+V['console/institutes'] = () => con(`${head('Institutes', 'Every approved institute, whatever its status.')}
+  <div class="row mb"><input class="input" style="max-width:280px" placeholder="Search name or address"><select class="select" style="max-width:220px"><option>All statuses</option></select><button class="btnGhost">Filter</button></div>
+  <div class="cardTight"><div class="tableWrap"><table class="table"><thead><tr><th>Institute</th><th>Status</th><th>Wave</th><th class="num">Member</th><th>Plan</th><th>Free period ends</th><th class="num">Active students (this month)</th></tr></thead><tbody>
+  ${INSTS.map(i => `<tr><td>${link('console/institute/' + i.id, i.name)}<br><span class="small muted">/${i.slug} · ${i.city}</span></td><td>${status(i.status)}</td><td>${i.wave}</td><td class="num">${i.member ?? '—'}</td><td>${i.plan}</td><td>${i.ends}</td><td class="num">${i.active}</td></tr>`).join('')}</tbody></table></div></div>`);
+V['console/institute'] = (id, q) => { const i = INSTS.find(x => x.id === id) ?? INSTS[0]; const pre = i.status === 'approved';
+  const act = (label, extra = '', danger) => `<div class="form">${extra}<div><button class="btnGhost ${danger ? 'btnDanger' : ''}" onclick="toast('Done.')">${label}</button></div></div>`;
+  return con(`${head(i.name, `/${i.slug} · ${status(i.status)}`, link('console/institutes', 'All institutes', 'btnGhost'))}
+  ${q === 'approved' ? `<p class="banner okBox mb">Approved. The activation link has been emailed to deepa@lotus.demo.</p>` : ''}
+  <div class="grid4 mb">${stat('Wave', i.wave, i.member ? `Member #${i.member}` : 'No place yet')}${stat('Active students this month', `${i.active} / ${i.plan === 'Growth' ? 90 : i.plan === 'Starter' ? 30 : 300}`, meter(i.active, i.plan === 'Growth' ? 90 : i.plan === 'Starter' ? 30 : 300))}${stat('Plan', i.plan, i.plan === 'Growth' ? '₹10,000/month locked' : i.plan === 'Starter' ? '₹3,500/month locked' : '')}${stat('People', pre ? 0 : 66, 'students · 2 teachers · 3 batches')}</div>
+  <div class="grid2"><div class="stack"><div class="card"><h2 class="h2">Profile</h2><table class="table"><tbody>
+    ${[['Contact', 'Anita Rao · admin@brightminds.demo · +91 90000 00000'], ['Location', '12 Demo Street, Chennai, Tamil Nadu'], ['GSTIN', '—'], ['Enquiry', 'SG-BRT001'], ['Approved', '28 Jul 2026, 10:00 am'], ['Paid', pre ? '—' : '4 Oct 2026, 11:42 am'], ['Go-live', pre ? '—' : '9 Oct 2026'], ['Free period ends', i.ends], ['Minimum term ends', pre ? '—' : '9 Apr 2027'], ['Price lock ends', pre ? '—' : '9 Jan 2030'], ['Terms accepted', pre ? '—' : '2026-11-v1 on 4 Oct 2026'], ['Consent declared', pre ? '—' : '4 Oct 2026']].map(([k, v]) => `<tr><td class="muted" style="width:150px">${k}</td><td>${v}</td></tr>`).join('')}</tbody></table></div>
+    <div class="cardTight"><div style="padding:16px 18px 4px"><h2 class="h2">Payments</h2></div><table class="table"><thead><tr><th>Date</th><th>Kind</th><th class="num">Amount + GST</th><th>Via</th><th>Status</th></tr></thead><tbody>
+      ${pre ? '' : `<tr><td>4 Oct 2026</td><td>joining</td><td class="num">₹6,490</td><td>razorpay</td><td>${badge('paid', 'ok')}</td></tr>`}</tbody></table>${pre ? '<div class="empty">No payments yet.</div>' : ''}</div></div>
+  <div class="stack"><div class="card"><h2 class="h2">Actions</h2><div class="stack">
+    ${pre ? act('Resend activation link') + act('Record bank transfer', `<div class="formRow">${field('For', '<select class="select"><option>Joining</option></select>')}${field('Amount before GST (₹)', '<input class="input" value="6000">')}</div>${field('Reference / note', '<input class="input" placeholder="UTR or bank reference">')}`) + act('Reject (before payment)', field('Reason', '<input class="input">'), 1)
+      : (i.status === 'free_period' ? act('Pause free period (once only)', field('Days (1–30)', '<input class="input" value="14">')) : '')
+      + act('Set plan', `<div class="formRow">${field('Plan', '<select class="select"><option>Starter (30 students)</option><option>Growth (90 students)</option><option>Pro (180 students)</option></select>')}${field('Extra packs of 10', '<input class="input" value="0">')}${field('Extra teachers', '<input class="input" value="0">')}</div>`)
+      + (i.status === 'grace' ? act('Reactivate') : '') + act('Start grace (payment failed)') + act('Suspend', '', 1)}
+    <details class="more"><summary>Change portal address</summary></details></div></div>
+  <div class="card"><h2 class="h2">Activity</h2><ul class="list">${(pre ? [['institute.approved', 'Demo Staff → approved', '24 Nov 2026, 3:10 pm'], ['institute.activation_sent', 'Demo Staff', '24 Nov 2026, 3:10 pm']] : [['batch.created', 'Anita Rao (institute_admin)', '22 Nov 2026, 11:03 am'], ['institute.onboarding_complete', 'Demo Staff → free_period', '9 Oct 2026, 4:00 pm'], ['institute.paid', 'Razorpay webhook → paid', '4 Oct 2026, 11:42 am'], ['institute.approved', 'Demo Staff → approved', '28 Jul 2026, 10:00 am']])
+    .map(([a, w, t]) => `<li style="align-items:flex-start"><span><b>${a}</b><br><span class="small muted">${w}</span></span><span class="small muted">${t}</span></li>`).join('')}</ul></div></div></div>`); };
+V['console/members'] = () => con(`${head('Members', '20 places: 10 Founding Partners, then 10 Charter Members. A place is taken only when payment is received.')}
+  <div class="grid2 mb">${stat('Founding Partners', '3 of 10 paid', meter(3, 10) + '<span>7 left · join ₹5,500 + GST · 3 months unlimited</span>')}${stat('Charter Members', '1 of 10 paid', meter(1, 10) + '<span>9 left · join ₹6,000 + GST · 2 months unlimited</span>')}</div>
+  <div class="cardTight"><table class="table"><thead><tr><th class="num">#</th><th>Institute</th><th>Wave</th><th>Paid</th><th>Status</th></tr></thead><tbody>
+  ${INSTS.filter(i => i.member).map(i => `<tr><td class="num"><b>${i.member}</b></td><td>${link('console/institute/' + i.id, i.name)}</td><td>${i.wave}</td><td>${['4 Oct 2026', '16 Jul 2026', '16 Jun 2026', '26 Jul 2026'][i.member - 1]}</td><td>${status(i.status)}</td></tr>`).join('')}</tbody></table></div>`);
+V['console/payments'] = () => con(`${head('Payments', 'Received so far: ₹46,610 including GST.')}
+  <div class="grid2 mb"><div class="card"><h2 class="h2">Free periods ending in 30 days</h2><p class="muted">None.</p></div><div class="card"><h2 class="h2">Overdue (grace or suspended)</h2><ul class="list"><li>${link('console/institute/i2', 'Spark STEM Centre')}<span>grace since 22 Nov 2026</span></li></ul></div></div>
+  <div class="cardTight"><div class="tableWrap"><table class="table"><thead><tr><th>When</th><th>Institute</th><th>Kind</th><th class="num">Taxable</th><th class="num">GST</th><th>Via</th><th>Status</th></tr></thead><tbody>
+  ${[['22 Nov 2026, 10:02 am', 'Spark STEM Centre', 'monthly', 3500, 'razorpay', 'failed'], ['10 Nov 2026, 9:00 am', 'Nova Robotics', 'monthly', 10000, 'razorpay', 'paid'], ['11 Oct 2026, 9:00 am', 'Nova Robotics', 'monthly', 10000, 'razorpay', 'paid'], ['4 Oct 2026, 11:42 am', 'Bright Minds Academy', 'joining', 5500, 'razorpay', 'paid'], ['26 Jul 2026, 2:15 pm', 'Nova Robotics', 'joining', 6000, 'manual', 'paid']]
+    .map(([w, n, k, a, v, s]) => `<tr><td>${w}</td><td>${n}</td><td>${k}</td><td class="num">${inr(a)}</td><td class="num">${inr(Math.round(a * .18))}</td><td>${v}</td><td>${badge(s, s === 'paid' ? 'ok' : 'bad')}</td></tr>`).join('')}</tbody></table></div></div>`);
+V['console/onboarding'] = () => con(`${head('Onboarding', 'Paid institutes awaiting training. Each goes live automatically 7 days after payment if not marked complete first.')}
+  <div class="cardTight"><table class="table"><thead><tr><th>Institute</th><th>Status</th><th>Paid</th><th>Training</th><th>Auto go-live</th></tr></thead><tbody>
+  <tr><td>${link('console/institute/i1', 'Sunrise Science Academy')}</td><td>${status('onboarding')}</td><td>24 Nov 2026</td><td>27 Nov 2026</td><td>1 Dec 2026 (6 days)</td></tr></tbody></table></div>`);
+V['console/team'] = () => con(`${head('Team', 'StemGrid staff who can use this console. Everyone signs in with a password and an authenticator app.')}
+  <div class="grid2"><div class="cardTight"><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Since</th><th>Status</th><th></th></tr></thead><tbody>
+    <tr><td>Demo Staff (you)</td><td>staff@stemgrid.in</td><td>1 Nov 2026</td><td>${badge('active', 'ok')}</td><td></td></tr><tr><td>Sales Lead</td><td>sales@stemgrid.in</td><td>12 Nov 2026</td><td>${badge('active', 'ok')}</td><td><button class="btnGhost btnSmall">Deactivate</button></td></tr></tbody></table></div>
+  <div class="card"><h2 class="h2">Add a staff member</h2><div class="form">${field('Name', '<input class="input">')}${field('Email', '<input class="input">')}${field('Temporary password', '<input class="input">', 'At least 12 characters. They set up their authenticator app at first sign-in.')}<div><button class="btn">Add staff member</button></div></div></div></div>`);
+
+/* ============================================================ router */
+function render() {
+  const raw = location.hash.slice(2) || 'admin/dashboard';
+  const [path, q] = raw.split('?');
+  const parts = path.split('/');
+  let view = V[path], args = [q];
+  if (!view) { view = V[parts.slice(0, 2).join('/')] ?? V[parts[0]]; args = [parts[parts[0] === 'activate' ? 1 : 2], q]; }
+  if (!view) { view = V['admin/dashboard']; args = []; }
+  $('#overlay').innerHTML = '';
+  $('#app').innerHTML = view(...args);
+  const role = parts[0] === 'public' ? 'public' : parts[0] === 'student' && parts[1] === 'simulator' ? 'student' : parts[0];
+  document.querySelectorAll('#proto [data-role]').forEach(b => b.classList.toggle('on', b.dataset.role === role));
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('#proto [data-go]').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
+$('#stateSel').addEventListener('change', e => { STATE = e.target.value; if (!location.hash.startsWith('#/admin') && !location.hash.startsWith('#/teacher')) go('admin/dashboard'); else render(); });
+window.addEventListener('hashchange', render);
+render();
+</script>
+</body>
+</html>

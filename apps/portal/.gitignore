@@ -1,0 +1,22 @@
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+
+# copied from apps/simulator by scripts/copy-sim.mjs (predev / prebuild)
+/public/assets/
+/src/simulator/engine/
+
+# local testing state (scripts/local.mjs, /dev pages)
+/dev/.state.json
+/dev/.mailbox.json
+/dev/.enquiries.local.json
+/dev/.storage/
+/supabase/.temp/
+/supabase/.branches/
+/dev/.activation-link
+
+# copied from apps/simulator/supabase/migrations by scripts/local.mjs (one shared Supabase project)
+/supabase/migrations/
