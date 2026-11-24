@@ -268,7 +268,8 @@
 }
 @media (max-width: 704px) {
   .navGhost { display: none; }
-  .hero { padding: 88px 17.6px 61.6px; min-height: 0; }
+  /* the red card fills the first screen under the nav, with the same small margin below as at the sides */
+  .hero { padding: 88px 17.6px 61.6px; min-height: calc(100vh - 70.4px - 8.8px); min-height: calc(100svh - 70.4px - 8.8px); }
   .title { font-size: clamp(35.2px, 9.5vw, 46.2px); }
   .dock { display: flex; width: 100%; }
   .run, .soft { flex: 1; justify-content: center; padding: 13.2px 11px; }

@@ -13,8 +13,15 @@
   --bg: #F3F3F5; --rise: 0; --side: 0; --title: 0; --cta: 0; --p: 0; --float: 0;
   --gold-1: #FFE7A8; --gold-2: #E8B54A; --gold-3: #A8771F;
   --shift: calc(var(--side) * -22vw);
-  position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; isolation: isolate;
+  /* --ui: how much taller the screen gets when a phone's browser bar slides away. The stage is
+     that tall (100lvh), so no light page shows below it while scrolling; the content keeps to
+     the always-visible part (100svh) by staying --ui clear of the bottom. */
+  --ui: 0px;
+  position: sticky; top: 0; height: 100vh; overflow: hidden; isolation: isolate;
   background: var(--bg); color: #F3E9D6;
+}
+@supports (height: 100lvh) {
+  .stage { --ui: calc(100lvh - 100svh); height: 100lvh; }
 }
 .dust { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 
@@ -167,7 +174,8 @@
   .cardWrap { translate: -50% calc(-50% - var(--side) * 25svh); }
   .card { width: min(78vw, 420px); scale: calc(1 - var(--side) * .22); }
   .rays { translate: -50% calc(-50% - var(--side) * 25svh); }
-  .copy { left: 19.8px; right: 19.8px; top: auto; bottom: clamp(19.8px, 4svh, 35.2px); translate: none; }
+  .cardWrap { top: calc(50% - var(--ui) / 2); }
+  .copy { left: 19.8px; right: 19.8px; top: auto; bottom: calc(clamp(19.8px, 4svh, 35.2px) + var(--ui)); translate: none; }
   .h2 { font-size: clamp(28.6px, 8vw, 39.6px); }
   .lede { font-size: 14.3px; margin-top: 8.8px; }
   .perks { grid-template-columns: minmax(0, 1fr); gap: 7.7px; margin-top: 13.2px; }
@@ -182,11 +190,11 @@
 @media (max-width: 560px) {
   .stage {
     display: flex; flex-direction: column; justify-content: center; align-items: center;
-    gap: clamp(17.6px, 3svh, 26.4px); padding: 22px 19.8px;
+    gap: clamp(17.6px, 3svh, 26.4px); padding: 22px 19.8px calc(22px + var(--ui));
   }
   .cardWrap { position: relative; left: auto; top: auto; translate: 0 calc((1 - var(--side)) * 24svh); }
   .card { width: min(82vw, 30svh * 1.586, 400px); scale: 1; }
-  .rays { top: 50%; translate: -50% calc(-50% - var(--side) * 22svh); }
+  .rays { top: calc(50% - var(--ui) / 2); translate: -50% calc(-50% - var(--side) * 22svh); }
   .copy { position: relative; left: auto; right: auto; bottom: auto; top: auto; translate: none; width: 100%; text-align: center; }
   .h2 { font-size: clamp(28.6px, 8.2vw, 35.2px); text-wrap: balance; }
   .lede { margin: 8.8px auto 0; max-width: 34ch; font-size: 14.3px; }
