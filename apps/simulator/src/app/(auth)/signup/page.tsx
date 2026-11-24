@@ -1,17 +1,19 @@
 import type { Metadata } from 'next';
-import AuthShell from '@/ui/AuthShell';
 import { googleEnabled } from '@/lib/origin';
 import { safeNext } from '@/lib/safe-next';
-import { SignupForm } from '../forms';
+import { SignupFlow } from '../forms';
 
 export const metadata: Metadata = { title: 'Create an account · StemGrid Beta' };
 
+/* /signup for individuals, /signup?as=institution for schools and organisations. */
 export default async function SignupPage({ searchParams }: PageProps<'/signup'>) {
   const q = await searchParams;
-  const next = Array.isArray(q.next) ? q.next[0] : q.next;
+  const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
   return (
-    <AuthShell>
-      <SignupForm next={safeNext(next)} google={await googleEnabled()} />
-    </AuthShell>
+    <SignupFlow
+      next={safeNext(one(q.next))}
+      google={await googleEnabled()}
+      initial={one(q.as) === 'institution' ? 'institution' : 'individual'}
+    />
   );
 }

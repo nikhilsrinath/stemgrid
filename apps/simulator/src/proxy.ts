@@ -48,7 +48,8 @@ export async function proxy(request: NextRequest) {
   if (!uid && under(path, PRIVATE)) {
     return redirect('/login', { next: path + request.nextUrl.search });
   }
-  if (uid && under(path, AUTH_ONLY_GUESTS)) {
+  // (the institution enquiry form on /signup?as=institution stays open to signed-in users)
+  if (uid && under(path, AUTH_ONLY_GUESTS) && !(path === '/signup' && request.nextUrl.searchParams.get('as') === 'institution')) {
     return redirect('/projects');
   }
   if (uid && under(path, NEEDS_PROFILE)) {
