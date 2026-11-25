@@ -36,10 +36,7 @@ const year = new Date().getFullYear();
     <div class="ft-cols">
       <div class="ft-brand">
         <a href="#top" class="ft-logo" aria-label="StemGrid home">
-          <span class="ft-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><g fill="currentColor">{[5, 12, 19].map((x) => [5, 12, 19].map((y) => <circle cx={x} cy={y} r={x === 12 && y === 12 ? 3.2 : 2} />))}</g></svg>
-          </span>
-          <span class="ft-stem">stem</span><span class="ft-gridw">GRID</span>
+          <img class="ft-img" src="/stemgrid-logo.png" alt="StemGrid Tech Labs" width="640" height="287" loading="lazy" />
         </a>
         <p>Real electronics, coding and robotics for schools, with plug-and-play Quark Kits, trained tutors and Lab on Wheels.</p>
       </div>
@@ -179,15 +176,9 @@ const year = new Date().getFullYear();
   /* ---------- columns ---------- */
   .ft-cols { display: grid; grid-template-columns: 1.3fr 1fr 1fr auto; gap: 36px 40px; align-items: start; padding: clamp(40px, 5vw, 60px) 0 clamp(16px, 2vw, 28px); }
   .ft-logo { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--color-cream); }
-  .ft-mark {
-    display: grid; place-items: center; width: 32px; height: 32px; margin-right: 4px; border-radius: 9px;
-    background: var(--color-red); color: var(--color-cream); border: 2px solid var(--color-cream);
-    transition: rotate .4s cubic-bezier(.34, 1.8, .5, 1);
-  }
-  .ft-mark svg { width: 18px; height: 18px; }
-  .ft-logo:hover .ft-mark { rotate: 90deg; }
-  .ft-stem { font-family: var(--font-display); font-size: 26px; line-height: 1; color: var(--color-red); translate: 0 -1px; }
-  .ft-gridw { font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 12px; letter-spacing: .24em; }
+  .ft-logo { padding: 10px 14px; border-radius: 14px; background: var(--color-cream); transition: rotate .35s cubic-bezier(.34, 1.8, .5, 1); }
+  .ft-img { display: block; height: 56px; width: auto; }
+  .ft-logo:hover { rotate: -3deg; }
   .ft-brand p { margin: 14px 0 0; max-width: 36ch; font-size: 14px; line-height: 1.65; }
   .ft-col-h {
     margin: 0 0 14px; color: var(--color-cream);
@@ -285,6 +276,6 @@ const year = new Date().getFullYear();
   }
   @media (prefers-reduced-motion: reduce) {
     .ft-word[data-on] span, .ft-link:hover .ft-wire, .ft-top:hover .ft-top-btn svg, .ft-cta:hover svg { animation: none; }
-    .ft-word span, .ft-sim, .ft-cta, .ft-mark { transition: none; }
+    .ft-word span, .ft-sim, .ft-cta, .ft-logo { transition: none; }
   }
 </style>

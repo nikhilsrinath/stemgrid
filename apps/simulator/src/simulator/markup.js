@@ -16,8 +16,8 @@ const markup = `<div class="app">
     <div class="ab-group">
       <button id="homeBtn" class="icon-btn" title="Back to the StemGrid home page" aria-label="Home">${ICON.back}</button>
       <div class="brand">
-        <span class="mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-        <span class="wordmark">StemGrid</span><span class="beta">Beta</span>
+        <img class="brand-logo" src="/brand/stemgrid-logo.png" alt="StemGrid Tech Labs" width="640" height="287" />
+        <span class="beta">Beta</span>
       </div>
       <span class="sep"></span>
       <div class="doc"><span contenteditable="true" spellcheck="false" id="docName">Untitled build</span><span class="saved" id="saveState" data-s="guest" role="status" aria-live="polite"></span></div>

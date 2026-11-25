@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import BrandLogo from '@/ui/BrandLogo';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
@@ -34,7 +35,7 @@ export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
   return (
     <nav className={s.appNav}>
       <div className={s.appNavIn}>
-        <Link href="/projects" className={s.logo}>StemGrid<span className={s.beta}>Beta</span></Link>
+        <Link href="/projects" className={s.logo} aria-label="Your projects"><BrandLogo height={38} /><span className={s.beta}>Beta</span></Link>
         <div className={s.navLinks}>
           <Link href="/projects" aria-current={here('/projects')}>My projects</Link>
           <Link href="/profile" aria-current={here('/profile')}>Profile</Link>

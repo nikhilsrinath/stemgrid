@@ -16,7 +16,7 @@ export default function Shell({ brand, homeHref, nav, who, signOut, banners, chi
     <div className={s.root}>
       <header className={s.top}>
         <Link href={homeHref} className={s.brand}>
-          {brand.console ? <Mark /> : <InstituteLogo name={brand.name} path={brand.logoPath ?? null} updatedAt={brand.updatedAt} />}
+          {brand.console ? <Mark height={34} /> : <InstituteLogo name={brand.name} path={brand.logoPath ?? null} updatedAt={brand.updatedAt} />}
           <span>
             <span className={s.brandName}>{brand.name}</span>
             <span className={s.brandSub}>{brand.sub}</span>

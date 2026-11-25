@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BrandLogo from '@/ui/BrandLogo';
 import type { CSSProperties } from 'react';
 import BuildDemo from '../landing/BuildDemo';
 import Footer from '../landing/Footer';
@@ -43,8 +44,7 @@ export default function Home() {
       {/* ---------- nav ---------- */}
       <nav className={s.nav}>
         <Link href="/" className={s.logo}>
-          <span className={s.mark} aria-hidden="true"><i /><i /><i /><i /></span>
-          StemGrid<span className={s.beta}>Beta</span>
+          <BrandLogo height={38} /><span className={s.beta}>Beta</span>
         </Link>
         <div className={s.links}>
           <a href="#features">Features</a>

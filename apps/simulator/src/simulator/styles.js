@@ -34,6 +34,7 @@ const styles = `  :root{
   .ab-group{display:flex;align-items:center;gap:6px;min-width:0}
   .sep{width:1px;height:22px;background:var(--line);margin:0 6px;flex:none}
   .brand{display:flex;align-items:center;gap:8px;padding:0 4px}
+  .brand-logo{display:block;height:30px;width:auto;flex:none}
   .mark{width:22px;height:22px;border-radius:6px;background:var(--sg-red);display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:5px;flex:none}
   .mark i{background:var(--sg-cream);border-radius:50%}
   .wordmark{font-weight:800;font-size:16px;letter-spacing:-.02em}

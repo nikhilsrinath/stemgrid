@@ -5,12 +5,14 @@ import s from './ui.module.css';
 
 export { s };
 
-export function Mark() {
-  return <span className={s.mark} aria-hidden><i /><i /><i /><i /></span>;
+/* The StemGrid Tech Labs logo (public/brand/stemgrid-logo.png, transparent, 640x287). */
+export function Mark({ height = 40 }: { height?: number }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src="/brand/stemgrid-logo.png" alt="StemGrid Tech Labs" width={Math.round(height * 640 / 287)} height={height} className={s.mark} style={{ height }} />;
 }
 
 export function StemGridLogo({ href = '/' }: { href?: string }) {
-  return <Link href={href} className={s.logo}><Mark /> StemGrid</Link>;
+  return <Link href={href} className={s.logo} aria-label="StemGrid home"><Mark height={34} /></Link>;
 }
 
 export function InstituteLogo({ name, path, updatedAt, large }: { name: string; path: string | null; updatedAt?: string; large?: boolean }) {

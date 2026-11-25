@@ -13,7 +13,7 @@ export default function DevLayout({ children }: { children: ReactNode }) {
   return (
     <div className={s.root}>
       <header className={s.top}>
-        <Link href="/dev" className={s.brand}><Mark /><span><span className={s.brandName}>Local testing</span><span className={s.brandSub}>Fake services · never in production</span></span></Link>
+        <Link href="/dev" className={s.brand}><Mark height={34} /><span><span className={s.brandName}>Local testing</span><span className={s.brandSub}>Fake services · never in production</span></span></Link>
         <nav className={s.nav}>
           {[['/dev/clock', 'Date'], ['/dev/cron', 'Daily job'], ['/dev/mail', 'Mailbox'], ['/', 'Portal']].map(([h, l]) => <Link key={h} className={s.navLink} href={h}>{l}</Link>)}
         </nav>

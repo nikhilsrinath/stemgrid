@@ -5,6 +5,7 @@
    and the last line. Client component only for the smooth "Back to top". */
 
 import Link from 'next/link';
+import BrandLogo from '@/ui/BrandLogo';
 import type { ReactNode } from 'react';
 import f from './footer.module.css';
 import { smoothTo } from './SmoothScroll';
@@ -34,8 +35,7 @@ export default function Footer({ siteUrl }: { siteUrl: string }) {
         <div className={f.cols}>
           <div className={f.brand}>
             <Link href="/" className={f.logo}>
-              <span className={f.mark} aria-hidden="true"><i /><i /><i /><i /></span>
-              StemGrid
+              <BrandLogo height={48} chip />
             </Link>
             <p>A real electronics kit in your browser. Snap modules onto a plate, plug in the cables and code it in Python.</p>
           </div>

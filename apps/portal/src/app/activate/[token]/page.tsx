@@ -29,7 +29,7 @@ export default async function ActivatePage({ params, searchParams }: PageProps<'
           <div className={s.authHead}>
             {inst ? <InstituteLogo name={inst.name} path={inst.logo_path} large /> : <Mark />}
             <h1 className={s.h1}>{inst ? inst.name : 'Activate your institute'}</h1>
-            <span className={s.poweredBy}><Mark /> StemGrid membership</span>
+            <span className={s.poweredBy}><Mark height={24} /> membership</span>
           </div>
           {body}
           <div className={s.authFoot}><Link href="/terms">Membership terms</Link><Link href="/privacy">Privacy</Link><a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a><span>{CONTACT.phone}</span></div>

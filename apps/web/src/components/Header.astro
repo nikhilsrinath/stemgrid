@@ -11,10 +11,7 @@ import { SIMULATOR_URL as simulatorUrl } from "../lib/site";
 <header class="site-header" data-header>
   <nav class="nav" aria-label="Main">
     <a href="#top" class="nav-logo" aria-label="StemGrid home">
-      <span class="nav-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><g fill="currentColor">{[5, 12, 19].map((x) => [5, 12, 19].map((y) => <circle cx={x} cy={y} r={x === 12 && y === 12 ? 3.2 : 2} />))}</g></svg>
-      </span>
-      <span class="nav-stem">stem</span><span class="nav-grid">GRID</span>
+      <img class="nav-img" src="/stemgrid-logo.png" alt="StemGrid Tech Labs" width="640" height="287" />
     </a>
 
     <ul class="nav-links" data-nav-links>
@@ -70,15 +67,8 @@ import { SIMULATOR_URL as simulatorUrl } from "../lib/site";
 
   /* logo */
   .nav-logo { display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--color-ink); flex: none; }
-  .nav-mark {
-    display: grid; place-items: center; width: 32px; height: 32px; margin-right: 4px; border-radius: 9px;
-    background: var(--color-red); color: var(--color-cream); border: 2px solid var(--color-ink);
-    transition: rotate .4s cubic-bezier(.34, 1.8, .5, 1);
-  }
-  .nav-mark svg { width: 18px; height: 18px; }
-  .nav-logo:hover .nav-mark { rotate: 90deg; }
-  .nav-stem { font-family: var(--font-display); font-size: 24px; line-height: 1; color: var(--color-red); translate: 0 -1px; }
-  .nav-grid { font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 11px; letter-spacing: .24em; }
+  .nav-img { display: block; height: 40px; width: auto; transition: rotate .35s cubic-bezier(.34, 1.8, .5, 1); }
+  .nav-logo:hover .nav-img { rotate: -3deg; }
 
   /* links with a sliding active pill */
   .nav-links { position: relative; display: flex; gap: 2px; margin: 0 auto; padding: 4px; list-style: none; border-radius: 12px; background: rgba(17, 17, 17, .06); }
@@ -171,8 +161,7 @@ import { SIMULATOR_URL as simulatorUrl } from "../lib/site";
   @media (max-width: 400px) {
     .nav-cta { padding: 0 12px; font-size: 9.5px; }
     .nav-cta svg { display: none; }
-    .nav-stem { font-size: 21px; }
-    .nav-grid { display: none; }
+    .nav-img { height: 34px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .site-header, .nav-pill { transition: none; }

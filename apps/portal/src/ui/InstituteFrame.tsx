@@ -13,7 +13,7 @@ export default function InstituteFrame({ inst, title, wide, children }: { inst: 
           <div className={s.authHead}>
             <InstituteLogo name={inst.name} path={inst.logo_path} updatedAt={inst.updated_at} large />
             <h1 className={s.h1} style={{ fontSize: 24 }}>{inst.name}</h1>
-            <span className={s.poweredBy}><Mark /> StemGrid</span>
+            <span className={s.poweredBy}>Powered by <Mark height={24} /></span>
             {title && <p className={s.muted}>{title}</p>}
           </div>
           {children}

@@ -23,8 +23,7 @@
 
 /* ---------------------------------------------------------------- brand */
 .logo { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; font: 700 16px/1 var(--font); letter-spacing: -.02em; white-space: nowrap; }
-.mark { display: grid; grid-template-columns: 1fr 1fr; gap: 2.4px; width: 22px; height: 22px; padding: 4.6px; border-radius: 6px; background: var(--red); flex: none; }
-.mark i { border-radius: 50%; background: #fff; }
+.mark { display: block; width: auto; flex: none; }
 .instLogo { width: 34px; height: 34px; border-radius: 9px; object-fit: contain; background: #fff; box-shadow: var(--shadow); flex: none; }
 .instLogoLg { width: 64px; height: 64px; border-radius: 16px; object-fit: contain; background: #fff; box-shadow: var(--shadow); }
 .instInitials { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--ink); color: #fff; font-weight: 700; font-size: 13px; flex: none; }
@@ -168,7 +167,6 @@ details.more > summary::-webkit-details-marker { display: none; }
 .authCardWide { composes: authCard; width: min(640px, 100%); }
 .authHead { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; margin-bottom: 22px; }
 .poweredBy { display: inline-flex; align-items: center; gap: 6px; color: var(--dim); font-size: 12px; font-weight: 600; }
-.poweredBy .mark { width: 16px; height: 16px; padding: 3.4px; gap: 1.8px; border-radius: 4.5px; }
 .authFoot { margin-top: 18px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; font-size: 12.5px; color: var(--dim); }
 .authFoot a { color: var(--dim); }
 

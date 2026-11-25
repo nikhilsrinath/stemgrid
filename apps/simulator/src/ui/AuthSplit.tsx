@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import BrandLogo from '@/ui/BrandLogo';
 import type { ReactNode } from 'react';
 import a from './auth.module.css';
 
@@ -17,8 +18,7 @@ export default function AuthSplit({ aside, children, top, wide }: { aside: AuthA
     <div className={a.root}>
       <aside className={a.panel}>
         <Link href="/" className={a.logo}>
-          <span className={a.mark} aria-hidden="true"><i /><i /><i /><i /></span>
-          StemGrid<span className={a.beta}>Beta</span>
+          <BrandLogo height={40} chip /><span className={a.beta}>Beta</span>
         </Link>
         <div className={a.panelBody}>
           <h2 className={a.panelTitle}>{aside.title}</h2>
@@ -35,8 +35,7 @@ export default function AuthSplit({ aside, children, top, wide }: { aside: AuthA
       <main className={a.main}>
         <div className={a.mainTop}>
           <Link href="/" className={`${a.logo} ${a.logoMobile}`}>
-            <span className={a.mark} aria-hidden="true"><i /><i /><i /><i /></span>
-            StemGrid
+            <BrandLogo height={34} />
           </Link>
           {top ?? <Link href="/simulator" className={a.topLink}>Try the simulator →</Link>}
         </div>
