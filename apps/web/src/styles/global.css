@@ -10,6 +10,8 @@
 
 @layer base {
   html { scroll-behavior: smooth; }
+  /* iPad Safari zooms the page out to fit anything that pokes out sideways, leaving white strips: clip it */
+  html, body { overflow-x: clip; }
   body {
     background: var(--color-cream);
     color: var(--color-ink);

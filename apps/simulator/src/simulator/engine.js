@@ -2066,7 +2066,13 @@ const hideGhost = () => { ghost.visible = false; };
 
 // ---- start a drag on an existing object ----
 canvas.addEventListener('pointerdown', e => {
+  // fingers are handled by the touch layer below (tap to select, pinch, twist); OrbitControls never sees them
+  if (e.pointerType === 'touch') { e.stopImmediatePropagation(); touchDown(e); return; }
   if (e.button !== 0) return;
+  pressAt(e);
+});
+// a press on the table at e's position: grab, press or select whatever is there (mouse down, or a touch once it's clearly meant)
+function pressAt(e) {
   camTween = null;
   setRay(e);
   const hit = pick();
@@ -2094,7 +2100,101 @@ canvas.addEventListener('pointerdown', e => {
   drag = { ref: hit, pending: true, sx: e.clientX, sy: e.clientY };
   select(hit.type === 'plug' ? hit.cable : hit.type === 'target' ? hit.m : hit);
   if (hit.type === 'plug') lastPlug = hit;
-});
+}
+
+/* ---------- touch (iPad, tablets, phones) ----------
+   A finger that lands on a part does nothing until it's clearly meant: lifting it is a tap (select,
+   press a button), moving it drags the part, holding it still grabs it. If a second finger comes
+   down first, it was never a touch on the part: it's a pinch, so nothing gets selected.
+   One finger on empty table ...... orbit        Tap on empty table ... deselect
+   Two fingers ................... pinch to zoom, drag to pan, twist to turn the table          */
+const touches = new Map();                           // pointerId -> {x, y}
+let tPend = null;                                    // finger on a part, not yet a tap or a drag
+let tHold = null;                                    // a hold grabbed a part: what was selected before, to undo if it turns into a pinch
+let tNav = null;                                     // 'orbit' | 'pinch' | 'done' (fingers left over after a pinch do nothing)
+let tGest = null, tStart = null, tMoved = false, tFirst = null;   // tFirst: the finger that can move a part
+const TAP_SLOP = 10, HOLD_MS = 350;
+function gestOf() {
+  const [a, b] = [...touches.values()];
+  return { d: Math.hypot(b.x - a.x, b.y - a.y), a: Math.atan2(b.y - a.y, b.x - a.x), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2 };
+}
+function commitTouch() {
+  const p = tPend; if (!p) return;
+  tPend = null; clearTimeout(p.timer);
+  pressAt({ clientX: p.x, clientY: p.y, pointerId: p.id, button: 0 });
+}
+function touchDown(e) {
+  camTween = null;
+  touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  try { canvas.setPointerCapture(e.pointerId); } catch {}
+  if (touches.size === 1) {
+    tMoved = false; tStart = { x: e.clientX, y: e.clientY }; tHold = null; tFirst = e.pointerId;
+    setRay(e);
+    if (pick()) {
+      tNav = null;
+      tPend = { id: e.pointerId, x: e.clientX, y: e.clientY };
+      tPend.timer = setTimeout(() => { tHold = { prev: selected }; commitTouch(); }, HOLD_MS);
+    } else { tPend = null; tNav = 'orbit'; }
+    return;
+  }
+  // another finger: navigation. Leave a part that's already being moved alone.
+  if (drag?.active && drag.ref.type !== 'knob' && drag.ref.type !== 'arm') return;
+  cancelTouchPress();
+  tNav = 'pinch'; tGest = gestOf();
+}
+function cancelTouchPress() {
+  if (tPend) { clearTimeout(tPend.timer); tPend = null; }
+  if (held) { held.m.def.sim.press?.(held.m, held.act, false); held = null; }
+  if (drag) {
+    if (drag.ref.type === 'knob') { drag.ref.m.state.v = drag.v0; syncPot(drag.ref.m); }
+    drag = null; canvas.style.cursor = ''; controls.enabled = true;
+  }
+  if (tHold) { if (selected !== tHold.prev) select(tHold.prev); tHold = null; }
+  kick();
+}
+// returns true when the move was used up here (navigation), false to let the drag code see it
+function touchMove(e) {
+  const t = touches.get(e.pointerId), px = t.x, py = t.y;
+  t.x = e.clientX; t.y = e.clientY;
+  if (tPend) {
+    if (Math.hypot(e.clientX - tPend.x, e.clientY - tPend.y) <= TAP_SLOP) return true;
+    commitTouch();                                   // it's a drag: grab the part where the finger landed
+    return false;
+  }
+  if (drag) return e.pointerId !== tFirst;          // only the first finger moves a part
+  if (tNav === 'orbit' && touches.size === 1) {
+    if (!tMoved && Math.hypot(e.clientX - tStart.x, e.clientY - tStart.y) > TAP_SLOP) tMoved = true;
+    if (tMoved) { orbitBy((e.clientX - px) * 1.1, (e.clientY - py) * 1.1); kick(); }
+    return true;
+  }
+  if (tNav === 'pinch' && touches.size >= 2) {
+    const g = gestOf();
+    if (g.d > 20 && tGest.d > 20) zoomBy(Math.log(tGest.d / g.d), { clientX: g.mx, clientY: g.my });
+    panBy(-(g.mx - tGest.mx), -(g.my - tGest.my));
+    let da = g.a - tGest.a;
+    if (da > Math.PI) da -= 2 * Math.PI; else if (da < -Math.PI) da += 2 * Math.PI;
+    if (Math.abs(da) < 0.5) orbitBy(-da / 0.005, 0);   // twist turns the table with the fingers
+    tGest = g; kick();
+    return true;
+  }
+  return true;
+}
+// returns true when the drag code should not see this lift (a spare finger while a part is moving)
+function touchUp(e) {
+  touches.delete(e.pointerId);
+  if (e.pointerId !== tFirst && drag?.active) { if (!touches.size) { tNav = null; tGest = null; } return true; }
+  if (tPend && tPend.id === e.pointerId) {
+    if (e.type === 'pointercancel') { clearTimeout(tPend.timer); tPend = null; }
+    else {
+      commitTouch();                                 // a tap on a part: select it, press what it hit
+      if (held) { const h = held; held = null; setTimeout(() => h.m.def.sim.press?.(h.m, h.act, false), 150); }
+    }
+  } else if (tNav === 'orbit' && !tMoved && !touches.size && !drag && e.type !== 'pointercancel') select(null);
+  tHold = null;
+  if (!touches.size) { tNav = null; tGest = null; }
+  else if (tNav === 'pinch') { if (touches.size >= 2) tGest = gestOf(); else tNav = 'done'; }
+  return false;
+}
 
 function beginDrag(e) {
   const o = drag.ref; drag.pending = false; drag.active = true;
@@ -2249,28 +2349,38 @@ function endDrag() {
 }
 
 addEventListener('pointermove', e => {
+  if (sidePend && e.pointerId === sidePend.id) return moveSidePend(e);
+  if (e.pointerType === 'touch' && touches.has(e.pointerId) && touchMove(e)) return;
   if (sideDrag) return moveSideDrag(e);
   if (drag) {
     if (drag.pending && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) > 4) beginDrag(e);
     else if (drag.active) updateDrag(e);
     return;
   }
-  if (e.target === canvas) {
+  if (e.target === canvas && e.pointerType !== 'touch') {
     setRay(e); const h = pick(), act = actOf(h);
     canvas.style.cursor = h?.type === 'target' ? 'ns-resize' : act === 'knob' ? 'ew-resize' : act === 'arm' ? 'grab' : boardBtnHit(h) || act ? 'pointer' : h ? 'grab' : '';
   }
 });
-addEventListener('pointerup', e => {
+function pointerEnd(e) {
+  if (sidePend && e.pointerId === sidePend.id) { if (e.type === 'pointerup') toast('Drag the part sideways onto the table to place it.'); sidePend = null; return; }
+  if (e.pointerType === 'touch' && touches.has(e.pointerId) && touchUp(e)) return;
+  if (e.type === 'pointercancel' && !drag && !sideDrag) return;
   if (held) { held.m.def.sim.press?.(held.m, held.act, false); held = null; }
   if (sideDrag) return endSideDrag(e);
   if (!drag) return;
   if (drag.active) endDrag();
   drag = null; controls.enabled = true; canvas.style.cursor = '';
   changed();
-});
+}
+addEventListener('pointerup', pointerEnd);
+addEventListener('pointercancel', pointerEnd);
 
 /* ---------- drag from the side nav ---------- */
+// on touch the parts list has to scroll too: a finger only picks a part up once it moves sideways
+let sidePend = null;
 function startSideDrag(e, item) {
+  if (e.pointerType === 'touch' && !sidePend) { sidePend = { id: e.pointerId, x: e.clientX, y: e.clientY, item }; return; }
   e.preventDefault();
   const chip = document.createElement('div'); chip.className = 'dragchip';
   chip.innerHTML = `<img src="${imgSrc(item)}" alt="">${item.name}`;
@@ -2278,6 +2388,11 @@ function startSideDrag(e, item) {
   sideDrag = { item, chip, spawned: null };
   select(null);
   moveSideDrag(e);
+}
+function moveSidePend(e) {
+  const dx = e.clientX - sidePend.x, dy = e.clientY - sidePend.y;
+  if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) { const it = sidePend.item; startSideDrag(e, it); sidePend = null; }
+  else if (Math.abs(dy) > 12) sidePend = null;      // scrolling the list
 }
 function spawnFor(item) {
   if (item.id === 'plate') { const p = makePlate(); p.dragging = true; return { ref: p, offset: V() }; }
@@ -2367,6 +2482,21 @@ const bzRelease = () => { if (bzHeld) bzPress(bzHeld, 0); };
 addEventListener('pointerup', bzRelease); addEventListener('pointercancel', bzRelease); addEventListener('blur', bzRelease);
 addEventListener('keyup', e => { if (bzHeld && /^[1-8]$/.test(e.key)) bzRelease(); });
 docOn('visibilitychange', () => { if (document.hidden) { bzRelease(); modules.forEach(m => m.snd && buzzSound(m, 0)); } });
+
+/* ---------- parts sidebar: hide / show (remembered on this device) ---------- */
+const appEl = document.querySelector('.app'), sideBtn = document.getElementById('sideBtn');
+function setSide(open, remember) {
+  appEl.classList.toggle('side-closed', !open);
+  sideBtn.setAttribute('aria-expanded', String(open));
+  sideBtn.title = open ? 'Hide the parts library' : 'Show the parts library';
+  if (remember) try { localStorage.setItem('sg:side', open ? '1' : '0'); } catch {}
+}
+let sideSaved = null; try { sideSaved = localStorage.getItem('sg:side'); } catch {}
+setSide(DEMO || sideSaved !== '0', false);
+sideBtn.onclick = () => setSide(appEl.classList.contains('side-closed'), true);
+document.getElementById('sideClose').onclick = () => setSide(false, true);
+// Safari's own pinch-zoom of the whole page would fight the table's pinch: the simulator handles pinches itself
+if (!DEMO) for (const t of ['gesturestart', 'gesturechange']) docOn(t, e => e.preventDefault(), { passive: false });
 
 /* ---------- top bar ---------- */
 document.getElementById('viewBtn').onclick = () => { camTween = null; camera.position.copy(CAM_HOME); controls.target.copy(TARGET_HOME); zoomDist = CAM_HOME.distanceTo(TARGET_HOME); kick(); };

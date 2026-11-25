@@ -8,6 +8,8 @@ const ICON = {
   keys: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>',
   code: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m8 7-5 5 5 5"/><path d="m16 7 5 5-5 5"/></svg>',
   save: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 3v5h8"/><path d="M7 21v-7h10v7"/></svg>',
+  side: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/></svg>',
+  close: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
   search: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
 };
 
@@ -15,6 +17,7 @@ const markup = `<div class="app">
   <header class="appbar">
     <div class="ab-group">
       <button id="homeBtn" class="icon-btn" title="Back to the StemGrid home page" aria-label="Home">${ICON.back}</button>
+      <button id="sideBtn" class="icon-btn" title="Hide the parts library" aria-label="Parts library" aria-controls="sideNav" aria-expanded="true">${ICON.side}</button>
       <div class="brand">
         <img class="brand-logo" src="/brand/stemgrid-logo.png" alt="StemGrid Tech Labs" width="640" height="287" />
         <span class="beta">Beta</span>
@@ -35,6 +38,8 @@ const markup = `<div class="app">
             <span>Drive the OLED menu</span><kbd>↑ ↓ ⏎ ←</kbd>
             <span>Pan · pinch to zoom</span><kbd>2 fingers</kbd>
             <span>Rotate the view</span><kbd>⇧ + 2 fingers</kbd>
+            <span>Touch: zoom · pan · turn</span><kbd>pinch · drag · twist</kbd>
+            <span>Touch: tilt and orbit</span><kbd>1 finger</kbd>
           </div>
         </div>
       </details>
@@ -48,9 +53,9 @@ const markup = `<div class="app">
   </header>
 
   <div class="workspace">
-    <aside>
+    <aside id="sideNav">
       <div class="aside-h">
-        <span>Parts</span>
+        <div class="aside-t"><span>Parts</span><button id="sideClose" class="icon-btn" title="Hide the parts library" aria-label="Hide the parts library">${ICON.close}</button></div>
         <div class="search">${ICON.search}<input id="q" placeholder="Search parts" autocomplete="off"></div>
       </div>
       <div class="lib" id="lib"></div>

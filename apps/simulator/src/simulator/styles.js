@@ -12,7 +12,7 @@ const styles = `  :root{
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden;background:var(--sg-red);font-family:Poppins,system-ui,sans-serif;color:var(--sg-ink);-webkit-font-smoothing:antialiased}
-  .app{display:flex;flex-direction:column;height:100vh}
+  .app{display:flex;flex-direction:column;height:100vh;height:100dvh;-webkit-tap-highlight-color:transparent}
 
   /* ---------- buttons ---------- */
   button{font:500 13px Poppins,system-ui,sans-serif;background:var(--surface);color:var(--sg-ink);border:1px solid var(--line-2);border-radius:8px;padding:6px 12px;cursor:pointer;box-shadow:var(--shadow-sm);transition:background .12s,border-color .12s,color .12s;display:inline-flex;align-items:center;gap:6px;line-height:20px}
@@ -85,9 +85,14 @@ const styles = `  :root{
   .workspace{flex:1;min-height:0;display:flex}
 
   /* ---------- side nav ---------- */
-  aside{width:var(--side-w);flex:none;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--line);z-index:5;user-select:none}
+  aside{width:var(--side-w);flex:none;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--line);z-index:5;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overflow:hidden;transition:width .22s ease,border-color .22s}
+  aside>*{min-width:var(--side-w)}
+  .side-closed aside{width:0;border-right-color:transparent}
+  #sideBtn[aria-expanded=true]{background:var(--hover)}
   .aside-h{padding:14px 12px 8px;display:flex;flex-direction:column;gap:10px}
-  .aside-h>span{font-size:13px;font-weight:600;padding:0 2px}
+  .aside-t{display:flex;align-items:center;justify-content:space-between;margin:-6px -4px -4px 0}
+  .aside-t>span{font-size:13px;font-weight:600;padding:0 2px}
+  .aside-t .icon-btn{color:var(--muted)}
   .search{position:relative;color:var(--faint)}
   .search input{width:100%;font:400 13px Poppins,sans-serif;padding:7px 10px 7px 32px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);outline:none;color:var(--sg-ink);transition:border-color .12s,box-shadow .12s,background .12s}
   .search input::placeholder{color:var(--faint)}
@@ -103,7 +108,7 @@ const styles = `  :root{
   .cat-h .n{margin-left:auto;font-size:11px;font-weight:500;letter-spacing:0;color:var(--faint)}
   .cat.closed .chev{transform:rotate(-90deg)} .cat.closed .items{display:none}
   .items{display:flex;flex-direction:column;gap:2px}
-  .item{display:flex;align-items:center;gap:10px;padding:6px;border:1px solid transparent;border-radius:var(--r);background:transparent;cursor:grab;transition:background .12s,border-color .12s;touch-action:none}
+  .item{display:flex;align-items:center;gap:10px;padding:6px;border:1px solid transparent;border-radius:var(--r);background:transparent;cursor:grab;transition:background .12s,border-color .12s;touch-action:pan-y}
   .item:hover{background:var(--surface-2);border-color:var(--line)}
   .item:active{cursor:grabbing;background:var(--hover)}
   .item .th{width:40px;height:40px;flex:none;border-radius:8px;background:var(--sg-cream);display:grid;place-items:center;overflow:hidden}
@@ -237,6 +242,21 @@ const styles = `  :root{
   .item.flash{animation:flash 0.5s ease-in-out 3}
   @keyframes flash{50%{background:#fdeceb;border-color:#f5b8bb}}
 
+  /* touch screens (iPad, tablets): bigger targets; the page itself never zooms or scrolls, only the panels do */
+  html,body{overscroll-behavior:none}
+  .app{touch-action:none}
+  .lib,.inspector,.help-pop,.ce-ref,.ce-out{touch-action:pan-y}
+  .ce-area textarea,.ce-wrap{touch-action:pan-x pan-y}
+  .inspector input[type=range]{touch-action:pan-x}
+  @media (pointer:coarse){
+    .icon-btn{width:40px;height:40px}
+    .appbar{--bar-h:56px;height:56px}
+    .ab-group>button,.ab-group .fab{min-height:38px}
+    .item{padding:8px 6px}
+    .item .grip{opacity:1}
+    .inspector .btns button{padding:7px 12px;font-size:12.5px}
+    .codep header .x{width:38px;height:38px}
+  }
   @media (max-width:980px){ .ab-group .lbl{display:none} .doc .saved{font-size:0;gap:0;padding:4px} }
   @media (max-width:820px){ :root{--side-w:220px} .inspector{width:230px} .item .tx span{display:none} .side-foot{display:none} .beta{display:none} .doc [contenteditable]{max-width:140px} }
 `;

@@ -20,6 +20,9 @@
   overflow-x: clip;
 }
 .page *, .page *::before, .page *::after { box-sizing: border-box; }
+/* iPad Safari shrinks the whole page to fit anything that pokes out sideways (white strips at the edge):
+   clip at the root too, not just on .page */
+:global(html):has(.page), :global(body):has(.page) { overflow-x: clip; }
 .page a:focus-visible, .page button:focus-visible, .page input:focus-visible { outline: 2.2px solid var(--red); outline-offset: 3.3px; border-radius: 8.8px; }
 .hero a:focus-visible { outline-color: #fff; }
 
@@ -261,6 +264,8 @@
   .nav { grid-template-columns: 1fr auto; }
   .links { display: none; }
   .pillars { grid-template-columns: 1fr; }
+  /* tablets in portrait: the mission rows sized by width, so they fill the screen instead of a third of it */
+  .rows { font-size: clamp(46.2px, min(11vw, 8.5svh), 114.4px); }
   /* the bento stops being one screen: two columns, fixed-height rows */
   .features { height: auto; min-height: 0; max-height: none; }
   .featHead { flex-direction: column; align-items: flex-start; }
