@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { APP_HOST, APP_URL, HOME_HOST, HOME_URL } from '@/lib/hosts';
 
 /* Runs before every page request:
    - refreshes the Supabase session cookie (Server Components can't write cookies)
@@ -12,7 +13,25 @@ const NEEDS_PROFILE = ['/projects', '/profile', '/simulator/'];
 
 const under = (path: string, list: string[]) => list.some(p => p.endsWith('/') ? path.startsWith(p) : path === p || path.startsWith(p + '/'));
 
+/* stemgrid.in serves only the landing page; simulator.stemgrid.in serves everything else.
+   Keeping logins on one host means one session cookie. Off in dev (no HOME_URL). */
+function splitHosts(request: NextRequest) {
+  if (!HOME_HOST || !APP_HOST || HOME_HOST === APP_HOST) return null;
+  const host = (request.headers.get('x-forwarded-host') ?? request.headers.get('host') ?? '').toLowerCase();
+  const { pathname: path, search, searchParams } = request.nextUrl;
+  if (host === HOME_HOST || host === `www.${HOME_HOST}`) {
+    // The landing's scroll demo embeds /simulator?demo and drives it through window.__sgDemo, so it must stay same-origin.
+    const keep = path === '/' || path.startsWith('/api/') || (path === '/simulator' && searchParams.has('demo'));
+    return keep ? null : NextResponse.redirect(`${APP_URL}${path}${search}`);
+  }
+  if (host === APP_HOST && path === '/') return NextResponse.redirect(`${HOME_URL}/${search}`);
+  return null;
+}
+
 export async function proxy(request: NextRequest) {
+  const moved = splitHosts(request);
+  if (moved) return moved;
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

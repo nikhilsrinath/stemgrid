@@ -8,6 +8,7 @@ import { supabaseBrowser } from '@/lib/supabase/client';
 import type { Viewer } from '@/lib/types';
 import Avatar from './Avatar';
 import s from './ui.module.css';
+import { HOME_HREF, HOME_URL } from '@/lib/hosts';
 
 /* Top bar for the account pages: logo, page links, avatar menu. */
 export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
@@ -27,6 +28,7 @@ export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
 
   const signOut = async () => {
     await supabaseBrowser().auth.signOut();
+    if (HOME_URL) { window.location.assign(HOME_URL); return; }
     router.push('/');
     router.refresh();
   };
@@ -50,7 +52,7 @@ export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
                 <div className={s.menuWho}><b>{viewer.name}</b>{viewer.username && <span>@{viewer.username}</span>}</div>
                 <Link role="menuitem" href="/projects" onClick={() => setOpen(false)}>My projects</Link>
                 <Link role="menuitem" href="/profile" onClick={() => setOpen(false)}>Profile</Link>
-                <Link role="menuitem" href="/" onClick={() => setOpen(false)}>StemGrid home</Link>
+                <Link role="menuitem" href={HOME_HREF} onClick={() => setOpen(false)}>StemGrid home</Link>
                 <button role="menuitem" className={s.danger} onClick={signOut}>Sign out</button>
               </div>
             )}

@@ -9,12 +9,14 @@ import BrandLogo from '@/ui/BrandLogo';
 import type { ReactNode } from 'react';
 import f from './footer.module.css';
 import { smoothTo } from './SmoothScroll';
+import { APP_URL, appHref } from '@/lib/hosts';
 
 function Item({ href, children }: { href: string; children: ReactNode }) {
-  const out = /^https?:/.test(href);
+  const app = href.startsWith('/') || (!!APP_URL && href.startsWith(APP_URL));
+  const out = !app && /^https?:/.test(href);
   return (
     <li>
-      {href.startsWith('/')
+      {app
         ? <Link href={href}>{children}</Link>
         : <a href={href} {...(out ? { target: '_blank', rel: 'noopener' } : {})}>{children}{out && <span className={f.out} aria-hidden="true">↗</span>}</a>}
     </li>
@@ -28,7 +30,7 @@ export default function Footer({ siteUrl }: { siteUrl: string }) {
         {/* ---------- closing line ---------- */}
         <div className={f.call}>
           <h2 className={f.callH}>Got a circuit in your head?</h2>
-          <Link href="/simulator" className={f.cta}>Start building</Link>
+          <Link href={appHref('/simulator')} className={f.cta}>Start building</Link>
         </div>
 
         {/* ---------- brand and links ---------- */}
@@ -54,7 +56,7 @@ export default function Footer({ siteUrl }: { siteUrl: string }) {
           <nav aria-labelledby="ft-more">
             <h3 id="ft-more" className={f.colH}>StemGrid</h3>
             <ul className={f.list}>
-              <Item href="/simulator">Open the simulator</Item>
+              <Item href={appHref('/simulator')}>Open the simulator</Item>
               <Item href={siteUrl}>Lab on Wheels</Item>
               <Item href={`${siteUrl}/#contact`}>Book a demo</Item>
             </ul>

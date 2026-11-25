@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
+import { appHref } from '@/lib/hosts';
 
 /* "Sign in" in the landing nav, or "My projects" once signed in. Checked in the browser
    so the landing page itself can stay static. */
@@ -15,7 +16,7 @@ export default function NavAccount({ className }: { className?: string }) {
     return () => data.subscription.unsubscribe();
   }, []);
   return (
-    <Link href={signedIn ? '/projects' : '/login'} className={className} style={{ visibility: signedIn === null ? 'hidden' : undefined }}>
+    <Link href={appHref(signedIn ? '/projects' : '/login')} className={className} style={{ visibility: signedIn === null ? 'hidden' : undefined }}>
       {signedIn ? 'My projects' : 'Sign in'}
     </Link>
   );

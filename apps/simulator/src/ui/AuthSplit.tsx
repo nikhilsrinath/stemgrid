@@ -2,6 +2,7 @@ import Link from 'next/link';
 import BrandLogo from '@/ui/BrandLogo';
 import type { ReactNode } from 'react';
 import a from './auth.module.css';
+import { HOME_HREF } from '@/lib/hosts';
 
 export type AuthAside = {
   title: ReactNode;
@@ -17,7 +18,7 @@ export default function AuthSplit({ aside, children, top, wide }: { aside: AuthA
   return (
     <div className={a.root}>
       <aside className={a.panel}>
-        <Link href="/" className={a.logo}>
+        <Link href={HOME_HREF} className={a.logo}>
           <BrandLogo height={40} chip /><span className={a.beta}>Beta</span>
         </Link>
         <div className={a.panelBody}>
@@ -34,7 +35,7 @@ export default function AuthSplit({ aside, children, top, wide }: { aside: AuthA
       </aside>
       <main className={a.main}>
         <div className={a.mainTop}>
-          <Link href="/" className={`${a.logo} ${a.logoMobile}`}>
+          <Link href={HOME_HREF} className={`${a.logo} ${a.logoMobile}`}>
             <BrandLogo height={34} />
           </Link>
           {top ?? <Link href="/simulator" className={a.topLink}>Try the simulator →</Link>}

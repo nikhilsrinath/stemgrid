@@ -12,6 +12,7 @@ import Swirl from '../landing/Swirl';
 import Scrub from '../landing/Scrub';
 import SmoothScroll from '../landing/SmoothScroll';
 import s from './landing.module.css';
+import { appHref } from '@/lib/hosts';
 
 const Play = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z" /></svg>
@@ -54,7 +55,7 @@ export default function Home() {
         </div>
         <div className={s.navEnd}>
           <NavAccount className={s.navGhost} />
-          <Link href="/simulator" className={s.navCta}>Start building</Link>
+          <Link href={appHref('/simulator')} className={s.navCta}>Start building</Link>
         </div>
       </nav>
 
@@ -62,7 +63,7 @@ export default function Home() {
       <header className={s.heroWrap}>
         <div className={s.hero}>
           <HeroGrid />
-          <Link href="/simulator" className={s.tab}><i aria-hidden="true" />Open beta, free for everyone</Link>
+          <Link href={appHref('/simulator')} className={s.tab}><i aria-hidden="true" />Open beta, free for everyone</Link>
 
           <div className={s.heroCopy} data-hero-copy>
             <h1 className={s.title}>
@@ -73,7 +74,7 @@ export default function Home() {
               cables and code it in Python, right in your browser, with no parts to buy and nothing that can burn out.
             </p>
             <div className={s.dock}>
-              <Link href="/simulator" className={s.run} data-hero-cta><Play />Start building</Link>
+              <Link href={appHref('/simulator')} className={s.run} data-hero-cta><Play />Start building</Link>
               <a href="#how" className={s.soft}>Watch a build</a>
             </div>
           </div>

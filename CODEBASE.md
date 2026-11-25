@@ -19,12 +19,12 @@ The repo contains **two websites**:
 
 | App | What it is | Folder | Framework | Production URL | Dev URL |
 |---|---|---|---|---|---|
-| **Services site** | Marketing site for schools: who we are, services, programs, contact | `apps/web` | Astro 7 (static) | https://stemgrid.in | http://localhost:4321 |
-| **Simulator (StemGrid Beta)** | Landing page plus a 3D in-browser simulator of the Quark Kit, with accounts and saved projects. Being turned into a SaaS product. | `apps/simulator` | Next.js 16 (App Router) + Three.js + Supabase | https://simulator.stemgrid.in | http://localhost:3001 |
+| **Services site (Lab on Wheels)** | Marketing site for schools: who we are, services, programs, contact | `apps/web` | Astro 7 (static) | https://lab.stemgrid.in | http://localhost:4321 |
+| **Simulator (StemGrid Beta)** | Landing page plus a 3D in-browser simulator of the Quark Kit, with accounts and saved projects. Being turned into a SaaS product. | `apps/simulator` | Next.js 16 (App Router) + Three.js + Supabase | https://stemgrid.in (landing only) and https://simulator.stemgrid.in (everything else; see section 7) | http://localhost:3001 |
 
 The two sites link to each other:
 - `apps/web` → simulator: the "Simulator (Beta)" link in the header and footer uses `SIMULATOR_URL` from `apps/web/src/lib/site.ts`. It reads `PUBLIC_SIMULATOR_URL`, defaulting to `http://localhost:3001` in dev and `https://simulator.stemgrid.in` in production.
-- simulator → services site: `SITE_URL` in `apps/simulator/src/app/page.tsx` reads `NEXT_PUBLIC_SITE_URL`, defaulting to `http://localhost:4321` in dev and `https://stemgrid.in` in production. The "Partner with us", "Claim your place" and "Book a demo" CTAs all go to `${SITE_URL}/#contact` (the services site footer).
+- simulator → services site: `SITE_URL` in `apps/simulator/src/app/page.tsx` reads `NEXT_PUBLIC_SITE_URL`, defaulting to `http://localhost:4321` in dev and `https://lab.stemgrid.in` in production. The "Partner with us", "Claim your place" and "Book a demo" CTAs all go to `${SITE_URL}/#contact` (the services site footer).
 
 Shared contact details: phone **+91 89251 72636** (`tel:+918925172636`).
 
@@ -94,7 +94,7 @@ The simulator app does **not** import this package. It uses CSS Modules with its
 
 ---
 
-## 4. Services site: `apps/web` (stemgrid.in)
+## 4. Services site: `apps/web` (lab.stemgrid.in)
 
 ### 4.1 Stack
 - **Astro 7**, fully static output (`astro build` → `apps/web/dist/`). No server adapter, no API.
@@ -105,7 +105,7 @@ The simulator app does **not** import this package. It uses CSS Modules with its
 - TypeScript strict (`astro/tsconfigs/strict`).
 
 ### 4.2 Config
-`apps/web/astro.config.mjs`: `site: "https://stemgrid.in"`, dev server on port **4321** and opens the browser, sitemap integration, Tailwind Vite plugin.
+`apps/web/astro.config.mjs`: `site: "https://lab.stemgrid.in"`, dev server on port **4321** and opens the browser, sitemap integration, Tailwind Vite plugin.
 
 ### 4.3 Pages and routes
 There is **one page**: `/` (`src/pages/index.astro`). It is a single scrolling page with in-page anchors:
@@ -357,7 +357,7 @@ Never commit `.env.local` or any `.env*` other than `.env.example`.
 ## 6. Request and data flow, end to end
 
 ```
-Visitor ── stemgrid.in (Astro static HTML/CSS/JS, no backend)
+Visitor ── lab.stemgrid.in (Astro static HTML/CSS/JS, no backend)
    │          "Simulator" link ─────────────────────────────┐
    │          "Book a demo" → #contact (phone CTA)          │
    ▼                                                        ▼
@@ -378,8 +378,10 @@ simulator.stemgrid.in (Next.js 16)
 
 ## 7. Hosting and deployment
 
-- The two apps deploy separately: `apps/web` to **stemgrid.in** (static `dist/`), `apps/simulator` to **simulator.stemgrid.in** (a Node host for Next.js, since it uses Server Actions, a route handler and the proxy).
-- No hosting provider config (e.g. `vercel.json`) is committed. When deploying the simulator, set the env vars from 5.11, including `NEXT_PUBLIC_APP_URL=https://simulator.stemgrid.in`, and make sure the production URL is in Supabase's redirect allow-list (it already is in `config.toml`).
+- `apps/web` (Lab on Wheels) deploys to **lab.stemgrid.in** (static `dist/`).
+- `apps/simulator` deploys once (a Node host for Next.js, since it uses Server Actions, a route handler and the proxy) and gets **two domains**: **stemgrid.in** (the main site: only the landing page `/`) and **simulator.stemgrid.in** (login, signup, simulator, projects, profile). `splitHosts()` in `apps/simulator/src/proxy.ts` redirects every other path on stemgrid.in to simulator.stemgrid.in, and `/` on simulator.stemgrid.in back to stemgrid.in, so logins and the session cookie stay on one host. Links between them use `apps/simulator/src/lib/hosts.ts`.
+- Simulator env vars for production: `NEXT_PUBLIC_APP_URL=https://simulator.stemgrid.in`, `NEXT_PUBLIC_HOME_URL=https://stemgrid.in`, `NEXT_PUBLIC_SITE_URL=https://lab.stemgrid.in` (plus the rest of 5.11). Unset `NEXT_PUBLIC_HOME_URL` turns the host routing off. Supabase's redirect allow-list only needs simulator.stemgrid.in (already in `config.toml`).
+- No hosting provider config (e.g. `vercel.json`) is committed.
 
 ---
 

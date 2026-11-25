@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
-/* The business contact form on stemgrid.in posts here (the marketing site is static, so it has
+/* The business contact form on lab.stemgrid.in posts here (the marketing site is static, so it has
    no server of its own). Stores the message in public.business_contacts, then emails the team
    through Resend when RESEND_API_KEY, ENQUIRY_NOTIFY_TO and ENQUIRY_NOTIFY_FROM are set. */
 
-const ORIGINS = new Set(['https://stemgrid.in', 'https://www.stemgrid.in', 'http://localhost:4321']);
+const ORIGINS = new Set(['https://lab.stemgrid.in', 'https://stemgrid.in', 'https://www.stemgrid.in', 'http://localhost:4321']);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE = /^\+?[0-9 ()-]{7,20}$/;
 
@@ -13,7 +13,7 @@ function cors(req: Request) {
   const extra = process.env.CONTACT_ALLOWED_ORIGIN;            // e.g. a Vercel preview of the site
   const ok = ORIGINS.has(origin) || (!!extra && origin === extra);
   return {
-    'Access-Control-Allow-Origin': ok ? origin : 'https://stemgrid.in',
+    'Access-Control-Allow-Origin': ok ? origin : 'https://lab.stemgrid.in',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Access-Control-Max-Age': '86400',
@@ -64,7 +64,7 @@ async function notifyTeam(r: { name: string; company: string; email: string; pho
   if (!key || !to || !from) return;
   const esc = (v: unknown) => String(v ?? '—').replace(/[&<>"]/g, c => `&#${c.charCodeAt(0)};`);
   const rows: [string, unknown][] = [['Name', r.name], ['Company', r.company], ['Email', r.email], ['Phone', r.phone], ['Message', r.message]];
-  const html = `<h2>New business contact from stemgrid.in</h2><table cellpadding="6" style="border-collapse:collapse;font:14px sans-serif">${
+  const html = `<h2>New business contact from lab.stemgrid.in</h2><table cellpadding="6" style="border-collapse:collapse;font:14px sans-serif">${
     rows.map(([k, v]) => `<tr><td style="color:#666;vertical-align:top">${k}</td><td style="white-space:pre-wrap">${esc(v)}</td></tr>`).join('')}</table>`;
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
