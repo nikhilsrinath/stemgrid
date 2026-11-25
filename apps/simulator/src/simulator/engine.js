@@ -2513,6 +2513,7 @@ addEventListener('keydown', e => {
   if ((k === 'delete' || k === 'backspace') && !drag) removeSelected();
   if (k === 'escape') { if (palOpen && !DESK) setPal(false); else select(null); }
   if (k === 'p' && !DEMO && !e.ctrlKey && !e.metaKey && !e.altKey) setPal(!palOpen);
+  if ((k === '+' || k === '=' || k === '-' || k === '_') && !e.ctrlKey && !e.metaKey && !DEMO) zoomStep(k === '+' || k === '=' ? 1 : -1);
   if (selected?.kind === 'ir' && /^[0-9*#]$/.test(e.key)) irPress(selected, e.key);
   if (selected?.kind === 'buzzer' && /^[1-8]$/.test(e.key) && !e.repeat) bzPress(selected, BZ_WHITE[+e.key - 1]);
   // OLED menu: the selected board, the board of the selected OLED, or the first board driving a screen
@@ -3617,6 +3618,15 @@ canvas.addEventListener('wheel', e => {
   }
   kick();
 }, { passive: false });
+// the + / − buttons in the bottom-left corner (and the + / − keys): a step toward the middle of the view
+function zoomStep(dir) {
+  const r = canvas.getBoundingClientRect();
+  camTween = null;
+  zoomBy(-dir * 0.28, { clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 });
+  kick();
+}
+document.getElementById('zoomIn').onclick = () => zoomStep(1);
+document.getElementById('zoomOut').onclick = () => zoomStep(-1);
 // stop the browser's own pinch-zoom / swipe-back from fighting the canvas
 canvas.addEventListener('gesturestart', e => e.preventDefault());
 canvas.style.overscrollBehavior = 'none';

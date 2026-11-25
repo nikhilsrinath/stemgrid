@@ -88,7 +88,15 @@ const styles = `  :root{
      Touch screens (iPad, tablets): a floating dialog over the table, opened from the button in the bottom-right corner.
      Desktop (.app.desk, further down): the same element as a plain sidebar list. */
   .dock{position:absolute;right:14px;bottom:14px;z-index:8;display:flex;align-items:center;gap:10px;pointer-events:none}
-  .dock>*{pointer-events:auto}
+  .dock>*,.dock-l>*{pointer-events:auto}
+  /* bottom-left: zoom buttons and the build counts */
+  .dock-l{position:absolute;left:14px;bottom:14px;z-index:7;display:flex;align-items:center;gap:10px;pointer-events:none}
+  .zoom{display:flex;align-items:center;height:36px;padding:3px;gap:2px;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow)}
+  .zoom button{width:30px;height:28px;padding:0;justify-content:center;border:0;border-radius:8px;background:transparent;box-shadow:none;color:#3d3833}
+  .zoom button:hover{background:var(--hover);color:var(--sg-ink)}
+  .zoom button:active{background:#ebe7e1}
+  .zoom button+button{position:relative}
+  .zoom button+button::before{content:"";position:absolute;left:-1.5px;top:6px;bottom:6px;width:1px;background:var(--line)}
   .parts-fab{position:relative;height:52px;padding:0 16px 0 7px;gap:11px;border:0;border-radius:16px;background:var(--sg-ink);color:#fff;font:600 14px Poppins,system-ui,sans-serif;letter-spacing:-.01em;box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 16px 32px -12px rgba(40,0,3,.65),0 4px 10px -4px rgba(0,0,0,.35);transition:transform .2s cubic-bezier(.3,1.4,.5,1),background .15s,color .15s,box-shadow .2s;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
   .parts-fab:hover{background:#2b2b2b;transform:translateY(-1px)}
   .parts-fab:active{transform:scale(.96)}
@@ -185,7 +193,7 @@ const styles = `  :root{
   /* ---------- stage ---------- */
   main{position:relative;flex:1;min-width:0}
   #c{display:block;width:100%;height:100%;touch-action:none;outline:none}
-  .status{display:flex;align-items:center;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);padding:0 4px;height:32px}
+  .status{display:flex;align-items:center;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow);padding:0 4px;height:36px}
   .status:empty{display:none}
   .chip{display:flex;align-items:center;gap:6px;padding:0 9px;font-size:12px;font-weight:500;color:#3d3833;white-space:nowrap}
   .chip+.chip{border-left:1px solid var(--line)}
@@ -313,6 +321,7 @@ const styles = `  :root{
     .icon-btn{width:40px;height:40px}
     .appbar{--bar-h:56px;height:56px}
     .ab-group>button,.ab-group .fab{min-height:38px}
+    .zoom{height:46px} .zoom button{width:40px;height:38px}
     .parts-fab{height:56px} .pal{bottom:80px;height:min(640px,calc(100% - 96px))}
     .pal-cats button{padding:7px 14px}
     .item b{font-size:12.5px}
@@ -323,7 +332,7 @@ const styles = `  :root{
   }
   @media (max-width:980px){ .ab-group .lbl{display:none} .doc .saved{font-size:0;gap:0;padding:4px} }
   @media (max-width:820px){ .inspector{width:230px} .beta{display:none} .doc [contenteditable]{max-width:140px} }
-  @media (max-width:640px){ .dock .status{display:none} }
+  @media (max-width:640px){ .dock-l .status{display:none} }
   @media (hover:none),(pointer:coarse){ .parts-fab kbd{display:none} }
 `;
 export default styles;

@@ -11,6 +11,8 @@ const ICON = {
   save: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 3v5h8"/><path d="M7 21v-7h10v7"/></svg>',
   parts: '<svg class="a" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><path d="M17.25 13.5v7.5M13.5 17.25H21"/></svg>',
   collapse: '<svg class="ic-side" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M9 4v16"/><path d="m15.5 10-2 2 2 2"/></svg>',
+  zoomIn: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  zoomOut: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg>',
   partsX: '<svg class="x" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
   close: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
   search: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
@@ -34,6 +36,7 @@ const markup = `<div class="app">
           <div class="help-h">Shortcuts</div>
           <div class="help-grid">
             <span>Open or close the parts library</span><kbd>P</kbd>
+            <span>Zoom in / out</span><kbd>+ −</kbd>
             <span>Rotate selected module</span><kbd>E</kbd>
             <span>Flip a Zap plug</span><kbd>R</kbd>
             <span>Remove selected part</span><kbd>Del</kbd>
@@ -69,8 +72,14 @@ const markup = `<div class="app">
       <canvas id="c" tabindex="0"></canvas>
       <div class="inspector hide" id="insp"></div>
       <div class="empty" id="empty"><div class="box"><div class="arrow" id="emptyArrow">←</div><b>Start with a base plate</b><p id="emptyText">Drag a <strong>Base plate</strong> from the parts list onto the table. Then add modules and wire them up with Zap connectors.</p></div></div>
-      <div class="dock">
+      <div class="dock-l">
+        <div class="zoom" role="group" aria-label="Zoom">
+          <button id="zoomOut" title="Zoom out (−)" aria-label="Zoom out">${ICON.zoomOut}</button>
+          <button id="zoomIn" title="Zoom in (+)" aria-label="Zoom in">${ICON.zoomIn}</button>
+        </div>
         <div class="status" id="status"></div>
+      </div>
+      <div class="dock">
         <button class="parts-fab" id="partsFab" aria-controls="partsPal" aria-expanded="false" title="Open the parts library (P)">
           <span class="pf-ic">${ICON.parts}${ICON.partsX}</span>
           <span class="pf-l"><span class="o">Parts</span><span class="c">Drop here to cancel</span></span>
