@@ -1,0 +1,124 @@
+---
+/* "Talk to us": the short business contact form (companies, partners, CSR teams, resellers).
+   The site is static, so the form posts to the simulator's /api/contact route, which stores it in
+   Supabase (public.business_contacts) and emails the team. Five fields, phone optional.
+   Schools and institutes are sent to the full enquiry form on the simulator instead. */
+import { PHONE, SIMULATOR_URL, CONTACT_ENDPOINT } from "../lib/site";
+---
+<section id="contact" class="ct" aria-labelledby="ct-h">
+  <div class="ct-in">
+    <div class="ct-side">
+      <p class="ct-kicker font-label">Talk to us</p>
+      <h2 id="ct-h" class="ct-h">Let's build something together.</h2>
+      <p class="ct-lede">Partnerships, CSR programs, bulk kits or anything else. Leave a note and we'll get back within one working day.</p>
+      <ul class="ct-alt">
+        <li>Prefer to call? <a href={PHONE.href}>{PHONE.label}</a></li>
+        <li>A school or institute? <a href={`${SIMULATOR_URL}/signup?as=institution`}>Use the institution form</a></li>
+      </ul>
+    </div>
+
+    <form class="ct-card" data-ct novalidate>
+      <div class="ct-row">
+        <label class="ct-f"><span>Your name</span><input name="name" autocomplete="name" required minlength="2" maxlength="80" /></label>
+        <label class="ct-f"><span>Company</span><input name="company" autocomplete="organization" required minlength="2" maxlength="120" /></label>
+      </div>
+      <div class="ct-row">
+        <label class="ct-f"><span>Work email</span><input name="email" type="email" autocomplete="email" required maxlength="160" /></label>
+        <label class="ct-f"><span>Phone <em>optional</em></span><input name="phone" type="tel" autocomplete="tel" maxlength="20" placeholder="+91" /></label>
+      </div>
+      <label class="ct-f"><span>How can we help?</span><textarea name="message" rows="4" required minlength="5" maxlength="2000"></textarea></label>
+      <!-- honeypot: hidden from people, bots fill it -->
+      <label class="ct-hp" aria-hidden="true">Fax<input name="company_fax" tabindex="-1" autocomplete="off" /></label>
+
+      <div class="ct-foot">
+        <p class="ct-msg" role="status" aria-live="polite" data-ct-msg></p>
+        <button class="ct-btn" type="submit" data-ct-btn>
+          Send message
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" /></svg>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script define:vars={{ endpoint: CONTACT_ENDPOINT }}>
+  const form = document.querySelector("[data-ct]");
+  const msg = form?.querySelector("[data-ct-msg]");
+  const btn = form?.querySelector("[data-ct-btn]");
+  const say = (text, bad) => { msg.textContent = text; msg.classList.toggle("is-bad", !!bad); };
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    if (String(data.name).trim().length < 2) return say("Tell us your name.", true);
+    if (String(data.company).trim().length < 2) return say("Add your company or organisation.", true);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(data.email).trim())) return say("That email address doesn't look right.", true);
+    if (String(data.message).trim().length < 5) return say("Tell us a little about what you need.", true);
+
+    btn.disabled = true; say("Sending…");
+    try {
+      const res = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(out.error || "");
+      form.reset();
+      say(`Thanks${out.name ? ", " + out.name : ""}! We'll be in touch soon.`);
+    } catch (err) {
+      say(err.message || "We couldn't send that just now. Try again, or call +91 89251 72636.", true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>
+
+<style>
+  .ct { background: var(--color-cream); color: var(--color-ink); padding: clamp(72px, 10vw, 128px) clamp(16px, 4vw, 40px); }
+  .ct-in { width: min(1180px, 100%); margin: 0 auto; display: grid; grid-template-columns: 1fr 1.15fr; gap: clamp(32px, 5vw, 72px); align-items: center; }
+
+  .ct-kicker { margin: 0 0 14px; color: var(--color-red); font-size: 12px; letter-spacing: .16em; }
+  .ct-h { margin: 0; font-size: clamp(2.2rem, 4.4vw, 3.6rem); text-shadow: 4px 4px 0 rgba(227, 18, 27, .18); }
+  .ct-lede { margin: 20px 0 26px; max-width: 40ch; font-size: 16px; line-height: 1.65; color: rgba(17, 17, 17, .75); }
+  .ct-alt { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14.5px; color: rgba(17, 17, 17, .7); }
+  .ct-alt a { color: var(--color-red); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+  .ct-card {
+    display: grid; gap: 16px; padding: clamp(22px, 3vw, 34px);
+    background: #fff; border: 2px solid var(--color-ink); border-radius: var(--radius-card);
+    box-shadow: 8px 8px 0 var(--color-red);
+  }
+  .ct-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .ct-f { display: grid; gap: 6px; }
+  .ct-f span { font-size: 13px; font-weight: 600; }
+  .ct-f em { font-style: normal; font-weight: 400; color: rgba(17, 17, 17, .5); margin-left: 4px; }
+  .ct-f input, .ct-f textarea {
+    width: 100%; padding: 12px 14px; font: inherit; font-size: 15px; color: var(--color-ink);
+    background: var(--color-cream); border: 2px solid rgba(17, 17, 17, .14); border-radius: 12px;
+    transition: border-color .15s, background .15s;
+  }
+  .ct-f textarea { resize: vertical; min-height: 110px; }
+  .ct-f input:focus, .ct-f textarea:focus { outline: none; border-color: var(--color-red); background: #fff; }
+  .ct-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .ct-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 4px; }
+  .ct-msg { margin: 0; font-size: 14px; color: #1b7a3a; }
+  .ct-msg.is-bad { color: var(--color-red-dark); }
+  .ct-btn {
+    flex: none; display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; cursor: pointer;
+    background: var(--color-red); color: #fff; border: 2px solid var(--color-ink); border-radius: 999px;
+    box-shadow: 4px 4px 0 var(--color-ink);
+    font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 14px; letter-spacing: .06em;
+    transition: transform .15s cubic-bezier(.3, 1.6, .5, 1), box-shadow .15s;
+  }
+  .ct-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+  .ct-btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--color-ink); }
+  .ct-btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--color-ink); }
+  .ct-btn:disabled { opacity: .6; cursor: wait; transform: none; }
+  .ct-btn:focus-visible { outline: 3px solid var(--color-ink); outline-offset: 3px; }
+
+  @media (max-width: 900px) { .ct-in { grid-template-columns: 1fr; } }
+  @media (max-width: 560px) {
+    .ct-row { grid-template-columns: 1fr; }
+    .ct-foot { flex-direction: column-reverse; align-items: stretch; }
+    .ct-btn { justify-content: center; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ct-btn { transition: none; } }
+</style>
