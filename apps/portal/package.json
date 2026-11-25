@@ -11,6 +11,7 @@
     "local": "node scripts/local.mjs",
     "reset": "node scripts/local.mjs --reset",
     "seed:demo": "node scripts/seed-demo.mjs",
+    "staff:create": "node --env-file=.env.vercel scripts/create-staff.mjs",
     "test:rls": "supabase test db"
   },
   "dependencies": {
