@@ -1,11 +1,11 @@
 // The simulator stylesheet. Edit this file directly.
-// Chrome (app bar, sidebar, panels) is flat and quiet so the 3D table stays the focus:
+// Chrome (app bar, panels, parts dialog) is flat and quiet so the 3D table stays the focus:
 // hairline borders, soft shadows, brand red kept for accents and the stage itself.
 const styles = `  :root{
     --sg-red:#E4121B; --sg-red-deep:#B30912; --sg-cream:#FFF2DF; --sg-ink:#1a1a1a; --sg-blush:#FAE3D1;
     --sg-module:#FF8044; --ok:#18A058; --muted:#6f6860; --faint:#9c958c;
     --surface:#ffffff; --surface-2:#f7f5f2; --hover:#f2efea; --line:#e7e3dd; --line-2:#d9d4cc;
-    --side-w:264px; --bar-h:52px; --r:10px;
+    --bar-h:52px; --r:10px;
     --shadow-sm:0 1px 2px rgba(17,17,17,.06);
     --shadow:0 1px 2px rgba(17,17,17,.06),0 6px 20px rgba(17,17,17,.10);
     --shadow-lg:0 2px 4px rgba(17,17,17,.06),0 16px 40px rgba(17,17,17,.16);
@@ -82,53 +82,110 @@ const styles = `  :root{
   kbd{font:600 10.5px ui-monospace,SFMono-Regular,Consolas,monospace;border:1px solid var(--line-2);border-bottom-width:2px;border-radius:5px;padding:1px 6px;color:var(--sg-ink);background:var(--surface-2);justify-self:end;white-space:nowrap}
 
   /* ---------- workspace ---------- */
-  .workspace{flex:1;min-height:0;display:flex}
+  .workspace{position:relative;flex:1;min-height:0;display:flex}
 
-  /* ---------- side nav ---------- */
-  aside{width:var(--side-w);flex:none;display:flex;flex-direction:column;background:var(--surface);border-right:1px solid var(--line);z-index:5;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;overflow:hidden;transition:width .22s ease,border-color .22s}
-  aside>*{min-width:var(--side-w)}
-  .side-closed aside{width:0;border-right-color:transparent}
-  #sideBtn[aria-expanded=true]{background:var(--hover)}
-  .aside-h{padding:14px 12px 8px;display:flex;flex-direction:column;gap:10px}
-  .aside-t{display:flex;align-items:center;justify-content:space-between;margin:-6px -4px -4px 0}
-  .aside-t>span{font-size:13px;font-weight:600;padding:0 2px}
-  .aside-t .icon-btn{color:var(--muted)}
-  .search{position:relative;color:var(--faint)}
-  .search input{width:100%;font:400 13px Poppins,sans-serif;padding:7px 10px 7px 32px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);outline:none;color:var(--sg-ink);transition:border-color .12s,box-shadow .12s,background .12s}
+  /* ---------- parts library ----------
+     Touch screens (iPad, tablets): a floating dialog over the table, opened from the button in the bottom-right corner.
+     Desktop (.app.desk, further down): the same element as a plain sidebar list. */
+  .dock{position:absolute;right:14px;bottom:14px;z-index:8;display:flex;align-items:center;gap:10px;pointer-events:none}
+  .dock>*{pointer-events:auto}
+  .parts-fab{position:relative;height:52px;padding:0 16px 0 7px;gap:11px;border:0;border-radius:16px;background:var(--sg-ink);color:#fff;font:600 14px Poppins,system-ui,sans-serif;letter-spacing:-.01em;box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 16px 32px -12px rgba(40,0,3,.65),0 4px 10px -4px rgba(0,0,0,.35);transition:transform .2s cubic-bezier(.3,1.4,.5,1),background .15s,color .15s,box-shadow .2s;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+  .parts-fab:hover{background:#2b2b2b;transform:translateY(-1px)}
+  .parts-fab:active{transform:scale(.96)}
+  .pf-ic{width:38px;height:38px;flex:none;border-radius:11px;background:var(--sg-red);display:grid;place-items:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),inset 0 -2px 0 rgba(0,0,0,.15);transition:background .15s}
+  .pf-ic svg{grid-area:1/1;transition:transform .32s cubic-bezier(.3,1.5,.5,1),opacity .18s}
+  .pf-ic .x,.parts-fab.on .pf-ic .a,.parts-fab.cancel .pf-ic .a{opacity:0;transform:rotate(-90deg) scale(.5)}
+  .parts-fab.on .pf-ic .x,.parts-fab.cancel .pf-ic .x{opacity:1;transform:none}
+  .pf-l .c,.parts-fab.cancel .pf-l .o{display:none} .parts-fab.cancel .pf-l .c{display:inline}
+  .parts-fab kbd{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.16);color:rgba(255,255,255,.75);margin-left:-2px}
+  .parts-fab.cancel{background:#fff;color:var(--sg-red-deep)} .parts-fab.cancel kbd{display:none}
+  .parts-fab.cancel .pf-ic{background:#fde3e4;color:var(--sg-red-deep);box-shadow:none}
+  .parts-fab.cancel.hot{transform:scale(1.07);box-shadow:0 0 0 5px rgba(255,255,255,.45),0 16px 32px -12px rgba(40,0,3,.65)}
+  /* an empty table: the button breathes until the library is opened */
+  .parts-fab.hint::after{content:"";position:absolute;inset:-1px;border-radius:inherit;box-shadow:0 0 0 0 rgba(255,255,255,.75);animation:sg-ring 1.8s ease-out infinite;pointer-events:none}
+  @keyframes sg-ring{to{box-shadow:0 0 0 14px rgba(255,255,255,0)}}
+
+  .pal{position:absolute;right:14px;bottom:76px;z-index:9;width:min(412px,calc(100% - 28px));height:min(600px,calc(100% - 92px));display:flex;flex-direction:column;background:rgba(255,255,255,.97);-webkit-backdrop-filter:blur(16px) saturate(1.3);backdrop-filter:blur(16px) saturate(1.3);border:1px solid rgba(255,255,255,.8);border-radius:22px;box-shadow:0 30px 70px -24px rgba(70,0,6,.6),0 10px 26px -10px rgba(0,0,0,.28);overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+    transform-origin:calc(100% - 26px) calc(100% + 36px);opacity:0;transform:translateY(12px) scale(.92);visibility:hidden;pointer-events:none;transition:opacity .16s ease,transform .22s ease,visibility 0s .22s}
+  .pal.open{opacity:1;transform:none;visibility:visible;pointer-events:auto;transition:opacity .18s ease,transform .34s cubic-bezier(.2,1.3,.4,1),visibility 0s}
+  /* a part picked up: the dialog steps aside so the whole table is a drop zone, and comes back after the drop */
+  .pal.open.lifting{opacity:0;transform:translateY(8px) scale(.97);pointer-events:none;transition:opacity .14s ease,transform .14s ease}
+  .pal-h{display:flex;align-items:center;gap:10px;padding:16px 10px 0 18px;flex:none}
+  .pal-t{flex:1;min-width:0;line-height:1.25}
+  .pal-t b{display:block;font-size:17px;font-weight:700;letter-spacing:-.02em}
+  .pal-t span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+  .pal-h .icon-btn{color:var(--muted);align-self:flex-start;margin-top:-4px}
+  .pal-h .icon-btn .ic-side{display:none}
+  .search{position:relative;color:var(--faint);margin:12px 14px 0;flex:none}
+  .search input{width:100%;font:400 13.5px Poppins,sans-serif;padding:9px 12px 9px 34px;border:1px solid var(--line);border-radius:11px;background:var(--surface-2);outline:none;color:var(--sg-ink);transition:border-color .12s,box-shadow .12s,background .12s}
   .search input::placeholder{color:var(--faint)}
   .search input:focus{background:var(--surface);border-color:#f0a3a7;box-shadow:0 0 0 3px #fde3e4}
-  .search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%)}
-  .lib{flex:1;overflow-y:auto;padding:0 8px 12px;scrollbar-width:thin;scrollbar-color:#ddd8d0 transparent}
+  .search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%)}
+  .pal-cats{display:flex;gap:6px;padding:10px 14px 12px;overflow-x:auto;scrollbar-width:none;flex:none}
+  .pal-cats::-webkit-scrollbar{display:none}
+  .pal-cats button{flex:none;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:500;line-height:18px;background:transparent;border:1px solid var(--line-2);box-shadow:none;color:#3d3833}
+  .pal-cats button:hover{background:var(--hover)}
+  .pal-cats button.on{background:var(--sg-ink);border-color:var(--sg-ink);color:#fff}
+  .lib{position:relative;flex:1;min-height:0;overflow-y:auto;padding:0 14px 16px;border-top:1px solid var(--line);overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#ddd8d0 transparent}
   .lib::-webkit-scrollbar{width:8px}.lib::-webkit-scrollbar-thumb{background:#e2ddd5;border-radius:8px}
-  .cat{margin-top:6px}
-  .cat-h{display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px 6px 6px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);border-radius:6px}
-  .cat-h:hover{color:var(--sg-ink)}
-  .cat-h .chev{transition:transform .2s;opacity:.6}
-  .cat-h .chev path{stroke:currentColor}
-  .cat-h .n{margin-left:auto;font-size:11px;font-weight:500;letter-spacing:0;color:var(--faint)}
-  .cat.closed .chev{transform:rotate(-90deg)} .cat.closed .items{display:none}
-  .items{display:flex;flex-direction:column;gap:2px}
-  .item{display:flex;align-items:center;gap:10px;padding:6px;border:1px solid transparent;border-radius:var(--r);background:transparent;cursor:grab;transition:background .12s,border-color .12s;touch-action:pan-y}
-  .item:hover{background:var(--surface-2);border-color:var(--line)}
-  .item:active{cursor:grabbing;background:var(--hover)}
-  .item .th{width:40px;height:40px;flex:none;border-radius:8px;background:var(--sg-cream);display:grid;place-items:center;overflow:hidden}
-  .item .th img{width:100%;height:100%;object-fit:contain;pointer-events:none}
-  .item .tx{min-width:0;flex:1}
-  .item b{display:block;font-size:13px;font-weight:500;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .item .tx span{font-size:11.5px;color:var(--muted);line-height:1.35;margin-top:1px;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
-  .item .grip{flex:none;opacity:0;transition:opacity .12s;fill:var(--faint)}
-  .item:hover .grip{opacity:1}
+  .cat-h{margin:16px 2px 9px;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .cat.solo{padding-top:16px}
+  .items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+  .item{position:relative;display:flex;flex-direction:column;gap:7px;padding:5px 5px 9px;border:1px solid var(--line);border-radius:15px;background:var(--surface);cursor:grab;outline:none;touch-action:pan-y;transition:transform .18s cubic-bezier(.3,1.4,.5,1),box-shadow .18s,border-color .15s}
+  .item:hover{border-color:var(--line-2);transform:translateY(-2px);box-shadow:0 12px 22px -14px rgba(17,17,17,.45)}
+  .item:focus-visible{border-color:var(--sg-red);box-shadow:0 0 0 3px #fde3e4}
+  .item.press{transform:scale(.95);cursor:grabbing}
+  .item .th{aspect-ratio:5/4;border-radius:11px;background:radial-gradient(120% 95% at 50% 15%,#fffaf2 0%,var(--sg-cream) 70%,#fbe6cc 100%);display:grid;place-items:center;overflow:hidden}
+  .item .th img{width:100%;height:100%;object-fit:contain;padding:5px;pointer-events:none;transition:transform .25s cubic-bezier(.3,1.4,.5,1);-webkit-user-drag:none}
+  .item:hover .th img{transform:scale(1.07) rotate(-2deg)}
+  .item b{font-size:12px;font-weight:500;line-height:1.3;text-align:center;padding:0 3px;min-height:2.6em;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
   .item.soon{cursor:not-allowed}
-  .item.soon .th,.item.soon .tx{opacity:.5}
-  .item.soon:hover{background:transparent;border-color:transparent}
+  .item.soon .th,.item.soon b{opacity:.5}
+  .item.soon:hover{transform:none;box-shadow:none;border-color:var(--line)}
+  .item.soon:hover .th img{transform:none}
+  .item .pill{position:absolute;top:9px;right:9px}
+  /* the first part a new build needs */
+  .item.start{border-color:#f5b8bb;box-shadow:0 0 0 3px #fde3e4}
+  .item.start::after{content:"Start here";position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--sg-red);color:#fff;font-size:10px;font-weight:600;letter-spacing:.02em;padding:2px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 4px 10px -4px rgba(180,9,18,.7)}
+  .lib-none{padding:36px 10px;text-align:center;font-size:13px;color:var(--muted)}
   .pill{flex:none;font-size:10px;font-weight:500;letter-spacing:.02em;border-radius:5px;padding:1px 6px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted)}
-  .pill.live{background:var(--ok);color:#fff}
-  .side-foot{border-top:1px solid var(--line);padding:10px 14px;font-size:11.5px;color:var(--faint)}
+
+  /* ---------- desktop: the parts library as a sidebar ----------
+     Quiet on purpose: a small picture and a name per part, grouped by category. Hidden with its header button;
+     the corner button (only shown then) brings it back. */
+  .desk .pal{position:relative;right:auto;bottom:auto;z-index:5;flex:none;width:236px;height:auto;border:0;border-right:1px solid var(--line);border-radius:0;background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;
+    opacity:1;transform:none;visibility:visible;pointer-events:auto;transition:width .22s ease,border-color .22s}
+  .desk .pal:not(.open){width:0;border-right-width:0;visibility:hidden;pointer-events:none;transition:width .22s ease,border-color .22s,visibility 0s .22s}
+  .desk .pal>.pal-h,.desk .pal>.lib{min-width:236px}
+  .desk .pal>.search{min-width:212px}
+  .desk .pal-h{align-items:center;padding:12px 8px 0 16px}
+  .desk .pal-t b{font-size:13px;font-weight:600;letter-spacing:0}
+  .desk .pal-t span,.desk .pal-cats{display:none}
+  .desk .pal-h .icon-btn{align-self:center;margin:0;width:30px;height:30px}
+  .desk .pal-h .icon-btn svg{display:none} .desk .pal-h .icon-btn .ic-side{display:block}
+  .desk .search{margin:10px 12px 4px}
+  .desk .search input{font-size:13px;padding:7px 10px 7px 32px;border-radius:9px}
+  .desk .search svg{left:10px}
+  .desk .lib{border-top:0;padding:0 8px 12px}
+  .desk .cat-h{margin:14px 8px 4px;font-size:10px}
+  .desk .items{display:flex;flex-direction:column;gap:1px}
+  .desk .item{flex-direction:row;align-items:center;gap:10px;padding:4px 8px 4px 4px;border-color:transparent;border-radius:9px;background:transparent;transition:background .12s,border-color .12s}
+  .desk .item:hover{transform:none;box-shadow:none;background:var(--surface-2);border-color:var(--line)}
+  .desk .item.press{transform:none;background:var(--hover)}
+  .desk .item .th{width:34px;height:34px;flex:none;aspect-ratio:auto;border-radius:8px;background:var(--sg-cream)}
+  .desk .item .th img{padding:3px}
+  .desk .item:hover .th img{transform:none}
+  .desk .item b{flex:1;min-width:0;min-height:0;padding:0;text-align:left;font-size:13px;font-weight:500;-webkit-line-clamp:1;line-clamp:1}
+  .desk .item .pill{position:static}
+  .desk .item.start{box-shadow:none;border-color:#f8c9cb;background:#fff5f5}
+  .desk .item.start::after{position:static;transform:none;flex:none;margin-left:auto;box-shadow:none;font-size:9.5px;padding:1px 7px}
+  .desk .pal.open~main .parts-fab{display:none}
+  .desk .parts-fab kbd{display:none}
 
   /* ---------- stage ---------- */
   main{position:relative;flex:1;min-width:0}
   #c{display:block;width:100%;height:100%;touch-action:none;outline:none}
-  .status{position:absolute;left:12px;bottom:12px;display:flex;align-items:center;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);padding:0 4px;height:32px}
+  .status{display:flex;align-items:center;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:9px;box-shadow:var(--shadow);padding:0 4px;height:32px}
   .status:empty{display:none}
   .chip{display:flex;align-items:center;gap:6px;padding:0 9px;font-size:12px;font-weight:500;color:#3d3833;white-space:nowrap}
   .chip+.chip{border-left:1px solid var(--line)}
@@ -195,7 +252,9 @@ const styles = `  :root{
   .empty .box p{margin:0;font-size:13px;line-height:1.55;color:var(--muted)}
   .empty .box strong{color:var(--sg-ink);font-weight:600}
   .empty .arrow{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fdeceb;color:var(--sg-red-deep);font-size:18px;animation:nudge 1.2s ease-in-out infinite}
-  @keyframes nudge{50%{transform:translateX(-8px)}}
+  @keyframes nudge{50%{transform:translate(6px,6px)}}
+  @keyframes nudge-l{50%{transform:translateX(-8px)}}
+  .desk .empty .arrow{animation-name:nudge-l}
   .toast{position:absolute;left:50%;bottom:16px;transform:translate(-50%,10px);opacity:0;pointer-events:none;background:var(--sg-ink);color:#fff;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);transition:.2s;white-space:nowrap}
   .toast.show{opacity:1;transform:translate(-50%,0)}
   .dragchip{position:fixed;z-index:50;pointer-events:none;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:5px 12px 5px 5px;box-shadow:var(--shadow-lg);transform:translate(-50%,-50%) rotate(-2deg);font-size:13px;font-weight:500}
@@ -239,25 +298,32 @@ const styles = `  :root{
   .ce-empty b{display:block;font-size:17px;font-weight:600;margin:10px 0 6px}
   .ce-empty p{margin:0 0 16px;font-size:13px;line-height:1.55;color:var(--muted)}
   body.coding .inspector{right:484px}
+  body.coding .dock{right:484px}
   .item.flash{animation:flash 0.5s ease-in-out 3}
-  @keyframes flash{50%{background:#fdeceb;border-color:#f5b8bb}}
+  @keyframes flash{50%{background:#fdeceb;border-color:var(--sg-red)}}
 
   /* touch screens (iPad, tablets): bigger targets; the page itself never zooms or scrolls, only the panels do */
   html,body{overscroll-behavior:none}
   .app{touch-action:none}
   .lib,.inspector,.help-pop,.ce-ref,.ce-out{touch-action:pan-y}
+  .pal-cats{touch-action:pan-x}
   .ce-area textarea,.ce-wrap{touch-action:pan-x pan-y}
   .inspector input[type=range]{touch-action:pan-x}
   @media (pointer:coarse){
     .icon-btn{width:40px;height:40px}
     .appbar{--bar-h:56px;height:56px}
     .ab-group>button,.ab-group .fab{min-height:38px}
-    .item{padding:8px 6px}
-    .item .grip{opacity:1}
+    .parts-fab{height:56px} .pal{bottom:80px;height:min(640px,calc(100% - 96px))}
+    .pal-cats button{padding:7px 14px}
+    .item b{font-size:12.5px}
+    .item:hover{transform:none;box-shadow:none;border-color:var(--line)} .item:hover .th img{transform:none}
+    .search input{font-size:16px;padding-top:8px;padding-bottom:8px}
     .inspector .btns button{padding:7px 12px;font-size:12.5px}
     .codep header .x{width:38px;height:38px}
   }
   @media (max-width:980px){ .ab-group .lbl{display:none} .doc .saved{font-size:0;gap:0;padding:4px} }
-  @media (max-width:820px){ :root{--side-w:220px} .inspector{width:230px} .item .tx span{display:none} .side-foot{display:none} .beta{display:none} .doc [contenteditable]{max-width:140px} }
+  @media (max-width:820px){ .inspector{width:230px} .beta{display:none} .doc [contenteditable]{max-width:140px} }
+  @media (max-width:640px){ .dock .status{display:none} }
+  @media (hover:none),(pointer:coarse){ .parts-fab kbd{display:none} }
 `;
 export default styles;

@@ -20,7 +20,7 @@ export function startSimulator(opts = {}) {
   /* ======================= original script starts ======================= */
 
 /* =====================================================================
-   PARTS LIBRARY (side nav). Descriptions from the brochure, p.7.
+   PARTS LIBRARY (the Parts dialog). Descriptions from the brochure, p.7.
    ===================================================================== */
 const IMG = '/assets/';
 // The RGB LED is not one of the 13 kit modules: a simulator-only part (no product photo), so it gets a drawn icon.
@@ -49,30 +49,55 @@ const LIBRARY = [
   { cat: 'Connectors', items: [
     { id: 'zap', name: 'Zap connector', desc: 'Keyed 4-wire cable, one way in', img: 'modules/module-13_zap-connectors.png', live: true } ] },
 ];
-const libEl = document.getElementById('lib');
-const GRIP = '<svg class="grip" width="10" height="16" viewBox="0 0 10 16" fill="#111"><circle cx="2" cy="2" r="1.6"/><circle cx="8" cy="2" r="1.6"/><circle cx="2" cy="8" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="2" cy="14" r="1.6"/><circle cx="8" cy="14" r="1.6"/></svg>';
+const libEl = document.getElementById('lib'), palEl = document.getElementById('partsPal'), partsFab = document.getElementById('partsFab');
+const catsEl = document.getElementById('palCats'), qEl = document.getElementById('q');
+const CAT_SHORT = { 'Development boards': 'Boards' };
+let libCat = '', palOpen = false, startHint = true;          // '' = every category; startHint: the table has no plate yet
+// Two layouts for the parts library. Desktop (a mouse, a wide window, and always the landing-page demo): a sidebar
+// beside the table. Touch screens and narrow windows: a dialog over the table, opened from the corner button.
+const deskMQ = matchMedia('(hover:hover) and (pointer:fine) and (min-width:761px)');
+let DESK = DEMO || deskMQ.matches;
+function renderCats() {
+  catsEl.innerHTML = ['', ...LIBRARY.map(c => c.cat)].map(c =>
+    `<button type="button" data-cat="${c}" class="${c === libCat ? 'on' : ''}" aria-pressed="${c === libCat}">${c ? CAT_SHORT[c] || c : 'All'}</button>`).join('');
+}
 function renderLibrary(filter = '') {
   const f = filter.trim().toLowerCase();
   libEl.innerHTML = '';
   for (const c of LIBRARY) {
+    if (libCat && c.cat !== libCat) continue;
     const items = c.items.filter(i => !f || (i.name + ' ' + i.desc + ' ' + c.cat).toLowerCase().includes(f));
     if (!items.length) continue;
-    const sec = document.createElement('div'); sec.className = 'cat';
-    sec.innerHTML = `<div class="cat-h"><svg class="chev" width="10" height="10" viewBox="0 0 10 10"><path d="M1 3l4 4 4-4" stroke="#111" stroke-width="2" fill="none"/></svg>${c.cat}<span class="n">${items.length}</span></div><div class="items"></div>`;
-    sec.querySelector('.cat-h').onclick = () => sec.classList.toggle('closed');
+    const sec = document.createElement('section'); sec.className = 'cat' + (libCat ? ' solo' : '');
+    sec.innerHTML = `${libCat ? '' : `<h4 class="cat-h">${c.cat}</h4>`}<div class="items"></div>`;
     const box = sec.querySelector('.items');
     for (const it of items) {
       const el = document.createElement('div');
-      el.className = 'item' + (it.live ? '' : ' soon'); el.dataset.id = it.id;
-      el.innerHTML = `<div class="th"><img src="${imgSrc(it)}" alt=""></div><div class="tx"><b>${it.name}</b><span>${it.desc}</span></div>${it.live ? GRIP : '<span class="pill">SOON</span>'}`;
-      if (it.live) el.addEventListener('pointerdown', e => startSideDrag(e, it));
-      else el.addEventListener('click', () => toast(`${it.name} is coming soon`));
+      el.className = 'item' + (it.live ? '' : ' soon') + (it.id === 'plate' && startHint ? ' start' : '');
+      el.dataset.id = it.id; el.title = it.desc; el.tabIndex = 0; el.setAttribute('role', 'button');
+      el.innerHTML = `<div class="th"><img src="${imgSrc(it)}" alt="" draggable="false"></div><b>${it.name}</b>${it.live ? '' : '<span class="pill">Soon</span>'}`;
+      if (it.live) {
+        el.addEventListener('pointerdown', e => pickStart(e, it, el));
+        el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); addToTable(it); } });
+      } else el.addEventListener('click', () => toast(`${it.name} is coming soon`));
       box.appendChild(el);
     }
     libEl.appendChild(sec);
   }
+  if (!libEl.firstChild) {
+    const none = document.createElement('div'); none.className = 'lib-none';
+    none.textContent = f ? `No parts match “${filter.trim()}”.` : 'No parts here yet.';
+    libEl.appendChild(none);
+  }
 }
-document.getElementById('q').addEventListener('input', e => renderLibrary(e.target.value));
+catsEl.addEventListener('click', e => {
+  const b = e.target.closest('[data-cat]'); if (!b) return;
+  libCat = b.dataset.cat; renderCats(); renderLibrary(qEl.value); libEl.scrollTop = 0;
+  b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+});
+// a search looks through every category
+qEl.addEventListener('input', () => { if (libCat) { libCat = ''; renderCats(); } renderLibrary(qEl.value); libEl.scrollTop = 0; });
+renderCats();
 renderLibrary();
 
 /* =====================================================================
@@ -2363,7 +2388,7 @@ addEventListener('pointermove', e => {
   }
 });
 function pointerEnd(e) {
-  if (sidePend && e.pointerId === sidePend.id) { if (e.type === 'pointerup') toast('Drag the part sideways onto the table to place it.'); sidePend = null; return; }
+  if (sidePend && e.pointerId === sidePend.id) { const p = endPend(); if (e.type === 'pointerup') addToTable(p.item); return; }
   if (e.pointerType === 'touch' && touches.has(e.pointerId) && touchUp(e)) return;
   if (e.type === 'pointercancel' && !drag && !sideDrag) return;
   if (held) { held.m.def.sim.press?.(held.m, held.act, false); held = null; }
@@ -2376,23 +2401,51 @@ function pointerEnd(e) {
 addEventListener('pointerup', pointerEnd);
 addEventListener('pointercancel', pointerEnd);
 
-/* ---------- drag from the side nav ---------- */
-// on touch the parts list has to scroll too: a finger only picks a part up once it moves sideways
+/* ---------- drag from the parts library ---------- */
+// A press on a card turns into a drag once it moves; one that never moves is a tap, which drops the part in
+// the middle of the table. On touch the grid has to scroll too, so a finger picks a part up by moving
+// sideways or by holding still for a moment; moving up or down scrolls instead.
 let sidePend = null;
+const LIFT_MS = 280;
+function pickStart(e, item, el) {
+  if (e.button > 0 || sideDrag || sidePend || drag) return;
+  if (e.pointerType !== 'touch') e.preventDefault();          // no text selection, no native image drag
+  const p = sidePend = { id: e.pointerId, x: e.clientX, y: e.clientY, item, el, touch: e.pointerType === 'touch' };
+  el.classList.add('press');
+  if (p.touch) p.hold = setTimeout(() => { if (sidePend === p) liftPend({ clientX: p.x, clientY: p.y, preventDefault() {} }); }, LIFT_MS);
+}
+function endPend() {
+  const p = sidePend; if (!p) return null;
+  clearTimeout(p.hold); p.el.classList.remove('press'); sidePend = null;
+  return p;
+}
+function liftPend(e) { const p = endPend(); if (p) startSideDrag(e, p.item); }
+function moveSidePend(e) {
+  const p = sidePend, dx = e.clientX - p.x, dy = e.clientY - p.y;
+  if (!p.touch) { if (Math.hypot(dx, dy) > 4) liftPend(e); return; }
+  if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) liftPend(e);
+  else if (Math.hypot(dx, dy) > 12) endPend();                // scrolling the grid
+}
 function startSideDrag(e, item) {
-  if (e.pointerType === 'touch' && !sidePend) { sidePend = { id: e.pointerId, x: e.clientX, y: e.clientY, item }; return; }
   e.preventDefault();
   const chip = document.createElement('div'); chip.className = 'dragchip';
   chip.innerHTML = `<img src="${imgSrc(item)}" alt="">${item.name}`;
   document.body.appendChild(chip);
   sideDrag = { item, chip, spawned: null };
+  if (!DESK) { palEl.classList.add('lifting'); partsFab.classList.add('cancel'); }
   select(null);
   moveSideDrag(e);
 }
-function moveSidePend(e) {
-  const dx = e.clientX - sidePend.x, dy = e.clientY - sidePend.y;
-  if (Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) { const it = sidePend.item; startSideDrag(e, it); sidePend = null; }
-  else if (Math.abs(dy) > 12) sidePend = null;      // scrolling the list
+// while a part is held, the corner button is where you let go to change your mind
+const overFab = e => { if (!partsFab.offsetParent) return false; const r = partsFab.getBoundingClientRect(); return e.clientX >= r.left - 8 && e.clientX <= r.right + 8 && e.clientY >= r.top - 8 && e.clientY <= r.bottom + 8; };
+const dropOK = e => overCanvas(e) && !overFab(e);
+// a tap (or Enter) on a card: drop the part in the middle of the table, with the dialog out of the way
+function addToTable(item) {
+  if (sideDrag || drag) return;
+  if (!DESK) setPal(false);
+  const r = canvas.getBoundingClientRect();
+  const e = { clientX: r.left + r.width / 2, clientY: r.top + r.height * 0.5, preventDefault() {} };
+  startSideDrag(e, item); endSideDrag(e);
 }
 function spawnFor(item) {
   if (item.id === 'plate') { const p = makePlate(); p.dragging = true; return { ref: p, offset: V() }; }
@@ -2402,7 +2455,8 @@ function spawnFor(item) {
   const m = makeModule(item.id); m.dragging = true; return { ref: m, offset: V() };
 }
 function moveSideDrag(e) {
-  const s = sideDrag, inside = overCanvas(e);
+  const s = sideDrag, inside = dropOK(e);
+  partsFab.classList.toggle('hot', overFab(e));
   s.chip.style.left = e.clientX + 'px'; s.chip.style.top = e.clientY + 'px';
   s.chip.style.display = inside ? 'none' : 'flex';
   stage.classList.toggle('drop-target', !inside);
@@ -2436,9 +2490,10 @@ function moveSideDrag(e) {
 function endSideDrag(e) {
   const s = sideDrag; sideDrag = null;
   s.chip.remove(); stage.classList.remove('drop-target');
+  palEl.classList.remove('lifting'); partsFab.classList.remove('cancel', 'hot');
   if (!s.spawned) return;
   const o = s.spawned.ref;
-  if (!overCanvas(e)) {                                // dropped back on the nav: cancel
+  if (!dropOK(e)) {                                   // let go off the table or on the corner button: cancel
     if (o.type === 'plate') removePlate(o); else if (o.type === 'module') removeModule(o); else removeCable(o);
     drag = null; hideGhost(); changed(); return;
   }
@@ -2456,7 +2511,8 @@ addEventListener('keydown', e => {
   if (k === 'e') rotateModule(drag?.ref?.type === 'module' ? drag.ref : selected);
   if (k === 'r') flipPlug(drag?.ref?.type === 'plug' ? drag.ref : lastPlug);
   if ((k === 'delete' || k === 'backspace') && !drag) removeSelected();
-  if (k === 'escape') select(null);
+  if (k === 'escape') { if (palOpen && !DESK) setPal(false); else select(null); }
+  if (k === 'p' && !DEMO && !e.ctrlKey && !e.metaKey && !e.altKey) setPal(!palOpen);
   if (selected?.kind === 'ir' && /^[0-9*#]$/.test(e.key)) irPress(selected, e.key);
   if (selected?.kind === 'buzzer' && /^[1-8]$/.test(e.key) && !e.repeat) bzPress(selected, BZ_WHITE[+e.key - 1]);
   // OLED menu: the selected board, the board of the selected OLED, or the first board driving a screen
@@ -2483,18 +2539,53 @@ addEventListener('pointerup', bzRelease); addEventListener('pointercancel', bzRe
 addEventListener('keyup', e => { if (bzHeld && /^[1-8]$/.test(e.key)) bzRelease(); });
 docOn('visibilitychange', () => { if (document.hidden) { bzRelease(); modules.forEach(m => m.snd && buzzSound(m, 0)); } });
 
-/* ---------- parts sidebar: hide / show (remembered on this device) ---------- */
-const appEl = document.querySelector('.app'), sideBtn = document.getElementById('sideBtn');
-function setSide(open, remember) {
-  appEl.classList.toggle('side-closed', !open);
-  sideBtn.setAttribute('aria-expanded', String(open));
-  sideBtn.title = open ? 'Hide the parts library' : 'Show the parts library';
-  if (remember) try { localStorage.setItem('sg:side', open ? '1' : '0'); } catch {}
+/* ---------- the parts library: open / close ---------- */
+// Desktop: a sidebar, open unless it was hidden last time (remembered on this device); hidden, the corner
+// button brings it back. Touch: a dialog over the stage that closes with its X, the corner button, P, Esc or a
+// plain tap on the table (not a drag, pinch or orbit), and opens by itself on an empty new build.
+const emptyBox = document.getElementById('empty'), closeBtn = document.getElementById('palClose');
+function setPal(open, remember) {
+  if (open === palOpen) return;
+  palOpen = open;
+  palEl.classList.toggle('open', open); palEl.setAttribute('aria-hidden', String(!open)); palEl.inert = !open;
+  partsFab.classList.toggle('on', open); partsFab.setAttribute('aria-expanded', String(open));
+  partsFab.title = open ? 'Close the parts library (P)' : 'Open the parts library (P)';
+  emptyBox.classList.toggle('hide', plates.length > 0 || (palOpen && !DESK));
+  partsFab.classList.toggle('hint', startHint && !open && !DEMO);
+  if (remember && DESK) try { localStorage.setItem('sg:side', open ? '1' : '0'); } catch {}
 }
-let sideSaved = null; try { sideSaved = localStorage.getItem('sg:side'); } catch {}
-setSide(DEMO || sideSaved !== '0', false);
-sideBtn.onclick = () => setSide(appEl.classList.contains('side-closed'), true);
-document.getElementById('sideClose').onclick = () => setSide(false, true);
+function applyLayout() {
+  appEl.classList.toggle('desk', DESK);
+  palEl.setAttribute('role', DESK ? 'complementary' : 'dialog');
+  closeBtn.title = DESK ? 'Hide the parts list (P)' : 'Close (P)';
+  closeBtn.setAttribute('aria-label', DESK ? 'Hide the parts list' : 'Close the parts library');
+  document.getElementById('palHint').textContent = DESK ? '' : 'Drag onto the table, or tap to add';
+  document.getElementById('emptyArrow').textContent = DESK ? '←' : '↘';
+  document.getElementById('emptyText').innerHTML = DESK
+    ? 'Drag a <strong>Base plate</strong> from the parts list onto the table. Then add modules and wire them up with Zap connectors.'
+    : 'Open <strong>Parts</strong> in the corner and drag a <strong>Base plate</strong> onto the table. Then add modules and wire them up with Zap connectors.';
+  if (DESK && libCat) { libCat = ''; renderCats(); renderLibrary(qEl.value); }    // the sidebar shows every category
+  let saved = null; try { saved = localStorage.getItem('sg:side'); } catch {}
+  if (DESK) setPal(DEMO || saved !== '0');
+  else setPal(!plates.length && !modules.length && !cables.length);
+  emptyBox.classList.toggle('hide', plates.length > 0 || (palOpen && !DESK));
+}
+const appEl = document.querySelector('.app');
+partsFab.onclick = () => { if (!sideDrag) setPal(!palOpen, true); };
+closeBtn.onclick = () => setPal(false, true);
+qEl.addEventListener('keydown', e => { if (e.key === 'Escape') { qEl.blur(); if (!DESK) setPal(false); } });
+let palTap = null;
+stage.addEventListener('pointerdown', e => { palTap = palOpen && !DESK && e.target === canvas && !palTap ? { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() } : null; }, true);
+addEventListener('pointerup', e => {
+  const t = palTap; if (!t || e.pointerId !== t.id) return; palTap = null;
+  if (Math.hypot(e.clientX - t.x, e.clientY - t.y) < 8 && performance.now() - t.t < 500) setPal(false);
+});
+addEventListener('pointercancel', () => { palTap = null; });
+// while a part is held on a touch screen, the page must not scroll under the finger
+docOn('touchmove', e => { if (sideDrag) e.preventDefault(); }, { passive: false });
+const onLayout = () => { const d = DEMO || deskMQ.matches; if (d !== DESK && !sideDrag) { DESK = d; applyLayout(); } };
+deskMQ.addEventListener('change', onLayout);
+applyLayout();
 // Safari's own pinch-zoom of the whole page would fight the table's pinch: the simulator handles pinches itself
 if (!DEMO) for (const t of ['gesturestart', 'gesturechange']) docOn(t, e => e.preventDefault(), { passive: false });
 
@@ -2523,7 +2614,9 @@ function changed() {
     `<span class="chip">${modules.length} module${modules.length === 1 ? '' : 's'}</span>` +
     `<span class="chip">${cables.length} connector${cables.length === 1 ? '' : 's'}</span>` +
     `<span class="chip ${links ? 'on' : ''}"><i></i>${links} plugged in</span>`;
-  emptyEl.classList.toggle('hide', plates.length > 0 || !!sideDrag || !!drag);
+  emptyEl.classList.toggle('hide', plates.length > 0 || !!sideDrag || !!drag || (palOpen && !DESK));
+  if (startHint !== !plates.length) { startHint = !plates.length; libEl.querySelector('[data-id="plate"]')?.classList.toggle('start', startHint); }
+  partsFab.classList.toggle('hint', startHint && !palOpen && !DEMO);   // (on desktop the button only shows while the sidebar is hidden)
   renderInspector(); renderCode(); kick();
   if (!DEMO) opts.onChange?.();
 }
@@ -3348,6 +3441,7 @@ let codeOpen = false, codeBoard = null, codeUIKey = '';
 const boardsOnTable = () => modules.filter(m => m.def.board);
 function toggleCode(open = !codeOpen) {
   codeOpen = open;
+  if (open && !DESK) setPal(false);                  // on a tablet the two would sit on top of each other
   codePanel.classList.toggle('hide', !open); codeFab.classList.toggle('on', open);
   document.body.classList.toggle('coding', open); renderInspector();
   // no focus in the landing-page demo: focusing inside the iframe scrolls the parent page to it
@@ -3374,10 +3468,9 @@ $('ceBoard').addEventListener('change', e => { codeBoard = modules.find(m => m.i
 codeFab.onclick = () => toggleCode();
 $('ceClose').onclick = () => toggleCode(false);
 $('ceShowBoard').onclick = () => {
-  $('q').value = ''; renderLibrary();
+  qEl.value = ''; libCat = ''; renderCats(); renderLibrary(); if (!DESK) toggleCode(false); setPal(true, true);
   const el = libEl.querySelector('[data-id="quark"]'); if (!el) return;
-  el.closest('.cat')?.classList.remove('closed');
-  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  libEl.scrollTo({ top: el.offsetTop - (libEl.clientHeight - el.offsetHeight) / 2, behavior: 'smooth' });
   el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
   toast(plates.length ? 'Drag the Quark C3 onto your base plate.' : 'Add a base plate first, then drag the Quark C3 onto it.');
 };
@@ -3927,6 +4020,7 @@ function load(data) {
   if (codeOpen) toggleCode(false);
   ceTa.dataset.board = '';
   if (!data || !Array.isArray(data.plates)) { changed(); return; }
+  if (data.plates.length && !DESK) setPal(false);     // an opened build on a tablet: show it, not the parts
   const byId = new Map();
   let maxId = 0, skipped = 0;
   const seen = id => { maxId = Math.max(maxId, id | 0); return id; };
