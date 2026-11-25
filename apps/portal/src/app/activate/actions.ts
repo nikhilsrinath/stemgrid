@@ -12,7 +12,7 @@ import { emails } from '@/lib/emails';
 import { logActivity } from '@/lib/activity';
 import { cleanText } from '@/lib/rules';
 import { gstOn, inr } from '@/lib/money';
-import { getPricing } from '@/lib/pricing';
+import { getPricing, joiningQuote } from '@/lib/pricing';
 import { loadInstitute, startPayment } from '@/lib/lifecycle';
 import { provider } from '@/lib/payments';
 import { finishSignIn } from '@/lib/signin';
@@ -31,6 +31,11 @@ async function load(token: string) {
   const inst = await loadInstitute(t.institute_id);
   if (!['approved', 'awaiting_payment'].includes(inst.status)) throw new UserError('This institute is already activated.');
   return { db, t, inst };
+}
+/* What this institute pays to join: its wave's bundle, or onboarding + the first month of its Standard plan. */
+async function quoteFor(inst: Institute) {
+  const { data: sub } = await supabaseAdmin().from('subscriptions').select('plan_code').eq('institute_id', inst.id).maybeSingle();
+  return joiningQuote(await getPricing(), inst.wave_id, sub?.plan_code);
 }
 const actor = (inst: Institute, name = 'activation') => ({ kind: 'portal' as const, id: null, name: `${inst.contact_name || name} (activation)` });
 
@@ -126,10 +131,10 @@ export async function finishWithoutPayment(token: string): Promise<FormState> {
   return act(async () => {
     const { inst } = await load(token);
     if (!inst.terms_accepted_at || !inst.consent_declared_at) throw new UserError('Accept the terms first.');
-    const wave = (await getPricing()).wave(inst.wave_id);
+    const q = await quoteFor(inst);
     await startPayment(inst, actor(inst));
     await notifyStaff(`Activated, awaiting payment: ${inst.name}`,
-      `${inst.name} (/${inst.slug}) has verified its email, created its admin account and accepted the terms.\nCollect the ${wave?.name ?? ''} joining payment (${inr((wave?.join_price_paise ?? 0) + gstOn(wave?.join_price_paise ?? 0))} incl. GST), then use "Record bank transfer" in the console.`);
+      `${inst.name} (/${inst.slug}) has verified its email, created its admin account and accepted the terms.\nCollect the ${q.label} joining payment (${inr(q.amount)} + GST = ${inr(q.amount + gstOn(q.amount))}), then use "Record bank transfer" in the console.`);
     return { ok: 'Done.' };
   });
 }
@@ -139,18 +144,18 @@ export async function startCheckout(token: string): Promise<FormState> {
   return act(async () => {
     const { db, t, inst } = await load(token);
     if (!inst.terms_accepted_at || !inst.consent_declared_at) throw new UserError('Accept the terms first.');
-    const wave = (await getPricing()).wave(inst.wave_id);
-    if (!wave) throw new UserError('No wave is set for your institute. Contact StemGrid.');
+    const q = await quoteFor(inst);
+    if (!(q.amount > 0)) throw new UserError('No package is set for your institute. Contact StemGrid.');
     await startPayment(inst, actor(inst));
     // reuse an open checkout rather than creating a second one
     await db.from('payments').update({ status: 'cancelled' }).eq('institute_id', inst.id).eq('kind', 'joining').eq('status', 'created');
-    const amount = wave.join_price_paise, gst = gstOn(amount);
+    const amount = q.amount, gst = gstOn(amount);
     const p = provider();
     const { data: pay, error } = await db.from('payments').insert({ institute_id: inst.id, kind: 'joining', amount_paise: amount, gst_paise: gst, provider: p.name, status: 'created' }).select('id').single();
     if (error) throw new UserError(error.message);
     const co = await p.createCheckout({
       paymentId: pay.id, instituteId: inst.id, amountTotalPaise: amount + gst,
-      description: `${wave.name} membership: ${inst.name}`,
+      description: `${q.kind === 'wave' ? `${q.label} membership` : q.label}: ${inst.name}`,
       customer: { name: inst.contact_name || inst.name, email: t.email, phone: inst.contact_phone },
       returnPath: `/activate/${token}?payment=${pay.id}`,
     });

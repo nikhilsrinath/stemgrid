@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { consoleBase } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { getPricing, studentLimit, activeCount } from '@/lib/pricing';
+import { getPricing, joiningQuote, studentLimit, activeCount } from '@/lib/pricing';
 import { now } from '@/lib/clock';
 import { daysBetween, fmtDate, fmtDateTime, fmtMonth, isoDay } from '@/lib/dates';
 import { inr } from '@/lib/money';
@@ -51,7 +51,7 @@ export default async function InstituteDetail({ params, searchParams }: PageProp
       {approved && <p className={s.okBox} style={{ marginBottom: 16 }}>Approved. The activation link has been emailed to {inst.contact_email}. To send it yourself (e.g. on WhatsApp), press <b>Resend activation link</b> below: it shows the new link.</p>}
 
       <div className={s.grid4} style={{ marginBottom: 16 }}>
-        <Stat label="Wave" value={wave?.name ?? '—'} note={inst.member_number ? `Member #${inst.member_number}` : 'No place yet'} />
+        <Stat label="Package" value={wave?.name ?? 'Standard plan'} note={wave ? (inst.member_number ? `Member #${inst.member_number}` : 'No place yet') : 'Regular prices, no membership'} />
         <Stat label="Active students this month" value={`${count} / ${limit}`} note={<Meter value={count} max={limit} />} />
         <Stat label="Plan" value={plan?.name ?? '—'} note={sub?.price_paise ? `${inr(sub.price_paise)}/month locked${sub.extra_packs ? ` · +${sub.extra_packs} packs` : ''}` : sub?.recommended_plan_code ? `Recommended: ${pricing.plan(sub.recommended_plan_code)?.name}` : undefined} />
         <Stat label="People" value={students.count ?? 0} note={`students · ${teachers.count ?? 0} teachers · ${batches.count ?? 0} batches`} />
@@ -122,7 +122,7 @@ export default async function InstituteDetail({ params, searchParams }: PageProp
                   <Field label="Training date"><input className={s.input} type="date" name="date" defaultValue={isoDay(t)} required /></Field>
                 </A>
               )}
-              {['paid', 'onboarding'].includes(inst.status) && <A op="onboarding_complete" label="Mark onboarding complete (go live)" confirm="Start the free period today?" />}
+              {['paid', 'onboarding'].includes(inst.status) && <A op="onboarding_complete" label="Mark onboarding complete (go live)" confirm={wave ? "Start the free period today?" : "Start their plan today? The first month runs from today."} />}
               {inst.status === 'free_period' && !inst.pause_used && (
                 <A op="pause" label="Pause free period (once only)">
                   <Field label="Days (1–30)"><input className={s.input} type="number" name="days" min={1} max={30} defaultValue={14} required /></Field>
@@ -143,7 +143,7 @@ export default async function InstituteDetail({ params, searchParams }: PageProp
                     <Field label="For"><select className={s.select} name="kind" defaultValue={prePay ? 'joining' : 'monthly'}>
                       {prePay && <option value="joining">Joining</option>}<option value="monthly">Monthly</option><option value="addon">Add-on</option>
                     </select></Field>
-                    <Field label="Amount before GST (₹)"><input className={s.input} name="amount" inputMode="decimal" defaultValue={prePay && wave ? wave.join_price_paise / 100 : sub?.price_paise ? sub.price_paise / 100 : ''} required /></Field>
+                    <Field label="Amount before GST (₹)"><input className={s.input} name="amount" inputMode="decimal" defaultValue={prePay ? joiningQuote(pricing, inst.wave_id, sub?.plan_code).amount / 100 : sub?.price_paise ? sub.price_paise / 100 : ''} required /></Field>
                   </div>
                   <Field label="Reference / note"><input className={s.input} name="note" maxLength={300} placeholder="UTR or bank reference" /></Field>
                 </A>

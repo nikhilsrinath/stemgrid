@@ -1,6 +1,6 @@
 import { pageMember } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { activeCount, getPricing, peakActive, recommendPlan, studentLimit } from '@/lib/pricing';
+import { activeCount, addonPrice, getPricing, peakActive, recommendPlan, studentLimit } from '@/lib/pricing';
 import { now } from '@/lib/clock';
 import { daysBetween, fmtDate, fmtMonth, monthStart } from '@/lib/dates';
 import { inr } from '@/lib/money';
@@ -32,11 +32,13 @@ export default async function Billing({ params }: PageProps<'/[slug]/admin/billi
     <>
       <PageHead title="Billing" lead="Your membership, prices and invoices. All prices are before 18% GST." />
       <div className={s.grid4} style={{ marginBottom: 16 }}>
-        <Stat label="Membership" value={wave?.name ?? '—'} note={inst.member_number ? `Member #${inst.member_number}` : undefined} />
+        <Stat label={wave ? 'Membership' : 'Package'} value={wave?.name ?? 'Standard plan'} note={inst.member_number ? `Member #${inst.member_number}` : wave ? undefined : 'Regular prices'} />
         <Stat label="Plan" value={plan?.name ?? (inst.status === 'free_period' ? 'Free period' : '—')}
           note={plan ? `${plan.student_limit + (sub?.extra_packs ?? 0) * 10} students · ${plan.teacher_limit + (sub?.extra_teachers ?? 0)} teachers · ${inr(sub?.price_paise)}/month` : inst.free_period_ends_at ? `Unlimited until ${fmtDate(inst.free_period_ends_at)}` : 'Starts at go-live'} />
-        <Stat label="Price lock" value={inst.lock_lost ? 'Ended' : inst.lock_ends_at ? fmtDate(inst.lock_ends_at) : '—'} note="Your member prices stay while your membership is continuous" />
-        <Stat label="Minimum term ends" value={fmtDate(inst.minimum_term_ends_at)} note="3 paid months after the free period" />
+        {wave
+          ? <Stat label="Price lock" value={inst.lock_lost ? 'Ended' : inst.lock_ends_at ? fmtDate(inst.lock_ends_at) : '—'} note="Your member prices stay while your membership is continuous" />
+          : <Stat label="Annual option" value={`Pay ${pricing.settings.annual_paid_months}, get 12`} note="Ask StemGrid to switch to annual billing" />}
+        <Stat label="Minimum term ends" value={fmtDate(inst.minimum_term_ends_at)} note={`${pricing.settings.minimum_paid_months} paid months ${wave ? 'after the free period' : 'from go-live'}`} />
       </div>
 
       <div className={s.grid2}>
@@ -69,6 +71,20 @@ export default async function Billing({ params }: PageProps<'/[slug]/admin/billi
             </div>
           )}
 
+          {!wave ? (
+            <div className={s.card}>
+              <h2 className={s.h2}>Plans and add-ons</h2>
+              <table className={s.table}>
+                <thead><tr><th>Plan</th><th className={s.num}>Students</th><th className={s.num}>Teachers</th><th className={s.num}>Monthly</th></tr></thead>
+                <tbody>{pricing.plans.map(p => (
+                  <tr key={p.code}><td>{p.name} {plan?.code === p.code && <Badge tone="ok">yours</Badge>}</td><td className={s.num}>{p.student_limit}</td><td className={s.num}>{p.teacher_limit}</td><td className={s.num}><b>{inr(p.regular_price_paise)}</b></td></tr>
+                ))}</tbody>
+              </table>
+              <ul className={s.list} style={{ marginTop: 10 }}>
+                {pricing.addons.map(a => <li key={a.code}><span>{a.name}{a.unit ? <span className={s.muted}> · {a.unit}</span> : null}</span><b>{addonPrice(a, inr)}</b></li>)}
+              </ul>
+            </div>
+          ) : (
           <div className={s.card}>
             <h2 className={s.h2}>Your locked member prices{wave ? ` (${wave.name})` : ''}</h2>
             <table className={s.table}>
@@ -80,6 +96,7 @@ export default async function Billing({ params }: PageProps<'/[slug]/admin/billi
             </table>
             {wave && (() => { const wp = pricing.price(inst.wave_id, 'starter'); return wp && <p className={`${s.small} ${s.muted}`} style={{ marginTop: 10 }}>Extra students: {inr(wp.extra_pack_paise)} per pack of 10 · Extra teacher account: {inr(wp.extra_teacher_paise)} · per month.</p>; })()}
           </div>
+          )}
 
           <div className={s.card}>
             <h2 className={s.h2}>Payment method</h2>

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { hashToken } from '@/lib/tokens';
 import { now } from '@/lib/clock';
-import { getPricing } from '@/lib/pricing';
+import { getPricing, joiningQuote } from '@/lib/pricing';
 import { gstOn, inr } from '@/lib/money';
 import { CONTACT } from '@/lib/urls';
 import { paymentsEnabled } from '@/lib/payments';
@@ -21,6 +21,8 @@ export default async function ActivatePage({ params, searchParams }: PageProps<'
   const inst = t ? (await db.from('institutes').select('*').eq('id', t.institute_id).maybeSingle<Institute>()).data : null;
   const pricing = await getPricing();
   const wave = pricing.wave(inst?.wave_id);
+  const { data: sub } = inst ? await db.from('subscriptions').select('plan_code').eq('institute_id', inst.id).maybeSingle() : { data: null };
+  const quote = joiningQuote(pricing, inst?.wave_id ?? null, sub?.plan_code);
 
   const frame = (body: React.ReactNode) => (
     <div className={s.root}>
@@ -49,6 +51,17 @@ export default async function ActivatePage({ params, searchParams }: PageProps<'
         <p style={{ fontSize: 18 }}>You are member <b>#{inst.member_number}</b> · {wave?.name}</p>
         {inv && <p className={s.muted}>Invoice {inv.number} is on your billing page.</p>}
         <p className={s.muted}>Our team will contact you to schedule onboarding and training. Your free period starts when onboarding is complete (or 7 days after payment, whichever comes first).</p>
+        <p><Link className={s.btn} href={`/${inst.slug}/admin/setup`}>Set up your portal</Link></p>
+      </div>,
+    );
+  }
+  // Standard (no wave): paid, no member number
+  if (!inst.wave_id && inst.paid_at) {
+    return frame(
+      <div className={s.stack} style={{ textAlign: 'center' }}>
+        <p className={s.okBox} style={{ justifyContent: 'center' }}>Payment received. Welcome to StemGrid!</p>
+        <p style={{ fontSize: 18 }}>{quote.label}</p>
+        <p className={s.muted}>Our team will contact you to schedule onboarding and training. Your plan starts when onboarding is complete (or 7 days after payment, whichever comes first).</p>
         <p><Link className={s.btn} href={`/${inst.slug}/admin/setup`}>Set up your portal</Link></p>
       </div>,
     );
@@ -82,7 +95,9 @@ export default async function ActivatePage({ params, searchParams }: PageProps<'
     return frame(
       <div className={s.stack} style={{ textAlign: 'center' }}>
         <p className={s.okBox} style={{ justifyContent: 'center' }}>You&apos;re all set up. Thank you!</p>
-        <p className={s.muted}>Our team will contact you about the joining payment ({wave?.name}). As soon as it&apos;s received, your {wave?.name} place is confirmed, you get your member number and invoice, and your portal opens at <b>/{inst.slug}</b>.</p>
+        <p className={s.muted}>{wave
+          ? <>Our team will contact you about the joining payment ({wave.name}). As soon as it&apos;s received, your {wave.name} place is confirmed, you get your member number and invoice, and your portal opens at <b>/{inst.slug}</b>.</>
+          : <>Our team will contact you about the joining payment ({quote.label}). As soon as it&apos;s received, you get your invoice and your portal opens at <b>/{inst.slug}</b>.</>}</p>
         <p className={s.muted}>Questions: {CONTACT.email} · {CONTACT.phone}</p>
       </div>,
     );
@@ -97,7 +112,7 @@ export default async function ActivatePage({ params, searchParams }: PageProps<'
     const { data: pay } = await db.from('payments').select('status').eq('id', paymentId).maybeSingle();
     failed = pay?.status === 'failed' || pay?.status === 'cancelled';
   }
-  const amount = wave?.join_price_paise ?? 0;
+  const amount = quote.amount;
   return frame(
     <Activate
       token={token}
@@ -105,9 +120,9 @@ export default async function ActivatePage({ params, searchParams }: PageProps<'
       email={t.email}
       failed={failed}
       institute={{ name: inst.name, city: inst.city, state: inst.state, address: inst.address, gst: inst.gst_number, contactName: inst.contact_name }}
-      wave={wave ? {
-        name: wave.name, freeMonths: wave.free_months,
-        firstMonth: inr(wave.first_month_paise), onboarding: inr(wave.onboarding_paise), saving: inr(wave.bundle_saving_paise),
+      pkg={wave || sub?.plan_code ? {
+        name: quote.label, standard: !wave, terms: wave ? wave.terms : pricing.settings.standard_terms,
+        lines: quote.lines.map(l => ({ label: l.label, value: l.paise < 0 ? `− ${inr(-l.paise)}` : inr(l.paise) })),
         join: inr(amount), gst: inr(gstOn(amount)), total: inr(amount + gstOn(amount)),
       } : null}
       termsVersion={process.env.TERMS_VERSION ?? 'unversioned'}

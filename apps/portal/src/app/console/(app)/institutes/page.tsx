@@ -45,7 +45,7 @@ export default async function Institutes({ searchParams }: PageProps<'/console/i
               <tr key={i.id}>
                 <td><Link href={`${b}/institutes/${i.id}`}>{i.name}</Link><br /><span className={`${s.small} ${s.muted}`}>/{i.slug} · {i.city}</span></td>
                 <td><StatusBadge status={i.status} />{i.wave_full && <> <Badge tone="bad">wave full</Badge></>}</td>
-                <td>{pricing.wave(i.wave_id)?.name ?? '—'}</td>
+                <td>{pricing.wave(i.wave_id)?.name ?? 'Standard'}</td>
                 <td className={s.num}>{i.member_number ?? '—'}</td>
                 <td>{pricing.plan(plan.get(i.id))?.name ?? '—'}</td>
                 <td>{fmtDate(i.free_period_ends_at)}</td>

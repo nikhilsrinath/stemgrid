@@ -6,7 +6,7 @@ import { addDays, addMonths, istDay, monthStart } from '@/lib/dates';
 import { sendMail, notifyStaff } from '@/lib/mail';
 import { emails } from '@/lib/emails';
 import { gstOn, inr } from '@/lib/money';
-import { getPricing, peakActive, recommendPlan } from '@/lib/pricing';
+import { getPricing, joiningQuote, peakActive, recommendPlan } from '@/lib/pricing';
 import { createInvoice } from '@/lib/invoices';
 import { getEnquiry, updateEnquiry } from '@/lib/enquiries';
 import { slugProblem, EMAIL_RE } from '@/lib/rules';
@@ -64,7 +64,7 @@ export async function slugTaken(slug: string) {
 }
 
 export async function approveInstitute(p: {
-  ref: string; slug: string; waveCode: string; contactEmail: string; name: string;
+  ref: string; slug: string; waveCode: string; planCode?: string; contactEmail: string; name: string;
 }, actor: Actor) {
   const slug = p.slug.trim().toLowerCase();
   const problem = slugProblem(slug) ?? await slugTaken(slug);
@@ -75,20 +75,29 @@ export async function approveInstitute(p: {
   const { data: existing } = await db().from('institutes').select('id, slug').eq('enquiry_ref', p.ref).maybeSingle();
   if (existing) throw new UserError(`This enquiry was already approved as ${existing.slug}.`);
   const pricing = await getPricing();
-  const wave = pricing.waveByCode(p.waveCode);
-  if (!wave) throw new UserError('Choose the wave to offer.');
+  // 'standard' = no membership: regular prices, no free period, plan chosen now
+  const standard = p.waveCode === 'standard';
+  const wave = standard ? null : pricing.waveByCode(p.waveCode);
+  if (!standard && !wave) throw new UserError('Choose the package to offer.');
+  const plan = standard ? pricing.plan(p.planCode) : null;
+  if (standard && !plan) throw new UserError('Choose the Standard plan to offer.');
+  const label = joiningQuote(pricing, wave?.id ?? null, plan?.code).label;
 
   const { data: inst, error } = await db().from('institutes').insert({
     slug, name: p.name.trim() || enquiry.org_name, type: enquiry.org_type, city: enquiry.city, state: enquiry.region,
     contact_name: enquiry.contact_name, contact_email: p.contactEmail.trim().toLowerCase(), contact_phone: enquiry.phone,
-    status: 'approved', wave_id: wave.id, enquiry_ref: p.ref, approved_at: iso(now()), approved_by: actor.id ?? null,
+    status: 'approved', wave_id: wave?.id ?? null, enquiry_ref: p.ref, approved_at: iso(now()), approved_by: actor.id ?? null,
   }).select('*').single<Institute>();
   if (error) throw new UserError(error.message.includes('duplicate') ? 'That address is taken. Choose another.' : error.message);
 
-  await logActivity({ actor, action: 'institute.approved', instituteId: inst.id, targetType: 'institute', targetId: inst.id, after: { status: 'approved', slug, wave: wave.code, enquiry_ref: p.ref } });
-  await sendActivation(inst, actor, wave.name);
+  await logActivity({ actor, action: 'institute.approved', instituteId: inst.id, targetType: 'institute', targetId: inst.id, after: { status: 'approved', slug, wave: wave?.code ?? 'standard', plan: plan?.code ?? null, enquiry_ref: p.ref } });
+  if (plan) {
+    const { error: e2 } = await db().from('subscriptions').upsert({ institute_id: inst.id, plan_code: plan.code, price_paise: plan.regular_price_paise, status: 'pending' }, { onConflict: 'institute_id' });
+    if (e2) throw new UserError(e2.message);
+  }
+  await sendActivation(inst, actor, label);
   try {
-    await updateEnquiry(p.ref, 'proposal', `approved as ${slug} (${wave.name}) by ${actor.name}`);
+    await updateEnquiry(p.ref, 'proposal', `approved as ${slug} (${label}) by ${actor.name}`);
   } catch (e) { console.error('[enquiry] status not updated', e); }
   return inst;
 }
@@ -102,11 +111,19 @@ export async function sendActivation(inst: Institute, actor: Actor, waveName?: s
     token_hash: hashToken(token), institute_id: inst.id, email: inst.contact_email, expires_at: iso(addDays(now(), 7)),
   });
   if (error) throw new UserError(error.message);
-  const wave = waveName ?? (await getPricing()).wave(inst.wave_id)?.name ?? 'StemGrid membership';
+  const wave = waveName ?? await packageLabel(inst);
   const link = `${portalOrigin()}/activate/${token}`;
   await sendMail({ to: inst.contact_email, ...emails.activation({ name: inst.name, contactName: inst.contact_name, link, wave }) });
   await logActivity({ actor, action: 'institute.activation_sent', instituteId: inst.id, targetType: 'institute', targetId: inst.id, after: { email: inst.contact_email } });
   return link;
+}
+
+/* "Founding Partners", or "Standard plan: Growth" for an institute without a wave. */
+export async function packageLabel(inst: Institute) {
+  const pricing = await getPricing();
+  if (inst.wave_id) return pricing.wave(inst.wave_id)?.name ?? 'StemGrid membership';
+  const { data: sub } = await db().from('subscriptions').select('plan_code').eq('institute_id', inst.id).maybeSingle();
+  return joiningQuote(pricing, null, sub?.plan_code).label;
 }
 
 export async function rejectEnquiry(ref: string, reason: string, spam: boolean, actor: Actor) {
@@ -141,6 +158,7 @@ export async function recordPayment(paymentId: string, actor: Actor) {
     if (error) throw new UserError(error.message);
     const r = res as { result: 'paid' | 'wave_full' | 'already'; member_number?: number; wave?: string };
     const wave = pricing.wave(inst.wave_id);
+    const label = await packageLabel(inst);
     if (r.result === 'wave_full') {
       await logActivity({ actor, action: 'payment.wave_full', instituteId: inst.id, targetType: 'payment', targetId: pay.id, after: { wave: wave?.code } });
       await sendMail({ to: inst.contact_email, ...emails.waveFull({ name: inst.name, wave: wave?.name ?? '' }) });
@@ -154,9 +172,10 @@ export async function recordPayment(paymentId: string, actor: Actor) {
     }
     const invoice = await createInvoice(pay.id).catch(e => { console.error('[invoice]', e); return null; });
     if (r.result === 'paid') {
-      await sendMail({ to: inst.contact_email, ...emails.receipt({ name: inst.name, total: pay.amount_paise + pay.gst_paise, invoice: invoice?.number ?? null, member: inst.member_number, wave: wave?.name ?? '', slug: inst.slug }) });
-      await notifyStaff(`New member: ${inst.name} (#${inst.member_number}, ${wave?.name})`, `Paid ${inr(pay.amount_paise + pay.gst_paise)}. Schedule onboarding in the console.`);
-      if (inst.enquiry_ref) await updateEnquiry(inst.enquiry_ref, 'won', `paid, member #${inst.member_number} (${wave?.name})`).catch(e => console.error('[enquiry]', e));
+      await sendMail({ to: inst.contact_email, ...emails.receipt({ name: inst.name, total: pay.amount_paise + pay.gst_paise, invoice: invoice?.number ?? null, member: inst.member_number, wave: label, slug: inst.slug }) });
+      if (wave) await notifyStaff(`New member: ${inst.name} (#${inst.member_number}, ${wave.name})`, `Paid ${inr(pay.amount_paise + pay.gst_paise)}. Schedule onboarding in the console.`);
+      else await notifyStaff(`New institute: ${inst.name} (${label})`, `Paid ${inr(pay.amount_paise + pay.gst_paise)}. Schedule onboarding in the console.`);
+      if (inst.enquiry_ref) await updateEnquiry(inst.enquiry_ref, 'won', wave ? `paid, member #${inst.member_number} (${wave.name})` : `paid (${label})`).catch(e => console.error('[enquiry]', e));
     }
     return { result: r.result, member: inst.member_number };
   }
@@ -187,7 +206,7 @@ export async function offerWave(inst: Institute, waveCode: string, actor: Actor)
 
 /* Staff record a bank transfer: same recordPayment() path as the webhook. */
 export async function recordManualPayment(inst: Institute, p: { kind: 'joining' | 'monthly' | 'addon'; amountPaise: number; note: string }, actor: Actor) {
-  if (p.kind === 'joining' && inst.member_number) throw new UserError('The joining payment is already recorded.');
+  if (p.kind === 'joining' && (inst.member_number || inst.paid_at)) throw new UserError('The joining payment is already recorded.');
   if (p.kind === 'joining' && !['approved', 'awaiting_payment'].includes(inst.status)) throw new UserError('This institute is not waiting for a joining payment.');
   if (!(p.amountPaise > 0)) throw new UserError('Enter the amount before GST.');
   const { data: pay, error } = await db().from('payments').insert({
@@ -207,22 +226,36 @@ export async function scheduleTraining(inst: Institute, at: Date, actor: Actor) 
   return transition(inst, 'onboarding', { training_at: iso(at) }, actor, 'institute.onboarding');
 }
 
-function freePeriodDates(goLive: Date, freeMonths: number, pausedDays: number) {
+async function freePeriodDates(goLive: Date, freeMonths: number, pausedDays: number) {
+  const { settings } = await getPricing();
   const ends = addDays(addMonths(goLive, freeMonths), pausedDays);
   return {
     free_period_ends_at: iso(ends),
-    minimum_term_ends_at: iso(addMonths(ends, 3)),
-    lock_ends_at: iso(addMonths(ends, 36)),
+    minimum_term_ends_at: iso(addMonths(ends, settings.minimum_paid_months)),
+    lock_ends_at: iso(addMonths(ends, settings.price_lock_months)),
   };
 }
 
 /* Go-live: the day StemGrid marks onboarding complete, or 7 days after payment, whichever is first. */
 export async function goLive(inst: Institute, actor: Actor, action = 'institute.go_live') {
   if (!['paid', 'onboarding'].includes(inst.status)) throw new UserError('Only paid or onboarding institutes can go live.');
-  const wave = (await getPricing()).wave(inst.wave_id);
-  if (!wave) throw new UserError('This institute has no wave.');
+  const pricing = await getPricing();
   const at = now();
-  const out = await transition(inst, 'free_period', { go_live_at: iso(at), ...freePeriodDates(at, wave.free_months, inst.free_period_paused_days) }, actor, action);
+  if (!inst.wave_id) {
+    // Standard: no free period. The joining payment covered the first month, which starts today.
+    const out = await transition(inst, 'active', {
+      go_live_at: iso(at), free_period_ends_at: null, lock_ends_at: null,
+      minimum_term_ends_at: iso(addMonths(at, pricing.settings.minimum_paid_months)),
+    }, actor, action);
+    await db().from('subscriptions').upsert({
+      institute_id: inst.id, status: 'active', billing_day: istDay(at),
+      current_period_start: iso(at), current_period_end: iso(addMonths(at, 1)),
+    }, { onConflict: 'institute_id' });
+    return out;
+  }
+  const wave = pricing.wave(inst.wave_id);
+  if (!wave) throw new UserError('This institute has no wave.');
+  const out = await transition(inst, 'free_period', { go_live_at: iso(at), ...await freePeriodDates(at, wave.free_months, inst.free_period_paused_days) }, actor, action);
   const ends = new Date(out.free_period_ends_at!);
   await db().from('subscriptions').upsert({
     institute_id: inst.id, status: 'pending', billing_day: istDay(addDays(ends, 1)),
@@ -239,7 +272,7 @@ export async function pauseFreePeriod(inst: Institute, days: number, actor: Acto
   const wave = (await getPricing()).wave(inst.wave_id)!;
   return patchInstitute(inst, {
     free_period_paused_days: days, pause_used: true,
-    ...freePeriodDates(new Date(inst.go_live_at!), wave.free_months, days),
+    ...await freePeriodDates(new Date(inst.go_live_at!), wave.free_months, days),
   }, actor, 'institute.free_period_paused');
 }
 
@@ -350,7 +383,7 @@ export async function lapse(inst: Institute, actor: Actor) {
 
 export async function cancelMembership(inst: Institute, actor: Actor, reason: string) {
   if (inst.status !== 'active') throw new UserError('Only an active institute can be cancelled.');
-  if (inst.minimum_term_ends_at && now() < new Date(inst.minimum_term_ends_at)) throw new UserError('The minimum term (3 paid months) has not ended yet.');
+  if (inst.minimum_term_ends_at && now() < new Date(inst.minimum_term_ends_at)) throw new UserError(`The minimum term has not ended yet (it ends ${new Date(inst.minimum_term_ends_at).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' })}).`);
   const out = await transition(inst, 'cancelled', { cancelled_at: iso(now()) }, actor, 'institute.cancelled', reason);
   await db().from('subscriptions').update({ status: 'cancelled' }).eq('institute_id', inst.id);
   return out;

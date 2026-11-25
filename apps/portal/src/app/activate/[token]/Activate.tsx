@@ -9,10 +9,12 @@ import { acceptTerms, createAccount, finishWithoutPayment, sendCode, startChecko
 type Step = 'verify' | 'account' | 'terms' | 'pay';
 const ORDER: Step[] = ['verify', 'account', 'terms', 'pay'];
 
-export default function Activate({ token, step, email, failed, institute, wave, termsVersion, online }: {
+export type Pkg = { name: string; standard: boolean; terms: string[]; lines: { label: string; value: string }[]; join: string; gst: string; total: string };
+
+export default function Activate({ token, step, email, failed, institute, pkg, termsVersion, online }: {
   token: string; step: Step; email: string; failed: boolean;
   institute: { name: string; city: string; state: string; address: string; gst: string; contactName: string };
-  wave: { name: string; freeMonths: number; firstMonth: string; onboarding: string; saving: string; join: string; gst: string; total: string } | null;
+  pkg: Pkg | null;
   termsVersion: string; online: boolean;
 }) {
   const router = useRouter();
@@ -56,15 +58,12 @@ export default function Activate({ token, step, email, failed, institute, wave, 
 
       {step === 'terms' && (
         <>
-          <h2 className={s.h2}>3. Membership terms</h2>
-          {wave && (
-            <ul className={s.list}>
-              <li><span>Wave</span><b>{wave.name}</b></li>
-              <li><span>Unlimited free period</span><b>{wave.freeMonths} months in total (1 paid + {wave.freeMonths - 1} free)</b></li>
-              <li><span>Fair use during the free period</span><b>300 active students a month</b></li>
-              <li><span>Price lock</span><b>36 months after the free period, while continuous</b></li>
-              <li><span>Minimum term</span><b>3 paid months after the free period</b></li>
-            </ul>
+          <h2 className={s.h2}>3. {pkg?.standard ? 'Plan terms' : 'Membership terms'}</h2>
+          {pkg && (
+            <>
+              <ul className={s.list}><li><span>{pkg.standard ? 'Package' : 'Wave'}</span><b>{pkg.name}</b></li></ul>
+              {!!pkg.terms.length && <ul style={{ margin: 0, paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 6, fontSize: 14, lineHeight: 1.45 }}>{pkg.terms.map((t, i) => <li key={i}>{t}</li>)}</ul>}
+            </>
           )}
           <ActionForm action={acceptTerms.bind(null, token)} onDone={next} showOk={false}>
             <p className={s.small + ' ' + s.muted}>For your GST invoice:</p>
@@ -74,26 +73,26 @@ export default function Activate({ token, step, email, failed, institute, wave, 
               <Field label="State"><input className={s.input} name="state" defaultValue={institute.state} maxLength={80} required /></Field>
               <Field label="GSTIN (optional)"><input className={s.input} name="gst" defaultValue={institute.gst} maxLength={20} /></Field>
             </div>
-            <label className={s.check}><input type="checkbox" name="terms" required /> <span>I accept the <a href="/terms" target="_blank">StemGrid membership terms</a> (version {termsVersion}) on behalf of {institute.name}.</span></label>
+            <label className={s.check}><input type="checkbox" name="terms" required /> <span>I accept the <a href="/terms" target="_blank">StemGrid {pkg?.standard ? 'terms' : 'membership terms'}</a> (version {termsVersion}) on behalf of {institute.name}.</span></label>
             <label className={s.check}><input type="checkbox" name="consent" required /> <span>I declare that {institute.name} has obtained parental consent for every student under 18 for whom it creates a StemGrid account, as required by the Digital Personal Data Protection Act, 2023.</span></label>
             <Submit>Continue</Submit>
           </ActionForm>
         </>
       )}
 
-      {step === 'pay' && wave && (
+      {step === 'pay' && pkg && (
         <>
           <h2 className={s.h2}>4. Pay to join</h2>
           {failed && <p className={s.badBox}>The payment didn&apos;t go through. You haven&apos;t been charged; please try again.</p>}
           <ul className={s.list}>
-            <li><span>First month</span><span>{wave.firstMonth}</span></li>
-            <li><span>Onboarding and training</span><span>{wave.onboarding}</span></li>
-            <li><span>Bundle saving</span><span>− {wave.saving}</span></li>
-            <li><span>Joining amount</span><b>{wave.join}</b></li>
-            <li><span>GST 18%</span><span>{wave.gst}</span></li>
-            <li><b>Total today</b><b>{wave.total}</b></li>
+            {pkg.lines.map(l => <li key={l.label}><span>{l.label}</span><span>{l.value}</span></li>)}
+            <li><span>Joining amount</span><b>{pkg.join}</b></li>
+            <li><span>GST 18%</span><span>{pkg.gst}</span></li>
+            <li><b>Total today</b><b>{pkg.total}</b></li>
           </ul>
-          <p className={s.small + ' ' + s.muted}>Your {wave.name} place is confirmed when the payment arrives. If the wave fills while you are paying, we&apos;ll offer the next wave or a full refund.</p>
+          <p className={s.small + ' ' + s.muted}>{pkg.standard
+            ? <>This covers onboarding and your first month on {pkg.name}. The month starts when your account goes live.</>
+            : <>Your {pkg.name} place is confirmed when the payment arrives. If the wave fills while you are paying, we&apos;ll offer the next wave or a full refund.</>}</p>
           {!online ? (
             <>
               <p className={s.info}>We&apos;ll contact you with the payment details (bank transfer or UPI). Your portal opens as soon as the payment is received.</p>
@@ -107,7 +106,7 @@ export default function Activate({ token, step, email, failed, institute, wave, 
             if (r?.error) { setMsg(r); return; }
             const url = (r?.data as { url?: string } | undefined)?.url;
             if (url) location.assign(url);
-          })}>{pending ? 'Opening payment…' : `Pay ${wave.total}`}</button>}
+          })}>{pending ? 'Opening payment…' : `Pay ${pkg.total}`}</button>}
           {msg?.error && <p className={s.badBox}>{msg.error}</p>}
         </>
       )}

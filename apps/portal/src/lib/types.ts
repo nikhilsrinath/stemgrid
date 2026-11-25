@@ -34,6 +34,15 @@ export type Batch = {
 export type Wave = {
   id: string; code: 'founding' | 'charter'; name: string; places: number; join_price_paise: number;
   first_month_paise: number; onboarding_paise: number; bundle_saving_paise: number; free_months: number; sort: number;
+  terms: string[];
+};
+export type Addon = {
+  code: string; name: string; price_paise: number | null; price_max_paise: number | null; unit: string; note: string;
+  price_label: string; system: boolean; sort: number;
+};
+export type PricingSettings = {
+  annual_paid_months: number; minimum_paid_months: number; price_lock_months: number;
+  upgrade_note: string; billing_rules: string[]; standard_terms: string[];
 };
 export type Plan = { code: 'starter' | 'growth' | 'pro'; name: string; student_limit: number; teacher_limit: number; regular_price_paise: number; sort: number };
 export type WavePrice = { wave_id: string; plan_code: Plan['code']; price_paise: number; extra_pack_paise: number; extra_teacher_paise: number };

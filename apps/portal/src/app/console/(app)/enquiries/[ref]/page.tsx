@@ -3,10 +3,11 @@ import { notFound } from 'next/navigation';
 import { consoleBase } from '@/lib/auth';
 import { getEnquiry } from '@/lib/enquiries';
 import { supabaseAdmin } from '@/lib/supabase/admin';
-import { getPricing } from '@/lib/pricing';
+import { getPricing, joiningQuote } from '@/lib/pricing';
 import { fmtDateTime } from '@/lib/dates';
 import { suggestSlug } from '@/lib/rules';
-import { inr } from '@/lib/money';
+import { gstOn, inr } from '@/lib/money';
+import PackagePicker from './PackagePicker';
 import { Badge, PageHead, s } from '@/ui/bits';
 import { ActionForm, Field, Submit } from '@/ui/Form';
 import { approveEnquiry, rejectEnquiryAction } from '../../../actions';
@@ -24,6 +25,24 @@ export default async function EnquiryDetail({ params }: PageProps<'/console/enqu
   ]);
   const taken = (id: string) => (placed ?? []).filter(p => p.wave_id === id).length;
   const firstOpen = pricing.waves.find(w => taken(w.id) < w.places);
+  const withGst = (p: number) => `${inr(p)} + GST (${inr(p + gstOn(p))})`;
+  const waveOptions = pricing.waves.map(w => {
+    const left = Math.max(0, w.places - taken(w.id));
+    return {
+      code: w.code, full: left === 0,
+      label: `${w.name}: ${left ? `${left} of ${w.places} left` : 'full'} · join ${inr(w.join_price_paise)} + GST`,
+      quote: withGst(w.join_price_paise),
+      terms: `${w.free_months} months unlimited, then the locked member price for the plan that fits.`,
+    };
+  });
+  const planOptions = pricing.plans.map(p => {
+    const q = joiningQuote(pricing, null, p.code);
+    return {
+      code: p.code,
+      label: `${p.name}: ${p.student_limit} students, ${p.teacher_limit} teachers · ${inr(p.regular_price_paise)}/month`,
+      quote: `${withGst(q.amount)}: ${q.lines.map(l => `${l.label} ${inr(l.paise)}`).join(' + ')}`,
+    };
+  });
 
   const rows: [string, string | null | undefined][] = [
     ['Type', e.org_type], ['Curriculum', e.curriculum], ['Website', e.website], ['Location', `${e.city}, ${e.region}, ${e.country}`],
@@ -63,13 +82,7 @@ export default async function EnquiryDetail({ params }: PageProps<'/console/enqu
                   <Field label="Portal address" hint="learn.stemgrid.in/<this>. 3–40 lowercase letters, digits, hyphens; never reused.">
                     <input className={s.input} name="slug" defaultValue={suggestSlug(e.org_name)} required pattern="[a-z][a-z0-9\-]{2,39}" />
                   </Field>
-                  <Field label="Wave offered" hint="A place is only taken when payment arrives.">
-                    <select className={s.select} name="wave" defaultValue={firstOpen?.code ?? 'charter'}>
-                      {pricing.waves.map(w => (
-                        <option key={w.id} value={w.code}>{w.name}: {w.places - taken(w.id)} of {w.places} left · join {inr(w.join_price_paise)} + GST</option>
-                      ))}
-                    </select>
-                  </Field>
+                  <PackagePicker waves={waveOptions} plans={planOptions} defaultCode={firstOpen?.code ?? 'standard'} packagesHref={`${b}/packages`} />
                   <Field label="Send the activation link to"><input className={s.input} name="email" type="email" defaultValue={e.email} required /></Field>
                   <Submit pendingText="Approving…">Approve and send activation link</Submit>
                 </ActionForm>

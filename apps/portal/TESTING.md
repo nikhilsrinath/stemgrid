@@ -77,6 +77,15 @@ Also check: the enquiry now shows **won** in the console's Enquiries list ("Won"
 4. Console → **Members**: a warning lists it as "paid while wave full". Open it: **Offer this wave instead** (Charter) gives it a Charter place, or **Mark refunded and close**.
 5. Toolbar → **Founding → restore** to put the wave back to 10 places.
 
+### 2b. Packages and a Standard plan (no membership)
+1. Console → **Packages**. The **Price sheet** tab shows plans (monthly, annual, per student, member prices), add-ons, billing rules and each package's terms.
+2. **Standard plans** tab → change Growth's monthly price to 13000 → **Save plans**. The price sheet's annual column now shows ₹1,30,000. Put it back to 12000.
+3. **Add-ons** → add "Workshop day", price 8000, per "day" → **Add**. It appears on the price sheet. **Remove** it again. (Extra students, extra teacher and onboarding have no Remove: billing uses them.)
+4. **Membership waves** → Founding: try Places = 2 → "3 places are already taken…". Edit a term line → **Save Founding Partners**.
+5. **Enquiries** → **Greenfield Public School** (SG-9TRW3C) → Package offered: **Standard plan** → Plan: **Growth**. The blue box shows the joining amount (Growth's first month + onboarding, + GST) → **Approve**.
+6. Do script 1 steps 4–8 with Greenfield. Step 3 shows the **Standard plan terms**; step 4 shows "First month (Growth)" + "Onboarding and training".
+7. After paying: "Payment received" and "Standard plan: Growth", no member number. Console → Greenfield → **Mark onboarding complete**: it goes straight to **Active** (no free period). Its admin's Billing page shows the regular plans and add-ons and the minimum-term end date.
+
 ### 3. Run an institute
 1. Toolbar → Switch user → **Bright Minds admin**.
 2. **Batches** → **+ New batch** → create one. Note its join code. (There's no limit: make as many as you like.)

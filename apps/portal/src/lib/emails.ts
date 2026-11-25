@@ -9,7 +9,7 @@ const sign = `\n\nStemGrid\n${CONTACT.email} · ${CONTACT.phone}`;
 export const emails = {
   activation: (p: { name: string; contactName: string; link: string; wave: string }) => ({
     subject: `Welcome to StemGrid: activate ${p.name}`,
-    text: `Hello ${p.contactName || 'there'},\n\nGood news: ${p.name} has been approved for a StemGrid membership (${p.wave}).\n\nOpen this link to activate your institute portal. You'll verify your email, set a password, accept the membership terms and pay the joining amount:\n\n${p.link}\n\nThe link works once and expires in 7 days. If it expires, just reply and we'll send a new one.${sign}`,
+    text: `Hello ${p.contactName || 'there'},\n\nGood news: ${p.name} has been approved to join StemGrid (${p.wave}).\n\nOpen this link to activate your institute portal. You'll verify your email, set a password, accept the terms and pay the joining amount:\n\n${p.link}\n\nThe link works once and expires in 7 days. If it expires, just reply and we'll send a new one.${sign}`,
   }),
   otp: (p: { code: string; name: string }) => ({
     subject: `${p.code} is your StemGrid verification code`,
