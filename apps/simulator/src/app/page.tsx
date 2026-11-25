@@ -19,8 +19,8 @@ const Play = () => (
 
 const v = (o: Record<string, string | number>) => o as CSSProperties;
 
-/* The StemGrid services site (apps/web in this monorepo). */
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NODE_ENV === 'development' ? 'http://localhost:4321' : 'https://stemgrid.in');
+/* The Lab on Wheels services site (apps/web in this monorepo). */
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.NODE_ENV === 'development' ? 'http://localhost:4321' : 'https://lab.stemgrid.in');
 
 /* Renders from the simulator itself (public/assets/landing), captured from real builds. */
 const IMG = '/assets/landing/';
@@ -50,7 +50,7 @@ export default function Home() {
           <a href="#features">Features</a>
           <a href="#how">Watch a build</a>
           <a href="#mission">Mission</a>
-          <a href={SITE_URL}>StemGrid.in</a>
+          <a href={SITE_URL}>Lab on Wheels</a>
         </div>
         <div className={s.navEnd}>
           <NavAccount className={s.navGhost} />

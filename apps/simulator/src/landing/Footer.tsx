@@ -55,7 +55,7 @@ export default function Footer({ siteUrl }: { siteUrl: string }) {
             <h3 id="ft-more" className={f.colH}>StemGrid</h3>
             <ul className={f.list}>
               <Item href="/simulator">Open the simulator</Item>
-              <Item href={siteUrl}>StemGrid.in</Item>
+              <Item href={siteUrl}>Lab on Wheels</Item>
               <Item href={`${siteUrl}/#contact`}>Book a demo</Item>
             </ul>
           </nav>
