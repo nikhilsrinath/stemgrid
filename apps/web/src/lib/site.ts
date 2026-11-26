@@ -4,6 +4,11 @@
 export const SIMULATOR_URL: string =
   import.meta.env.PUBLIC_SIMULATOR_URL ?? (import.meta.env.DEV ? "http://localhost:3001" : "https://simulator.stemgrid.in");
 
+// The simulator's landing page (stemgrid.in), where the "Simulator" links in the top bar and footer go.
+// Override with PUBLIC_SIMULATOR_HOME.
+export const SIMULATOR_HOME: string =
+  import.meta.env.PUBLIC_SIMULATOR_HOME ?? (import.meta.env.DEV ? "http://localhost:3001" : "https://stemgrid.in");
+
 export const PHONE = { href: "tel:+918925172636", label: "+91 89251 72636" };
 
 // The business contact form posts to the simulator's API (this site is static).

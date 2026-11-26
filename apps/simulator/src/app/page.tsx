@@ -45,7 +45,7 @@ export default function Home() {
       {/* ---------- nav ---------- */}
       <nav className={s.nav}>
         <Link href="/" className={s.logo}>
-          <BrandLogo height={38} /><span className={s.beta}>Beta</span>
+          <BrandLogo height={38} />
         </Link>
         <div className={s.links}>
           <a href="#features">Features</a>
@@ -63,7 +63,7 @@ export default function Home() {
       <header className={s.heroWrap}>
         <div className={s.hero}>
           <HeroGrid />
-          <Link href={appHref('/simulator')} className={s.tab}><i aria-hidden="true" />Open beta, free for everyone</Link>
+          <Link href={appHref('/simulator')} className={s.tab}><i aria-hidden="true" />Free for everyone</Link>
 
           <div className={s.heroCopy} data-hero-copy>
             <h1 className={s.title}>

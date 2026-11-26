@@ -46,10 +46,6 @@
 /* the app's mark: four plate holes on a red square */
 .mark { display: grid; grid-template-columns: 1fr 1fr; gap: 2.8px; width: 26.4px; height: 26.4px; padding: 5.5px; border-radius: 7.7px; background: var(--red); }
 .mark i { border-radius: 50%; background: #fff; }
-.beta {
-  padding: 3.3px 7.7px; border-radius: 1098.9px; background: #FDE3E4; color: var(--red-deep);
-  font: 600 11px/1 var(--body); letter-spacing: .02em;
-}
 .links { display: flex; gap: 28.6px; }
 .links a { color: var(--grey); font-size: 14.9px; font-weight: 500; text-decoration: none; transition: color .15s; }
 .links a:hover { color: var(--ink); }

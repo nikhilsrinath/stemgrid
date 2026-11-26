@@ -3,7 +3,7 @@ import { googleEnabled } from '@/lib/origin';
 import { safeNext } from '@/lib/safe-next';
 import { SignupFlow } from '../forms';
 
-export const metadata: Metadata = { title: 'Create an account · StemGrid Beta' };
+export const metadata: Metadata = { title: 'Create an account · StemGrid' };
 
 /* /signup for individuals, /signup?as=institution for schools and organisations. */
 export default async function SignupPage({ searchParams }: PageProps<'/signup'>) {

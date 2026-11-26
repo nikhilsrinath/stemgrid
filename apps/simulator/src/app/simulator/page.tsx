@@ -4,7 +4,7 @@ import { getSession } from '@/lib/supabase/server';
 import { toViewer } from '@/lib/viewer';
 import { TUTORIAL_COLUMNS, type Tutorial } from '@/lib/tutorials';
 
-export const metadata: Metadata = { title: 'New build · StemGrid Beta' };
+export const metadata: Metadata = { title: 'New build · StemGrid' };
 
 /* /simulator: a new, unsaved build. Signed-in users' first change creates a project
    (the URL then becomes /simulator/<id>); guests keep a draft in this browser.

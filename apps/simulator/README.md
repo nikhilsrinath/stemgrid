@@ -1,4 +1,4 @@
-# StemGrid Beta: Quark Kit simulator
+# StemGrid: Quark Kit simulator
 
 A 3D, in-browser simulator of the StemGrid Quark kit. You drag modules onto the base plate, wire them with Zap connectors, and code them in Python.
 

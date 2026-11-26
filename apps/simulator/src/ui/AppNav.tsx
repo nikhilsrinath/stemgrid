@@ -37,7 +37,7 @@ export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
   return (
     <nav className={s.appNav}>
       <div className={s.appNavIn}>
-        <Link href="/projects" className={s.logo} aria-label="Your projects"><BrandLogo height={38} /><span className={s.beta}>Beta</span></Link>
+        <Link href="/projects" className={s.logo} aria-label="Your projects"><BrandLogo height={38} /></Link>
         <div className={s.navLinks}>
           <Link href="/projects" aria-current={here('/projects')}>My projects</Link>
           <Link href="/tinkerai" aria-current={here('/tinkerai')}>TinkerAI</Link>

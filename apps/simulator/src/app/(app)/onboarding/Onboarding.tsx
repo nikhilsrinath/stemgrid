@@ -31,7 +31,7 @@ export function OnboardingShell({ children }: { children: ReactNode }) {
     <div className={o.page}>
       <div className={o.glow} aria-hidden="true" />
       <header className={o.top}>
-        <Link href={HOME_HREF} className={o.logo}><BrandLogo height={34} /><span className={o.beta}>Beta</span></Link>
+        <Link href={HOME_HREF} className={o.logo}><BrandLogo height={34} /></Link>
         <form action={signOut}><button className={o.out}>Sign out</button></form>
       </header>
       <main className={o.center}>{children}</main>

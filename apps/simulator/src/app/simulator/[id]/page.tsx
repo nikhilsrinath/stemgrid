@@ -19,7 +19,7 @@ const loadProject = cache(async (id: string) => {
 
 export async function generateMetadata({ params }: PageProps<'/simulator/[id]'>): Promise<Metadata> {
   const { project } = await loadProject((await params).id);
-  return { title: project ? `${project.name} · StemGrid Beta` : 'StemGrid Beta' };
+  return { title: project ? `${project.name} · StemGrid` : 'StemGrid' };
 }
 
 /* /simulator/<id>: open one of your saved projects. */

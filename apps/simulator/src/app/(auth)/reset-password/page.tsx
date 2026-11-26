@@ -6,7 +6,7 @@ import a from '@/ui/auth.module.css';
 import { ResetForm } from '../forms';
 import { PASSWORD_ASIDE } from '../asides';
 
-export const metadata: Metadata = { title: 'Pick a new password · StemGrid Beta' };
+export const metadata: Metadata = { title: 'Pick a new password · StemGrid' };
 
 /* Reached from the reset email via /auth/callback, which signs the user in first. */
 export default async function ResetPasswordPage() {

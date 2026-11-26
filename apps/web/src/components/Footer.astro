@@ -3,7 +3,7 @@
    - the pin-hole grid lights up around the pointer (--mx/--my, set by the script below)
    - each link has an LED and a wire that carries current on hover
    - the stemGRID wordmark lights letter by letter once when it scrolls into view, then under the pointer */
-import { PHONE, SIMULATOR_URL } from "../lib/site";
+import { PHONE, SIMULATOR_HOME } from "../lib/site";
 
 const pageLinks = [
   { href: "#who", label: "Who we are" },
@@ -55,15 +55,15 @@ const year = new Date().getFullYear();
         <ul class="ft-list">
           <li><a class="ft-link" href={PHONE.href}><i class="ft-led" aria-hidden="true"></i><span class="ft-wire" aria-hidden="true"></span>{PHONE.label}</a></li>
           <li>
-            <a class="ft-link" href={SIMULATOR_URL}><i class="ft-led" aria-hidden="true"></i><span class="ft-wire" aria-hidden="true"></span>Simulator
+            <a class="ft-link" href={SIMULATOR_HOME}><i class="ft-led" aria-hidden="true"></i><span class="ft-wire" aria-hidden="true"></span>Simulator
               <svg class="ft-out" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
             </a>
           </li>
         </ul>
       </nav>
 
-      <a class="ft-sim" href={SIMULATOR_URL}>
-        <span class="ft-sim-top">Simulator <span class="ft-beta">Beta</span></span>
+      <a class="ft-sim" href={SIMULATOR_HOME}>
+        <span class="ft-sim-top">Simulator</span>
         <span class="ft-sim-body">Build and code the Quark Kit in your browser. Free, no sign-up.</span>
         <span class="ft-sim-go">Try it now</span>
       </a>
@@ -216,7 +216,6 @@ const year = new Date().getFullYear();
     transition: transform .35s cubic-bezier(.3, 1.6, .5, 1), box-shadow .25s;
   }
   .ft-sim-top { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-size: 22px; line-height: 1; }
-  .ft-beta { padding: 4px 7px; border-radius: 6px; background: var(--color-red); color: #fff; font-family: var(--font-label); font-weight: 900; font-stretch: 125%; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; }
   .ft-sim-body { margin-top: 10px; font-size: 13px; line-height: 1.5; }
   .ft-sim-go { margin-top: 12px; padding-top: 10px; border-top: 2px dashed rgba(17, 17, 17, .2); font-weight: 600; font-size: 13px; color: var(--color-red); }
   .ft-sim:hover { transform: rotate(0) translateY(-4px) scale(1.04); box-shadow: 9px 9px 0 var(--color-coral); }

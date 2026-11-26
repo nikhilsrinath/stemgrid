@@ -5,7 +5,7 @@ import { safeNext } from '@/lib/safe-next';
 import { LoginForm } from '../forms';
 import { LOGIN_ASIDE } from '../asides';
 
-export const metadata: Metadata = { title: 'Sign in · StemGrid Beta' };
+export const metadata: Metadata = { title: 'Sign in · StemGrid' };
 
 export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
   const q = await searchParams;

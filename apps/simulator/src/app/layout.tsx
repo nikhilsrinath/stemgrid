@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import ViewportGuard from './ViewportGuard';
 
 export const metadata: Metadata = {
-  title: 'StemGrid Beta',
+  title: 'StemGrid',
   description: 'Build, wire and code the StemGrid Quark kit in your browser.',
 };
 

@@ -38,7 +38,6 @@ const styles = `  :root{
   .mark{width:22px;height:22px;border-radius:6px;background:var(--sg-red);display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:5px;flex:none}
   .mark i{background:var(--sg-cream);border-radius:50%}
   .wordmark{font-weight:800;font-size:16px;letter-spacing:-.02em}
-  .beta{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--sg-red-deep);background:#fdeceb;border-radius:5px;padding:2px 6px}
   .doc{display:flex;align-items:center;gap:8px;min-width:0;font-size:13.5px;font-weight:500}
   .doc [contenteditable]{outline:none;min-width:40px;padding:4px 6px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
   .doc [contenteditable]:hover{background:var(--hover)}
@@ -351,7 +350,7 @@ const styles = `  :root{
     .codep header .x{width:38px;height:38px}
   }
   @media (max-width:980px){ .ab-group .lbl{display:none} .doc .saved{font-size:0;gap:0;padding:4px} }
-  @media (max-width:820px){ .inspector{width:230px} .beta{display:none} .doc [contenteditable]{max-width:140px} }
+  @media (max-width:820px){ .inspector{width:230px} .doc [contenteditable]{max-width:140px} }
   @media (max-width:640px){ .dock-l .status{display:none} }
   @media (hover:none),(pointer:coarse){ .parts-fab kbd{display:none} }
   /* /simulator?demo=parts (the Course page's turntable): only the 3D view, on a see-through page */

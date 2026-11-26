@@ -7,7 +7,7 @@ import AppNav from '@/ui/AppNav';
 import s from '@/ui/ui.module.css';
 import Gallery, { type Progress } from './Gallery';
 
-export const metadata: Metadata = { title: 'TinkerAI · StemGrid Beta' };
+export const metadata: Metadata = { title: 'TinkerAI · StemGrid' };
 
 /* TinkerAI: guided tutorials. Picking one opens /simulator?tutorial=<slug>, where the tutor
    walks the student through it step by step. Tutorials are rows in Supabase, edited on the console. */

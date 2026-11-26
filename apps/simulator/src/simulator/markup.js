@@ -24,7 +24,6 @@ const markup = `<div class="app">
       <button id="homeBtn" class="icon-btn" title="Back to the StemGrid home page" aria-label="Home">${ICON.back}</button>
       <div class="brand">
         <img class="brand-logo" src="/brand/stemgrid-logo.png" alt="StemGrid Tech Labs" width="640" height="287" />
-        <span class="beta">Beta</span>
       </div>
       <span class="sep"></span>
       <div class="doc"><span contenteditable="true" spellcheck="false" id="docName">Untitled build</span><span class="saved" id="saveState" data-s="guest" role="status" aria-live="polite"></span></div>

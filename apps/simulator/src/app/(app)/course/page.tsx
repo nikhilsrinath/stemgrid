@@ -9,7 +9,7 @@ import Explorer from './Explorer';
 import { PARTS } from './parts';
 import c from './course.module.css';
 
-export const metadata: Metadata = { title: 'Course · StemGrid Beta' };
+export const metadata: Metadata = { title: 'Course · StemGrid' };
 
 const MOVES = [
   { k: 'Meet', text: 'What the part is, what it senses or does, and what happens inside it.' },

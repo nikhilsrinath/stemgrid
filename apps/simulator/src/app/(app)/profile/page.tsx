@@ -6,7 +6,7 @@ import AppNav from '@/ui/AppNav';
 import s from '@/ui/ui.module.css';
 import ProfileForms from './ProfileForms';
 
-export const metadata: Metadata = { title: 'Profile · StemGrid Beta' };
+export const metadata: Metadata = { title: 'Profile · StemGrid' };
 
 export default async function ProfilePage() {
   const { user, profile } = await getSession();

@@ -78,7 +78,7 @@ export default function SimulatorHost({ viewer, project, tutorial }: Props) {
       return { d: d as BuildData, key: JSON.stringify(rest) };
     };
     const isDirty = () => snap().key !== lastKey || name !== savedName;
-    const tabTitle = () => (demo ? document.title : `${name} Â· StemGrid Beta`);
+    const tabTitle = () => (demo ? document.title : `${name} Â· StemGrid`);
     const showName = () => { nameEl.textContent = name; document.title = tabTitle(); };
     // Next streams page metadata in after mount and would put its own <title> back: keep the build's name
     const titleObs = new MutationObserver(() => { if (document.title !== tabTitle()) document.title = tabTitle(); });

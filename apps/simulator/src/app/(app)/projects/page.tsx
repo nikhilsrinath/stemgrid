@@ -7,7 +7,7 @@ import AppNav from '@/ui/AppNav';
 import s from '@/ui/ui.module.css';
 import Projects from './Projects';
 
-export const metadata: Metadata = { title: 'My projects · StemGrid Beta' };
+export const metadata: Metadata = { title: 'My projects · StemGrid' };
 
 export default async function ProjectsPage({ searchParams }: PageProps<'/projects'>) {
   const { supabase, user, profile } = await getSession();

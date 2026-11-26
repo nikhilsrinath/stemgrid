@@ -40,7 +40,6 @@
 
 .top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px clamp(16px, 4vw, 40px); }
 .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
-.beta { padding: 3px 7px; border-radius: 99px; background: var(--text); color: #fff; font: 600 10px/1 var(--font); letter-spacing: .04em; text-transform: uppercase; }
 .out { border: 0; padding: 6px 4px; background: none; color: var(--dim); font: 500 13.5px var(--font); cursor: pointer; }
 .out:hover { color: var(--text); }
 

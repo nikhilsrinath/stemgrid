@@ -19,7 +19,7 @@ export default function AuthSplit({ aside, children, top, wide }: { aside: AuthA
     <div className={a.root}>
       <aside className={a.panel}>
         <Link href={HOME_HREF} className={a.logo}>
-          <BrandLogo height={40} chip /><span className={a.beta}>Beta</span>
+          <BrandLogo height={40} chip />
         </Link>
         <div className={a.panelBody}>
           <h2 className={a.panelTitle}>{aside.title}</h2>

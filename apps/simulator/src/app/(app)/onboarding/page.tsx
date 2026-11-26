@@ -4,7 +4,7 @@ import { getSession } from '@/lib/supabase/server';
 import { safeNext } from '@/lib/safe-next';
 import Onboarding, { OnboardingShell } from './Onboarding';
 
-export const metadata: Metadata = { title: 'Welcome · StemGrid Beta' };
+export const metadata: Metadata = { title: 'Welcome · StemGrid' };
 
 export default async function OnboardingPage({ searchParams }: PageProps<'/onboarding'>) {
   const { user, profile } = await getSession();

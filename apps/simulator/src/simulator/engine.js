@@ -2823,7 +2823,7 @@ function pyParse(src) {
       }
       case 'elif': case 'else': throw new PyErr(`"${tk.v}" needs an "if" above it, starting at the same spaces.`, line);
       case 'def': case 'return': case 'import': case 'from': case 'class': case 'global': case 'lambda': case 'with': case 'try': case 'except':
-        throw new PyErr(`"${tk.v}" isn't supported in StemGrid Beta yet.`, line);
+        throw new PyErr(`"${tk.v}" isn't supported in StemGrid yet.`, line);
     }
     return simple();
   }
