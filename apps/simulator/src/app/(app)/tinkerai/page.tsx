@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { getSession } from '@/lib/supabase/server';
+import { getSession, supabaseServer } from '@/lib/supabase/server';
 import { toViewer } from '@/lib/viewer';
 import { CARD_COLUMNS, type TutorialCard } from '@/lib/tutorials';
 import AppNav from '@/ui/AppNav';
@@ -12,14 +12,15 @@ export const metadata: Metadata = { title: 'TinkerAI · StemGrid' };
 /* TinkerAI: guided tutorials. Picking one opens /simulator?tutorial=<slug>, where the tutor
    walks the student through it step by step. Tutorials are rows in Supabase, edited on the console. */
 export default async function TinkerAIPage() {
-  const { supabase, user, profile } = await getSession();
+  // the session, the tutorials and the progress in parallel (RLS scopes progress to the user)
+  const sb = await supabaseServer();
+  const [{ user, profile }, { data, error }, { data: prog }] = await Promise.all([
+    getSession(),
+    sb.from('tutorials').select(`${CARD_COLUMNS}, steps`).order('sort').order('title').returns<(TutorialCard & { steps: unknown[] })[]>(),
+    sb.from('tutorial_progress').select('tutorial_id, step, completed_at'),
+  ]);
   if (!user) redirect('/login?next=/tinkerai');
   const viewer = toViewer(user, profile)!;
-
-  const [{ data, error }, { data: prog }] = await Promise.all([
-    supabase.from('tutorials').select(`${CARD_COLUMNS}, steps`).order('sort').order('title').returns<(TutorialCard & { steps: unknown[] })[]>(),
-    supabase.from('tutorial_progress').select('tutorial_id, step, completed_at'),
-  ]);
   const cards = (data ?? []).map(({ steps, ...c }) => ({ ...c, stepCount: Array.isArray(steps) ? steps.length : 0 }));
   const progress: Record<string, Progress> = {};
   for (const p of prog ?? []) progress[p.tutorial_id] = { step: p.step, done: !!p.completed_at };

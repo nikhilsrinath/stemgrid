@@ -9,10 +9,11 @@ import ProfileForms from './ProfileForms';
 export const metadata: Metadata = { title: 'Profile · StemGrid' };
 
 export default async function ProfilePage() {
-  const { user, profile } = await getSession();
+  const { supabase, user, profile } = await getSession();
   if (!user) redirect('/login?next=/profile');
   if (!profile) redirect('/onboarding');
-  const usesPassword = (user.identities ?? []).some(i => i.provider === 'email');
+  const { data: { user: full } } = await supabase.auth.getUser();
+  const usesPassword = (full?.identities ?? []).some(i => i.provider === 'email');
 
   return (
     <div className={`${s.root} ${s.app}`}>

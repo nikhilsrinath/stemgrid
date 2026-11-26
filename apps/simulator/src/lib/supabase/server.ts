@@ -23,11 +23,18 @@ export async function supabaseServer() {
   );
 }
 
-/* The signed-in user and their profile, or nulls. Deduplicated within one request. */
+export type SessionUser = { id: string; email: string | null };
+
+/* The signed-in user and their profile, or nulls. Deduplicated within one request.
+   getClaims() checks the session token's signature locally (the project signs with ES256 and the
+   public key is cached), so this costs one round trip to Supabase (the profile), not two.
+   Pages that need the full auth record (identities, say) call supabase.auth.getUser() themselves. */
 export const getSession = cache(async () => {
   const supabase = await supabaseServer();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { supabase, user: null, profile: null };
+  const { data } = await supabase.auth.getClaims();
+  const sub = data?.claims?.sub;
+  if (!sub) return { supabase, user: null, profile: null };
+  const user: SessionUser = { id: sub, email: (data.claims.email as string | undefined) || null };
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single<Profile>();
   return { supabase, user, profile: profile ?? null };
 });

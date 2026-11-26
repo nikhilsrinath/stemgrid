@@ -231,3 +231,16 @@
 @media (prefers-reduced-motion: reduce) {
   .thumb img, .pcard, .toast, .modalBg { transition: none; animation: none; }
 }
+
+/* ---------------------------------------------------------------- loading screen between pages */
+.avatarGhost { display: block; width: 38px; height: 38px; border-radius: 50%; background: var(--soft); border: 1px solid var(--line); }
+.skel { position: relative; overflow: hidden; border-radius: 10px; background: var(--soft); }
+.skel::after {
+  content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / .7), transparent);
+  animation: skel 1.1s ease-in-out infinite;
+}
+@keyframes skel { to { transform: translateX(100%); } }
+.skelGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.skelCard { display: flex; flex-direction: column; gap: 10px; padding-bottom: 16px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .skel::after { animation: none; } }

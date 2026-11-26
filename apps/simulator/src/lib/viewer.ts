@@ -1,7 +1,6 @@
-import type { User } from '@supabase/supabase-js';
 import type { Profile, Viewer } from '@/lib/types';
 
-export function toViewer(user: User | null, profile: Profile | null): Viewer {
+export function toViewer(user: { id: string; email?: string | null } | null, profile: Profile | null): Viewer {
   if (!user) return null;
   return {
     id: user.id,

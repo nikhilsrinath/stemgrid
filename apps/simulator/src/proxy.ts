@@ -11,6 +11,8 @@ const PRIVATE = ['/projects', '/tinkerai', '/course', '/profile', '/onboarding']
 const AUTH_ONLY_GUESTS = ['/login', '/signup', '/forgot-password'];
 const NEEDS_PROFILE = ['/projects', '/tinkerai', '/course', '/profile', '/simulator/'];
 
+const ONBOARDED = 'sg_onboarded';
+
 const under = (path: string, list: string[]) => list.some(p => p.endsWith('/') ? path.startsWith(p) : path === p || path.startsWith(p + '/'));
 
 /* stemgrid.in serves only the landing page; simulator.stemgrid.in serves everything else.
@@ -71,9 +73,12 @@ export async function proxy(request: NextRequest) {
   if (uid && under(path, AUTH_ONLY_GUESTS) && !(path === '/signup' && request.nextUrl.searchParams.get('as') === 'institution')) {
     return redirect('/projects');
   }
-  if (uid && under(path, NEEDS_PROFILE)) {
+  // Once a user is onboarded we note it in a cookie (holding their id), so later clicks skip the
+  // profile lookup, a round trip to Supabase. It only gates the onboarding redirect, nothing private.
+  if (uid && under(path, NEEDS_PROFILE) && request.cookies.get(ONBOARDED)?.value !== uid) {
     const { data: p } = await supabase.from('profiles').select('onboarded').eq('id', uid).single();
     if (p && !p.onboarded) return redirect('/onboarding', { next: path + request.nextUrl.search });
+    if (p?.onboarded) response.cookies.set(ONBOARDED, uid, { path: '/', httpOnly: true, sameSite: 'lax', secure: request.nextUrl.protocol === 'https:', maxAge: 60 * 60 * 24 * 365 });
   }
   return response;
 }

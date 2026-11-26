@@ -10,8 +10,9 @@ import Avatar from './Avatar';
 import s from './ui.module.css';
 import { HOME_HREF, HOME_URL } from '@/lib/hosts';
 
-/* Top bar for the account pages: logo, page links (Course is "coming soon"), avatar menu. */
-export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
+/* Top bar for the account pages: logo, page links (Course is "coming soon"), avatar menu.
+   Without a viewer (the loading screen between pages) the avatar is a grey placeholder. */
+export default function AppNav({ viewer }: { viewer?: NonNullable<Viewer> }) {
   const path = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -45,7 +46,7 @@ export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
           <Link href="/profile" aria-current={here('/profile')}>Profile</Link>
         </div>
         <div className={s.navRight}>
-          <div className={s.menuWrap} ref={box}>
+          {!viewer ? <span className={s.avatarGhost} aria-hidden="true" /> : <div className={s.menuWrap} ref={box}>
             <button className={s.avatarBtn} onClick={() => setOpen(o => !o)} aria-haspopup="menu" aria-expanded={open} aria-label="Account menu">
               <Avatar name={viewer.name} url={viewer.avatarUrl} size={38} />
             </button>
@@ -60,7 +61,7 @@ export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
                 <button role="menuitem" className={s.danger} onClick={signOut}>Sign out</button>
               </div>
             )}
-          </div>
+          </div>}
         </div>
       </div>
     </nav>
