@@ -72,11 +72,11 @@ export default function Projects({ uid, firstName, initial, loadError, notice, r
     <>
       <div className={s.head}>
         <div>
-          <h1 className={s.h2}>Hey {firstName}, <em>build</em> something</h1>
-          <p className={s.lead}>{items.length ? `${items.length} project${items.length === 1 ? '' : 's'}, saved as you go.` : 'Your builds save here automatically.'}</p>
+          <h1 className={s.h2}>Projects</h1>
+          <p className={s.lead}>Welcome back, {firstName}. {items.length ? `${items.length} build${items.length === 1 ? '' : 's'}, saved as you go.` : 'Your builds save here as you go.'}</p>
         </div>
-        {items.length > 0 && (
-          <div className={s.tools}>
+        <div className={s.tools}>
+          {items.length > 0 && (<>
             <label className={s.search}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
               <span className={s.srOnly}>Search projects</span>
@@ -90,16 +90,20 @@ export default function Projects({ uid, firstName, initial, loadError, notice, r
                 <option value="name">Name</option>
               </select>
             </label>
-          </div>
-        )}
+          <button className={s.btn} onClick={newProject} disabled={creating}>
+            {creating ? <span className={s.spinner} aria-hidden="true" /> : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>}
+            New project
+          </button>
+          </>)}
+        </div>
       </div>
 
-      {loadError && <div className={s.error} role="alert" style={{ marginBottom: 20 }}>⚠ Couldn&apos;t load your projects. Reload the page to try again.</div>}
+      {loadError && <div className={s.error} role="alert" style={{ marginBottom: 20 }}>Couldn&apos;t load your projects. Reload the page to try again.</div>}
 
       {items.length === 0 && !loadError ? (
         <div className={s.empty}>
           <EmptyArt />
-          <h3>Your bench is empty</h3>
+          <h3>No projects yet</h3>
           <p>Drop a base plate on the table, add a Quark C3 and a sensor, wire them with Zap connectors and write your first program.</p>
           <button className={s.btn} onClick={newProject} disabled={creating}>
             {creating && <span className={s.spinner} aria-hidden="true" />}Build your first circuit
@@ -107,11 +111,6 @@ export default function Projects({ uid, firstName, initial, loadError, notice, r
         </div>
       ) : (
         <div className={s.grid}>
-          <button className={s.newCard} onClick={newProject} disabled={creating}>
-            <span className={s.plus}>{creating ? <span className={s.spinner} /> : <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>}</span>
-            <b>New project</b>
-            <small>Start on an empty table</small>
-          </button>
           {shown.map(p => (
             <Card key={p.id} p={p} now={now} onRename={n => rename(p, n)} onDuplicate={() => duplicate(p)} onDelete={() => setConfirm(p)} />
           ))}
@@ -126,7 +125,7 @@ export default function Projects({ uid, firstName, initial, loadError, notice, r
             <p><b>{confirm.name}</b> and its code will be gone for good. This can&apos;t be undone.</p>
             <div className={s.actions}>
               <button className={`${s.btn} ${s.btnLight} ${s.btnSm}`} onClick={() => setConfirm(null)} autoFocus>Keep it</button>
-              <button className={`${s.btn} ${s.btnSm}`} onClick={() => remove(confirm)}>Delete</button>
+              <button className={`${s.btn} ${s.btnRed} ${s.btnSm}`} onClick={() => remove(confirm)}>Delete project</button>
             </div>
           </div>
         </div>
@@ -196,19 +195,19 @@ function Card({ p, now, onRename, onDuplicate, onDelete }: { p: ProjectSummary; 
 
 function EmptyArt() {
   return (
-    <svg viewBox="0 0 260 150" fill="none" stroke="#111" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" aria-hidden="true">
-      <rect x="20" y="40" width="220" height="96" rx="12" fill="#E4121B" />
-      {Array.from({ length: 6 }, (_, r) => Array.from({ length: 14 }, (_, c) => (
-        <circle key={`${r}-${c}`} cx={36 + c * 15} cy={54 + r * 14} r="3.4" fill="#B30912" stroke="none" />
+    <svg viewBox="0 0 168 104" fill="none" aria-hidden="true">
+      <rect x="0.5" y="0.5" width="167" height="103" rx="12" fill="#FAFAFA" stroke="#E4E4E7" />
+      {Array.from({ length: 6 }, (_, r) => Array.from({ length: 10 }, (_, c) => (
+        <circle key={`${r}-${c}`} cx={16 + c * 15.1} cy={14 + r * 15.2} r="2.2" fill="#E4E4E7" />
       )))}
-      <rect x="48" y="58" width="62" height="44" rx="7" fill="#FFF2DF" />
-      <rect x="58" y="68" width="22" height="16" rx="2" fill="#2B8A6B" stroke="none" />
-      <circle cx="96" cy="72" r="4.5" fill="#FF8044" /><circle cx="96" cy="88" r="4.5" fill="#FF8044" />
-      <rect x="150" y="62" width="58" height="34" rx="7" fill="#FF8044" />
-      <circle cx="168" cy="79" r="8" fill="#fff" /><circle cx="190" cy="79" r="8" fill="#fff" />
-      <path d="M110 92c18 0 20 -6 40 -6" stroke="#111" strokeWidth="5" />
-      <path d="M110 92c18 0 20 -6 40 -6" stroke="#FFF2DF" strokeWidth="2" />
-      <path d="M200 20l6 10M220 26l-10 6M184 18l2 11" stroke="#111" />
+      <rect x="22" y="28" width="52" height="44" rx="6" fill="#fff" stroke="#D4D4D8" />
+      <rect x="30" y="36" width="20" height="13" rx="2" fill="#18181B" />
+      <circle cx="62" cy="40" r="3" fill="#E4121B" />
+      <circle cx="62" cy="52" r="3" fill="#D4D4D8" />
+      <rect x="104" y="36" width="44" height="28" rx="6" fill="#fff" stroke="#D4D4D8" />
+      <circle cx="117" cy="50" r="6" fill="#F4F4F5" stroke="#D4D4D8" />
+      <circle cx="135" cy="50" r="6" fill="#F4F4F5" stroke="#D4D4D8" />
+      <path d="M74 62c14 0 16-8 30-8" stroke="#E4121B" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }

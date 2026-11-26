@@ -10,10 +10,13 @@ import markup from '@/simulator/markup';
 import { cleanName, createProject, draft, saveProject, uploadThumbnail, type Draft } from '@/lib/projects';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { initials, type BuildData, type Viewer } from '@/lib/types';
+import type { Tutorial } from '@/lib/tutorials';
+import Tutor from './Tutor';
 
 type Props = {
   viewer: Viewer;
   project?: { id: string; name: string; data: BuildData } | null;
+  tutorial?: Tutorial | null;      // TinkerAI (/simulator?tutorial=<slug>): nothing autosaves; they can save it as a project at the end
 };
 
 const CLAIM_NEXT = '/simulator?claim=1';
@@ -24,14 +27,15 @@ const THUMB_EVERY = 30_000;
    remove both, so its global CSS (html/body/button) never leaks onto other pages.
    This component also owns saving: signed-in users autosave to Supabase (projects table),
    guests keep a draft in localStorage that they can claim after signing in. */
-export default function SimulatorHost({ viewer, project }: Props) {
+export default function SimulatorHost({ viewer, project, tutorial }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const [acctEl, setAcctEl] = useState<HTMLElement | null>(null);
+  const [tutorAt, setTutorAt] = useState<{ sim: Simulator; stage: HTMLElement } | null>(null);
   const [modal, setModal] = useState<null | { kind: 'signin' } | { kind: 'restore'; d: Draft }>(null);
   const api = useRef<{ sim: Simulator; saveNow: () => Promise<void>; restore: (d: Draft) => void } | null>(null);
 
-  // These survive React Strict Mode's mount → unmount → mount, so a new build is only created once.
+  // These survive React Strict Mode's mount â†’ unmount â†’ mount, so a new build is only created once.
   const pid = useRef<string | null>(project?.id ?? null);
   const creating = useRef<Promise<string> | null>(null);
   // What to open, decided on the first mount only (the claim step rewrites the URL).
@@ -42,8 +46,9 @@ export default function SimulatorHost({ viewer, project }: Props) {
     if (!el) return;
     const params = new URLSearchParams(location.search);
     const demo = params.has('demo');
+    const tut = !!tutorial && !demo;
     if (!boot.current) {
-      const d = project || demo ? null : draft.get();
+      const d = project || demo || tut ? null : draft.get();
       const usable = d && Array.isArray(d.data?.modules) ? d : null;
       const claim = viewer && params.has('claim') ? usable : null;
       boot.current = { claim, restore: claim ? null : usable };
@@ -59,9 +64,10 @@ export default function SimulatorHost({ viewer, project }: Props) {
     const $ = <T extends HTMLElement>(id: string) => el.querySelector<T>('#' + id)!;
     const stateEl = $('saveState'), nameEl = $('docName'), saveBtn = $<HTMLButtonElement>('saveBtn'), homeBtn = $<HTMLButtonElement>('homeBtn');
     if (demo) [stateEl, saveBtn, $('acct')].forEach(n => (n.style.display = 'none'));
+    if (tut) [stateEl, saveBtn].forEach(n => (n.style.display = 'none'));
 
     /* ---------------- save state ---------------- */
-    let name = project?.name ?? 'Untitled build', savedName = name;
+    let name = tutorial?.title ?? project?.name ?? 'Untitled build', savedName = name;
     let lastKey: string | null = null;           // the build as last saved, minus the camera
     let timer = 0, retryT = 0, fails = 0, lastThumb = 0, busy = false, again = false, alive = true;
 
@@ -72,7 +78,7 @@ export default function SimulatorHost({ viewer, project }: Props) {
       return { d: d as BuildData, key: JSON.stringify(rest) };
     };
     const isDirty = () => snap().key !== lastKey || name !== savedName;
-    const tabTitle = () => (demo ? document.title : `${name} · StemGrid Beta`);
+    const tabTitle = () => (demo ? document.title : `${name} Â· StemGrid Beta`);
     const showName = () => { nameEl.textContent = name; document.title = tabTitle(); };
     // Next streams page metadata in after mount and would put its own <title> back: keep the build's name
     const titleObs = new MutationObserver(() => { if (document.title !== tabTitle()) document.title = tabTitle(); });
@@ -98,7 +104,7 @@ export default function SimulatorHost({ viewer, project }: Props) {
     }
 
     async function tick(opts: { thumb?: boolean; create?: boolean } = {}) {
-      if (demo || !alive) return;
+      if (demo || tut || !alive) return;
       clearTimeout(timer);
       const { d, key } = snap();
       const changed = key !== lastKey || name !== savedName;
@@ -107,14 +113,14 @@ export default function SimulatorHost({ viewer, project }: Props) {
         if (changed && !sim.isEmpty()) draft.set({ name, data: d, at: Date.now() });
         if (changed) { lastKey = key; savedName = name; }
         if (sim.isEmpty()) setStatus('guest', '');
-        else setStatus('guest', 'Not saved · sign in to keep it', 'Your build is kept in this browser for now. Sign in to save it to your projects.');
+        else setStatus('guest', 'Not saved Â· sign in to keep it', 'Your build is kept in this browser for now. Sign in to save it to your projects.');
         return;
       }
       if (!changed && !opts.thumb) return;
       if (!pid.current && sim.isEmpty() && !opts.create) { lastKey = key; return; }   // don't make empty projects
       if (busy) { again = true; return; }
       busy = true;
-      setStatus('saving', 'Saving…');
+      setStatus('saving', 'Savingâ€¦');
       try {
         const wasNew = !pid.current;
         const id = await ensureProject(d);
@@ -125,7 +131,7 @@ export default function SimulatorHost({ viewer, project }: Props) {
       } catch (e) {
         fails++;
         if (alive) {
-          setStatus('error', "Couldn't save · retrying", e instanceof Error ? e.message : '');
+          setStatus('error', "Couldn't save Â· retrying", e instanceof Error ? e.message : '');
           retryT = window.setTimeout(() => tick(), Math.min(30_000, 2000 * 2 ** fails));
         }
       } finally {
@@ -142,7 +148,7 @@ export default function SimulatorHost({ viewer, project }: Props) {
       sim.load(project.data);
       lastKey = snap().key;
       setStatus('saved', 'Saved');
-    } else if (!demo) {
+    } else if (!demo && !tut) {
       if (claim) {
         // a guest build, brought over after signing in: save it as a new project
         name = claim.name || name; sim.load(claim.data);
@@ -161,6 +167,7 @@ export default function SimulatorHost({ viewer, project }: Props) {
     showName();
 
     const saveNow = async () => {
+      if (tut) return;
       if (!viewer) { await tick(); setModal({ kind: 'signin' }); return; }
       await tick({ thumb: true, create: true });
       if (stateEl.dataset.s === 'saved') { saveBtn.classList.add('done'); setTimeout(() => saveBtn.classList.remove('done'), 1200); }
@@ -171,9 +178,9 @@ export default function SimulatorHost({ viewer, project }: Props) {
     };
 
     /* ---------------- app bar wiring ---------------- */
-    const goHome = () => router.push(viewer ? '/projects' : '/');
+    const goHome = () => router.push(tut ? '/tinkerai' : viewer ? '/projects' : '/');
     homeBtn.addEventListener('click', goHome);
-    homeBtn.title = viewer ? 'Back to your projects' : 'Back to the StemGrid home page';
+    homeBtn.title = tut ? 'Back to TinkerAI' : viewer ? 'Back to your projects' : 'Back to the StemGrid home page';
     saveBtn.addEventListener('click', saveNow);
     const onStateClick = () => { if (!viewer && !demo) setModal({ kind: 'signin' }); };
     stateEl.addEventListener('click', onStateClick);
@@ -194,21 +201,21 @@ export default function SimulatorHost({ viewer, project }: Props) {
     nameEl.addEventListener('blur', commitName);
     nameEl.addEventListener('keydown', nameKeys);
     nameEl.addEventListener('paste', namePaste);
-    if (demo) nameEl.contentEditable = 'false';
+    if (demo || tut) nameEl.contentEditable = 'false';
 
     const keys = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's' && !demo) { e.preventDefault(); saveNow(); }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's' && !demo) { e.preventDefault(); if (!tut) saveNow(); }
     };
     window.addEventListener('keydown', keys, true);
 
     // knob drags in the 3D view don't always report a change, so check now and then too
     const poll = window.setInterval(() => { if (!document.hidden && !busy) tick(); }, 5000);
     const beforeUnload = (e: BeforeUnloadEvent) => {
-      if (demo) return;
+      if (demo || tut) return;
       if (!viewer) { tick(); return; }
       if (isDirty() || busy) e.preventDefault();
     };
-    const onHide = () => { if (document.hidden && !demo) tick({ thumb: !!viewer && !!pid.current }); };
+    const onHide = () => { if (document.hidden && !demo && !tut) tick({ thumb: !!viewer && !!pid.current }); };
     window.addEventListener('beforeunload', beforeUnload);
     document.addEventListener('visibilitychange', onHide);
 
@@ -219,10 +226,11 @@ export default function SimulatorHost({ viewer, project }: Props) {
     };
     document.addEventListener('pointerdown', closeHelp);
     setAcctEl(demo ? null : $('acct'));
+    if (tut) setTutorAt({ sim, stage: $('stage') });
 
     return () => {
       // leaving the page inside the app: send any unsaved work before the engine goes away
-      if (!demo) {
+      if (!demo && !tut) {
         const { d, key } = snap();
         if (!viewer) { if (!sim.isEmpty() && key !== lastKey) draft.set({ name, data: d, at: Date.now() }); }
         else if (pid.current && (key !== lastKey || name !== savedName)) {
@@ -247,6 +255,7 @@ export default function SimulatorHost({ viewer, project }: Props) {
       nameEl.removeEventListener('keydown', nameKeys);
       nameEl.removeEventListener('paste', namePaste);
       setAcctEl(null);
+      setTutorAt(null);
       api.current = null;
       sim.stop();
       el.innerHTML = '';
@@ -267,6 +276,7 @@ export default function SimulatorHost({ viewer, project }: Props) {
         <AccountMenu viewer={viewer} onSignIn={() => setModal({ kind: 'signin' })} onBeforeLeave={() => api.current?.saveNow()} />,
         acctEl,
       )}
+      {tutorAt && tutorial && createPortal(<Tutor sim={tutorAt.sim} tutorial={tutorial} viewer={viewer} />, tutorAt.stage)}
       {modal?.kind === 'signin' && (
         <div className="sg-modal" role="dialog" aria-modal="true" aria-labelledby="sg-m-h" onPointerDown={e => e.target === e.currentTarget && setModal(null)}>
           <div className="card">
@@ -333,6 +343,8 @@ function AccountMenu({ viewer, onSignIn, onBeforeLeave }: { viewer: Viewer; onSi
         <div className="acct-menu" role="menu">
           <div className="acct-who"><b>{viewer.name}</b>{viewer.username && <span>@{viewer.username}</span>}</div>
           <Link role="menuitem" href="/projects" onClick={() => setOpen(false)}>My projects</Link>
+          <Link role="menuitem" href="/tinkerai" onClick={() => setOpen(false)}>TinkerAI</Link>
+          <Link role="menuitem" href="/course" onClick={() => setOpen(false)}>Course</Link>
           <a role="menuitem" href="/simulator" onClick={e => { e.preventDefault(); setOpen(false); onBeforeLeave(); location.assign('/simulator'); }}>New project</a>
           <Link role="menuitem" href="/profile" onClick={() => setOpen(false)}>Profile</Link>
           <button role="menuitem" className="out" onClick={signOut}>Sign out</button>

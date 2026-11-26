@@ -16,6 +16,10 @@ export function startSimulator(opts = {}) {
   const docOn = (type, fn, opts) => { document.addEventListener(type, fn, opts); offs.push(() => document.removeEventListener(type, fn, opts)); };
   // /simulator?demo: the landing page drives a scripted build (see DEMO DRIVER near the end)
   const DEMO = new URLSearchParams(location.search).has('demo');
+  // /simulator?demo=parts: the Course page's part showcase, one real part at a time on a turntable,
+  // no UI and a see-through background (see SHOWCASE DRIVER near the end). Everything DEMO does applies too.
+  const SHOWCASE = new URLSearchParams(location.search).get('demo') === 'parts';
+  document.body.classList.toggle('showcase', SHOWCASE);
 
   /* ======================= original script starts ======================= */
 
@@ -53,6 +57,7 @@ const libEl = document.getElementById('lib'), palEl = document.getElementById('p
 const catsEl = document.getElementById('palCats'), qEl = document.getElementById('q');
 const CAT_SHORT = { 'Development boards': 'Boards' };
 let libCat = '', palOpen = false, startHint = true;          // '' = every category; startHint: the table has no plate yet
+let tutPart = null;                                          // TinkerAI: the part the tutorial wants next (see TUTOR HOOKS)
 // Two layouts for the parts library. Desktop (a mouse, a wide window, and always the landing-page demo): a sidebar
 // beside the table. Touch screens and narrow windows: a dialog over the table, opened from the corner button.
 const deskMQ = matchMedia('(hover:hover) and (pointer:fine) and (min-width:761px)');
@@ -73,7 +78,7 @@ function renderLibrary(filter = '') {
     const box = sec.querySelector('.items');
     for (const it of items) {
       const el = document.createElement('div');
-      el.className = 'item' + (it.live ? '' : ' soon') + (it.id === 'plate' && startHint ? ' start' : '');
+      el.className = 'item' + (it.live ? '' : ' soon') + (it.id === tutPart ? ' tut' : it.id === 'plate' && startHint && !tutPart ? ' start' : '');
       el.dataset.id = it.id; el.title = it.desc; el.tabIndex = 0; el.setAttribute('role', 'button');
       el.innerHTML = `<div class="th"><img src="${imgSrc(it)}" alt="" draggable="false"></div><b>${it.name}</b>${it.live ? '' : '<span class="pill">Soon</span>'}`;
       if (it.live) {
@@ -105,7 +110,7 @@ renderLibrary();
    ===================================================================== */
 const stage = document.getElementById('stage');
 const canvas = document.getElementById('c');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: SHOWCASE });
 // the landing-page demo is always shown scaled down, so it needs fewer pixels (keeps scrolling smooth)
 renderer.setPixelRatio(Math.min(devicePixelRatio, DEMO ? 1.25 : 1.5));
 renderer.shadowMap.enabled = true;
@@ -2006,6 +2011,81 @@ function syncUs(m) {
   if (r && document.activeElement !== r) r.value = d;
 }
 let camTween = null;
+/* ---------- port close-up ----------
+   As soon as a free Zap plug is picked up (portCamStart), the camera glides in close and then follows
+   the plug wherever it's dragged, keeping it in the middle of the screen at the same angle; when it
+   snaps to a port the camera follows it in. Once it clicks in (or is dropped short) the camera glides
+   back to where it was. While the plug is held the grab is re-anchored every frame (stepPortCam), so the
+   camera following the plug never moves the plug itself: only the pointer does. Any camera move of the
+   student's own (wheel, orbit, zoom buttons, Reset view) cancels it. Picking up a plugged-in plug (to
+   unplug it) doesn't zoom. */
+const PORT_CAM = { dist: 11, follow: 7, in: 0.5, out: 0.6, hold: 0.35 };
+const calmMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let portCam = null;   // { home, from, dir, dist, focus, plug, phase: 'in' | 'hold' | 'out', t, wait }
+const camView = () => ({ pos: camera.position.clone(), target: controls.target.clone() });
+// the horizontal middle (canvas pixels) of what's left of the view once floating panels on the right are taken
+// away: the inspector, the code panel, and anything marked [data-stage-overlay] (TinkerAI's progress panel)
+function clearCentreX() {
+  const r = canvas.getBoundingClientRect();
+  let right = r.right;
+  for (const el of [insp, codePanel, ...stage.querySelectorAll('[data-stage-overlay]')]) {
+    if (!el || el.classList.contains('hide')) continue;
+    const b = el.getBoundingClientRect();
+    if (b.width && b.left > r.left + r.width / 2 && getComputedStyle(el).visibility !== 'hidden' && +getComputedStyle(el).opacity > 0.5)
+      right = Math.min(right, b.left);
+  }
+  return (r.left + right) / 2 - r.left;
+}
+function portCamStart(o) {
+  if (DEMO || calmMotion.matches) return;
+  const home = portCam?.phase === 'out' ? portCam.home : camView();     // picked up again while gliding back
+  const off = home.pos.clone().sub(home.target);
+  portCam = { home, from: camView(), dir: off.clone().normalize(), dist: Math.min(PORT_CAM.dist, off.length()),
+    focus: o.group.position.clone(), plug: o, phase: 'in', t: 0, wait: 0 };
+  kick();
+}
+function portCamEnd(o, inserting) {
+  if (!portCam || portCam.plug !== o || portCam.phase === 'out') return;
+  if (inserting) { portCam.phase = 'hold'; portCam.wait = 0; }       // follow it in, wait for the click, then back out
+  else portCamOut();
+}
+function portCamOut() {
+  if (!portCam) return;
+  portCam.from = camView(); portCam.phase = 'out'; portCam.t = 0; kick();
+}
+function stepPortCam(dt) {
+  const P = portCam; if (!P) return false;
+  P.t += dt;
+  if (P.phase === 'out') {
+    const k = ease(Math.min(1, P.t / PORT_CAM.out));
+    camera.position.lerpVectors(P.from.pos, P.home.pos, k); controls.target.lerpVectors(P.from.target, P.home.target, k);
+    if (k >= 1) portCam = null;
+  } else {
+    // follow the plug: same viewing angle as before, closer, centred on it (smoothed so it glides)
+    P.focus.lerp(P.plug.group.position, damp(PORT_CAM.follow, dt));
+    const target = P.focus.clone(), pos = P.focus.clone().addScaledVector(P.dir, P.dist);
+    // centre it in the part of the view that isn't covered by panels on the right (inspector, code, TinkerAI)
+    const dx = clearCentreX() - canvas.clientWidth / 2;
+    if (dx) {
+      const perPx = 2 * P.dist * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2) / canvas.clientHeight;
+      const side = V().crossVectors(P.dir, camera.up).normalize().multiplyScalar(dx * perPx);   // P.dir points back at the camera
+      target.add(side); pos.add(side);
+    }
+    const k = ease(Math.min(1, P.t / PORT_CAM.in));                   // glide in from where the view was
+    camera.position.lerpVectors(P.from.pos, pos, k); controls.target.lerpVectors(P.from.target, target, k);
+    if (P.phase === 'hold') {
+      if (P.plug.state === 'connected' && (P.wait += dt) > PORT_CAM.hold) portCamOut();
+      else if (P.plug.state !== 'insert' && P.plug.state !== 'connected') portCamOut();
+    }
+  }
+  zoomDist = camera.position.distanceTo(controls.target);
+  // the plug is still held: re-anchor the grab so the moving view never moves the plug, only the pointer does
+  if (drag?.ref === P.plug && drag.p && lastEvent) {
+    camera.updateMatrixWorld(); setRay(lastEvent);
+    if (ray.ray.intersectPlane(drag.plane, hitP)) drag.offset = V(drag.p.x - hitP.x, 0, drag.p.z - hitP.z);
+  }
+  return true;
+}
 function lookAtScreen(m) {
   const c = m.group.localToWorld(V(0, 1.35, -0.22));
   const off = V(0, 10, 6.5).applyAxisAngle(V(0, 1, 0), m.group.rotation.y);
@@ -2122,8 +2202,9 @@ function pressAt(e) {
   }
   controls.enabled = false;
   try { canvas.setPointerCapture(e.pointerId); } catch {}
-  drag = { ref: hit, pending: true, sx: e.clientX, sy: e.clientY };
-  select(hit.type === 'plug' ? hit.cable : hit.type === 'target' ? hit.m : hit);
+  // selected only if this turns out to be a click (let go without moving, see pointerEnd): moving a part
+  // around shouldn't open the inspector over the table
+  drag = { ref: hit, pending: true, sx: e.clientX, sy: e.clientY, sel: hit.type === 'plug' ? hit.cable : hit.type === 'target' ? hit.m : hit };
   if (hit.type === 'plug') lastPlug = hit;
 }
 
@@ -2237,6 +2318,7 @@ function beginDrag(e) {
     drag.from = { plate: o.plate, lx: o.lx, lz: o.lz, yaw: o.yaw };
     o.dragging = true; o.raw.copy(o.group.position);
   } else if (o.type === 'plug') {
+    if (o.state !== 'connected' && o.state !== 'insert') portCamStart(o);   // picking up a free plug: close in on where it's going
     if (o.state === 'connected') { unplug(o); click(0.6); }
     if (o.state === 'insert') { o.insert.m.ports[o.insert.idx].plug = null; o.insert = null; }
     drag.plane = planeAt(PLUG_PLANE_Y); ray.ray.intersectPlane(drag.plane, hitP);
@@ -2294,7 +2376,7 @@ function updateDrag(e) {
       showGhost('m:' + o.kind, o.def.foot, plate.target.x + lx, PT, plate.target.z + lz, o.yaw, drag.ok);
     } else { drag.snap = null; drag.ok = false; hideGhost(); }
   }
-  else if (o.type === 'plug') dragPlug(o, p);
+  else if (o.type === 'plug') { drag.p = p.clone(); dragPlug(o, p); }
   else if (o.type === 'cable' && drag.active) {
     const d = hitP.clone().sub(drag.last); drag.last.copy(hitP);
     for (const pl of o.plugs) { pl.target.add(d); clampTable(pl.target); pl.target.y = surfaceY(pl.target.x, pl.target.z) + REST_Y + 0.4; }
@@ -2361,9 +2443,11 @@ function endDrag() {
       o.insert = { t: 0, m: n.m, idx: n.idx,
         keys: [o.group.position.clone(), n.m.settled.localToWorld(portLocal(pt, 0, pt.y, 0.05)), n.m.settled.localToWorld(portLocal(pt, 0, pt.y, -INSERT_DEPTH))] };
       pt.plug = o;
+      portCamEnd(o, true);
     } else {
       if (n && o.flipped) toast('Wrong way up. Zap plugs are keyed, so press R to flip it.');
       dropPlug(o);
+      portCamEnd(o, false);
     }
   }
   else if (o.type === 'cable') {
@@ -2395,6 +2479,7 @@ function pointerEnd(e) {
   if (sideDrag) return endSideDrag(e);
   if (!drag) return;
   if (drag.active) endDrag();
+  else if (drag.pending && drag.sel && e.type === 'pointerup') select(drag.sel);   // a click, not a drag
   drag = null; controls.enabled = true; canvas.style.cursor = '';
   changed();
 }
@@ -2498,9 +2583,7 @@ function endSideDrag(e) {
     drag = null; hideGhost(); changed(); return;
   }
   endDrag();
-  const placed = o.type === 'cable' ? cables.includes(o) : o.type === 'plate' ? plates.includes(o) : modules.includes(o);
-  drag = null;
-  if (placed) select(o);
+  drag = null;                                        // not selected: a new part shouldn't open the inspector
   changed();
 }
 
@@ -2554,6 +2637,7 @@ function setPal(open, remember) {
   emptyBox.classList.toggle('hide', plates.length > 0 || (palOpen && !DESK));
   partsFab.classList.toggle('hint', startHint && !open && !DEMO);
   if (remember && DESK) try { localStorage.setItem('sg:side', open ? '1' : '0'); } catch {}
+  if (open && tutPart) requestAnimationFrame(scrollToTut);
 }
 function applyLayout() {
   appEl.classList.toggle('desk', DESK);
@@ -2591,7 +2675,7 @@ applyLayout();
 if (!DEMO) for (const t of ['gesturestart', 'gesturechange']) docOn(t, e => e.preventDefault(), { passive: false });
 
 /* ---------- top bar ---------- */
-document.getElementById('viewBtn').onclick = () => { camTween = null; camera.position.copy(CAM_HOME); controls.target.copy(TARGET_HOME); zoomDist = CAM_HOME.distanceTo(TARGET_HOME); kick(); };
+document.getElementById('viewBtn').onclick = () => { camTween = null; portCam = null; camera.position.copy(CAM_HOME); controls.target.copy(TARGET_HOME); zoomDist = CAM_HOME.distanceTo(TARGET_HOME); kick(); };
 const clearBtn = document.getElementById('clearBtn'); let clearArmed = 0;
 clearBtn.onclick = () => {
   if (!clearArmed) { clearArmed = setTimeout(() => { clearArmed = 0; clearBtn.classList.remove('armed'); clearBtn.textContent = 'Clear all'; }, 2500); clearBtn.classList.add('armed'); clearBtn.textContent = 'Click again to clear'; return; }
@@ -2616,7 +2700,7 @@ function changed() {
     `<span class="chip">${cables.length} connector${cables.length === 1 ? '' : 's'}</span>` +
     `<span class="chip ${links ? 'on' : ''}"><i></i>${links} plugged in</span>`;
   emptyEl.classList.toggle('hide', plates.length > 0 || !!sideDrag || !!drag || (palOpen && !DESK));
-  if (startHint !== !plates.length) { startHint = !plates.length; libEl.querySelector('[data-id="plate"]')?.classList.toggle('start', startHint); }
+  if (startHint !== !plates.length) { startHint = !plates.length; libEl.querySelector('[data-id="plate"]')?.classList.toggle('start', startHint && !tutPart); }
   partsFab.classList.toggle('hint', startHint && !palOpen && !DEMO);   // (on desktop the button only shows while the sidebar is hidden)
   renderInspector(); renderCode(); kick();
   if (!DEMO) opts.onChange?.();
@@ -3561,6 +3645,7 @@ controls.maxPolarAngle = Math.PI * 0.46;
 controls.minDistance = 6; controls.maxDistance = 80;
 controls.screenSpacePanning = false;
 controls.dampingFactor = 0.08;
+controls.addEventListener('start', () => { portCam = null; });   // orbiting by hand cancels the port close-up
 controls.enableZoom = false;                 // replaced by the smooth zoom below
 camera.position.copy(CAM_HOME); controls.target.copy(TARGET_HOME);
 
@@ -3582,6 +3667,7 @@ const isTrackpad = e => {
   return pad;
 };
 function zoomBy(dy, e) {
+  portCam = null;                                // the student's own camera move wins over the port close-up
   zoomDist = THREE.MathUtils.clamp(zoomDist * Math.exp(dy), controls.minDistance, controls.maxDistance);
   setRay(e);
   if (!ray.ray.intersectPlane(planeAt(0), zoomAnchor)) zoomAnchor.copy(controls.target);
@@ -3589,6 +3675,7 @@ function zoomBy(dy, e) {
 }
 const _fw = V(), _rt = V(), _sph = new THREE.Spherical();
 function panBy(dx, dy) {                         // screen pixels -> ground plane, scaled by how far away we are
+  portCam = null;
   camera.getWorldDirection(_fw); _fw.y = 0; _fw.normalize();
   _rt.crossVectors(_fw, camera.up).normalize();
   const k = camera.position.distanceTo(controls.target) * 0.0016;
@@ -3598,6 +3685,7 @@ function panBy(dx, dy) {                         // screen pixels -> ground plan
   controls.target.add(move); camera.position.add(move);
 }
 function orbitBy(dx, dy) {
+  portCam = null;
   const off = camera.position.clone().sub(controls.target);
   _sph.setFromVector3(off);
   _sph.theta -= dx * 0.005;
@@ -3777,6 +3865,8 @@ renderer.setAnimationLoop(() => {
   runPrograms();                                     // student code, on every board that is running some
   simAcc = Math.min(simAcc + rawDt, 1);
   while (simAcc >= 0.1) { simAcc -= 0.1; simTick(time); }
+  // port close-up while a plug goes in (see PORT CLOSE-UP)
+  if (stepPortCam(dt)) { camTween = null; moved = true; }
   // "Look at screen" camera move
   if (camTween) {
     camTween.t = Math.min(1, camTween.t + dt / 0.9);
@@ -3809,7 +3899,7 @@ renderer.setAnimationLoop(() => {
    page's pixels. Real engine objects throughout: makeModule, makeCable,
    plug insertion, the Code panel, runCode, the ultrasonic's target block.
    ===================================================================== */
-if (DEMO) {
+if (DEMO && !SHOWCASE) {
   const seg = (p, a, b) => Math.min(1, Math.max(0, (p - a) / (b - a)));
   const sm = t => t * t * (3 - 2 * t);
   const DEMO_CODE = `# Parking sensor: beep when you get close
@@ -3983,6 +4073,51 @@ while True:
 }
 
 /* =====================================================================
+   SHOWCASE DRIVER (only with /simulator?demo=parts)
+   The Course page shows this page in an iframe as a turntable: one real
+   part at a time, sitting on a base plate, the camera slowly circling it.
+   The page picks the part with window.__sgShow.show(id), id = a parts-library
+   id ('plate', 'zap' or a module kind). No table, no UI, no sound.
+   ===================================================================== */
+if (SHOWCASE) {
+  scene.background = null; scene.fog = null; table.visible = false; muted = true;
+  const plate = makePlate();
+  let mod = null, wire = null;
+  const DIR = V(1, 0.95, 1.3).normalize();
+  controls.enabled = false;                                 // the page drives it; the iframe takes no input
+  controls.autoRotate = !calmMotion.matches; controls.autoRotateSpeed = 1.6;
+  function frame(size, y) {                                 // glide to a view that fits something `size` wide
+    const t = V(0, y, 0), dist = 7 + size * 2.3;
+    camTween = { t: 0, p0: camera.position.clone(), t0: controls.target.clone(), p1: t.clone().addScaledVector(DIR, dist), t1: t };
+    kick();
+  }
+  function show(id) {
+    if (mod) { removeModule(mod); mod = null; }
+    if (wire) { removeCable(wire); wire = null; }
+    if (id === 'zap') {
+      wire = makeCable();
+      wire.plugs.forEach((p, i) => {
+        p.state = 'rest'; p.yawT = p.group.rotation.y = i ? -0.5 : 0.4;
+        p.target.set(i ? 2.6 : -2.6, PT + REST_Y, i ? 1.2 : -1.2); p.group.position.copy(p.target).setY(PT + 4);
+      });
+      frame(5, PT + 0.6);
+    } else if (MODULES[id]) {
+      const m = mod = makeModule(id), f = m.def.foot;
+      m.plate = plate; m.lx = -(f.x0 + f.x1) / 2; m.lz = -(f.z0 + f.z1) / 2;
+      m.yaw = m.group.rotation.y = 0; settle(m);
+      m.group.position.set(m.lx, PT + 5, m.lz);            // drops into place
+      if (m.def.board) m.state.rgb = [228, 18, 27];         // the Quark's LED glows red
+      if (m.built.target) m.built.target.visible = false;   // the ultrasonic's drag-me block
+      frame(Math.max(f.x1 - f.x0, f.z1 - f.z0), PT + 1);
+    } else frame(PLATE.half * 2, 0);                         // the base plate on its own
+    plate.group.visible = id === 'plate';                    // a part floats on its own; the plate is still there to hold it
+    kick();
+  }
+  camera.position.copy(DIR.clone().multiplyScalar(40)); controls.target.set(0, 0, 0); controls.update();
+  window.__sgShow = { show };
+}
+
+/* =====================================================================
    SAVE + LOAD
    serialize() turns the build into plain JSON (the page saves it to Supabase);
    load(data) rebuilds it, snapping everything into place with no fly-in.
@@ -4084,30 +4219,125 @@ function load(data) {
   }
   const cam = data.camera;
   if (cam?.pos && cam?.target) {
-    camTween = null; camera.position.set(...cam.pos); controls.target.set(...cam.target);
+    camTween = null; portCam = null; camera.position.set(...cam.pos); controls.target.set(...cam.target);
     zoomDist = camera.position.distanceTo(controls.target); controls.update();
   }
   if (skipped) toast(`${skipped} part${skipped > 1 ? 's' : ''} in this build aren't in the simulator any more, so they were left out.`);
   changed();
 }
-// a small picture of the table for the projects page (webp Blob, 480 x 300)
-function snapshot() {
+// a picture of the table (webp Blob): 480 x 300 for the projects page. A bigger size (W x H, e.g. TinkerAI's
+// card covers) renders at that size and shape, so it stays sharp, then puts the canvas back.
+function snapshot(W = 480, H = 300) {
   return new Promise(resolve => {
     const was = selFrame.visible; selFrame.visible = false;
+    const big = W > 480;
+    if (big) { renderer.setPixelRatio(1); renderer.setSize(W, H, false); camera.aspect = W / H; camera.updateProjectionMatrix(); }
     renderer.render(scene, camera);
-    const W = 480, H = 300, out = document.createElement('canvas'); out.width = W; out.height = H;
+    const out = document.createElement('canvas'); out.width = W; out.height = H;
     const sw = canvas.width, sh = canvas.height, k = Math.max(W / sw, H / sh);
     const cw = W / k, ch = H / k;
     out.getContext('2d').drawImage(canvas, (sw - cw) / 2, (sh - ch) / 2, cw, ch, 0, 0, W, H);
+    if (big) { renderer.setPixelRatio(Math.min(devicePixelRatio, DEMO ? 1.25 : 1.5)); resize(); }
     selFrame.visible = was; kick();
-    out.toBlob(b => resolve(b), 'image/webp', 0.82);
+    out.toBlob(b => resolve(b), 'image/webp', big ? 0.88 : 0.82);
   });
 }
+
+/* =====================================================================
+   TUTOR HOOKS (TinkerAI)
+   SimulatorHost runs a tutorial (src/simulator/Tutor.tsx). The engine only
+   reports what's on the table (inspect), lights up the part to use next
+   (highlightPart), says where something is on screen (pointAt), fills in a
+   read-only program (setCode) and marks the lines a note talks about.
+   ===================================================================== */
+let codeLocked = false, markRange = null;
+const ceMark = document.createElement('div'); ceMark.className = 'ce-mark'; ceLine.after(ceMark);
+function inspect() {
+  return {
+    plates: plates.filter(p => !p.dragging).length,
+    cables: cables.length,
+    codeOpen,
+    modules: modules.filter(m => m.plate && !m.dragging).map(m => ({
+      id: m.id, kind: m.kind,
+      plugged: m.ports.some(pt => pt.plug?.state === 'connected'),
+      links: m.ports.map(linkOf).filter(Boolean).map(o => o.kind),
+      running: m.prog?.state === 'run',
+      ran: !!m.prog && m.prog.state !== 'error',          // running, or ran to the end without an error
+      led: !!m.def.board && (m.state.rgb || []).some(v => v > 0),
+      distance: m.kind === 'ultrasonic' ? Math.round(m.state.distance) : null,
+      // a sensor's main reading (the first in sim.readings): distance, light, knob, temperature, button 1…
+      reading: m.def.sim?.role === 'sensor' ? (({ label, value, unit }) => ({ label, value, unit }))(m.def.sim.readings(m)[0]) : null,
+      sound: m.kind === 'buzzer' && m.state.now > 0,
+    })),
+  };
+}
+function highlightPart(id) {
+  tutPart = id || null;
+  libEl.querySelectorAll('.item.tut, .item.start').forEach(el => el.classList.remove('tut', 'start'));
+  partsFab.classList.toggle('tut', !!tutPart);
+  if (!tutPart) return;
+  if (qEl.value || (libCat && !LIBRARY.find(c => c.cat === libCat)?.items.some(i => i.id === tutPart))) {   // make sure it's listed
+    qEl.value = ''; libCat = ''; renderCats(); renderLibrary();
+  }
+  const el = libEl.querySelector(`[data-id="${tutPart}"]`); if (!el) return;
+  el.classList.add('tut');
+  if (palOpen) scrollToTut();
+}
+// bring the part the tutorial wants into view in the library (on highlight, and whenever the library opens)
+function scrollToTut() {
+  const el = tutPart && libEl.querySelector('.item.tut'); if (!el) return;
+  libEl.scrollTo({ top: el.offsetTop - (libEl.clientHeight - el.offsetHeight) / 2, behavior: 'smooth' });
+}
+// where a thing is on screen (client pixels), or null. spec: { kind, at: 'body' | 'port' | 'free-port' | 'target' } or { cable: 'loose' }
+function pointAt(spec) {
+  let w = null;
+  if (spec?.cable) {
+    const p = cables.flatMap(c => c.plugs).find(p => p.state !== 'connected' && p.state !== 'insert' && !p.dragging);
+    w = p?.group.position.clone();
+  } else if (spec?.kind) {
+    const m = modules.find(m => m.kind === spec.kind && m.plate && !m.dragging); if (!m) return null;
+    if (spec.at === 'target' && m.built.target) w = m.group.localToWorld(m.built.target.position.clone());
+    else if (spec.at === 'port' || spec.at === 'free-port') {
+      const pt = m.ports.find(pt => !pt.plug) || (spec.at === 'port' ? m.ports[0] : null); if (!pt) return null;
+      w = m.settled.localToWorld(portLocal(pt, 0, pt.y, 0.6)).setY(PLUG_PLANE_Y);   // where to drop the plug: the plane the pointer drives it on
+    } else w = m.group.position.clone().setY(PT + 1);
+  }
+  if (!w) return null;
+  const q = w.project(camera), r = canvas.getBoundingClientRect();
+  if (q.z > 1) return null;
+  return [r.left + (q.x + 1) / 2 * r.width, r.top + (1 - q.y) / 2 * r.height];
+}
+// put a program on the (first) board and open the Code panel; lock = read-only, no examples or snippets
+function setCode(code, lock) {
+  const b = boardsOnTable()[0]; if (!b) return false;
+  if (b.prog) stopCode(b, true);
+  b.code = code; lockCode(lock);
+  if (!codeOpen) toggleCode(true);
+  codeBoard = b; ceTa.dataset.board = ''; renderCode();
+  if (!DEMO) opts.onChange?.();
+  return true;
+}
+function lockCode(lock) {
+  codeLocked = !!lock; ceTa.readOnly = codeLocked; ceEx.disabled = codeLocked;
+  codePanel.classList.toggle('locked', codeLocked);
+}
+// shade code lines [from, to] (1-based) in the editor, or clear with null
+function markLines(range) { markRange = range && range.length ? [Math.min(...range), Math.max(...range)] : null; placeMark(); }
+function placeMark() {
+  ceMark.style.display = markRange ? 'block' : 'none'; if (!markRange) return;
+  ceMark.style.top = (10 + (markRange[0] - 1) * 20 - ceTa.scrollTop) + 'px';
+  ceMark.style.height = ((markRange[1] - markRange[0] + 1) * 20) + 'px';
+}
+ceTa.addEventListener('scroll', placeMark);
+function openCode(open = true) { if (codeOpen !== open) toggleCode(open); }
 
 changed();
   /* ======================== original script ends ======================== */
 
-  return { stop, serialize, load, snapshot, toast, isEmpty: () => !plates.length && !modules.length && !cables.length };
+  return {
+    stop, serialize, load, snapshot, toast, isEmpty: () => !plates.length && !modules.length && !cables.length,
+    tutor: { inspect, highlightPart, pointAt, setCode, lockCode, markLines, openCode },
+  };
 
   function stop() {
     renderer.setAnimationLoop(null);
@@ -4120,7 +4350,8 @@ changed();
     }
     try { actx?.close(); } catch {}
     document.body.classList.remove('coding');
-    delete window.__sgDemo;
+    delete window.__sgDemo; delete window.__sgShow;
+    document.body.classList.remove('showcase');
     document.querySelectorAll('.dragchip').forEach(c => c.remove());
     renderer.dispose();
     renderer.forceContextLoss();

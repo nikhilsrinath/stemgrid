@@ -10,7 +10,7 @@ import Avatar from './Avatar';
 import s from './ui.module.css';
 import { HOME_HREF, HOME_URL } from '@/lib/hosts';
 
-/* Top bar for the account pages: logo, page links, avatar menu. */
+/* Top bar for the account pages: logo, page links (Course is "coming soon"), avatar menu. */
 export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
   const path = usePathname();
   const router = useRouter();
@@ -40,6 +40,8 @@ export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
         <Link href="/projects" className={s.logo} aria-label="Your projects"><BrandLogo height={38} /><span className={s.beta}>Beta</span></Link>
         <div className={s.navLinks}>
           <Link href="/projects" aria-current={here('/projects')}>My projects</Link>
+          <Link href="/tinkerai" aria-current={here('/tinkerai')}>TinkerAI</Link>
+          <Link href="/course" aria-current={here('/course')}>Course <span className={s.navSoon}>Soon</span></Link>
           <Link href="/profile" aria-current={here('/profile')}>Profile</Link>
         </div>
         <div className={s.navRight}>
@@ -51,6 +53,8 @@ export default function AppNav({ viewer }: { viewer: NonNullable<Viewer> }) {
               <div className={s.menu} role="menu">
                 <div className={s.menuWho}><b>{viewer.name}</b>{viewer.username && <span>@{viewer.username}</span>}</div>
                 <Link role="menuitem" href="/projects" onClick={() => setOpen(false)}>My projects</Link>
+                <Link role="menuitem" href="/tinkerai" onClick={() => setOpen(false)}>TinkerAI</Link>
+                <Link role="menuitem" href="/course" onClick={() => setOpen(false)}>Course</Link>
                 <Link role="menuitem" href="/profile" onClick={() => setOpen(false)}>Profile</Link>
                 <Link role="menuitem" href={HOME_HREF} onClick={() => setOpen(false)}>StemGrid home</Link>
                 <button role="menuitem" className={s.danger} onClick={signOut}>Sign out</button>

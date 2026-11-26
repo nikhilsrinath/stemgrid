@@ -15,6 +15,7 @@ export default async function ConsoleLayout({ children }: { children: ReactNode 
     { href: `${b}/members`, label: 'Members' },
     { href: `${b}/packages`, label: 'Packages' },
     { href: `${b}/payments`, label: 'Payments' },
+    { href: `${b}/tutorials`, label: 'Tutorials' },
     { href: `${b}/team`, label: 'Team' },
   ];
   return (

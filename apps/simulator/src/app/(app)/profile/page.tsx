@@ -20,7 +20,7 @@ export default async function ProfilePage() {
       <main className={s.wrap}>
         <div className={s.head}>
           <div>
-            <h1 className={s.h2}>Your <em>profile</em></h1>
+            <h1 className={s.h2}>Profile</h1>
             <p className={s.lead}>Signed in as {user.email}</p>
           </div>
         </div>

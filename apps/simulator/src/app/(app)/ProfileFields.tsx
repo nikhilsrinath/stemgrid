@@ -35,8 +35,9 @@ export function RolePicker({ value, onChange }: { value: Role | null; onChange: 
   );
 }
 
-type Avail = 'idle' | 'checking' | 'ok' | 'taken' | 'bad';
-export function UsernameField({ value, onChange, initial, error }: { value: string; onChange: (v: string) => void; initial?: string | null; error?: string }) {
+export type Avail = 'idle' | 'checking' | 'ok' | 'taken' | 'bad';
+/* Live, debounced availability check for a username. Your current one counts as free. */
+export function useUsernameAvail(value: string, initial?: string | null): Avail {
   const [avail, setAvail] = useState<Avail>('idle');
   const seq = useRef(0);
   useEffect(() => {
@@ -52,7 +53,11 @@ export function UsernameField({ value, onChange, initial, error }: { value: stri
     }, 350);
     return () => clearTimeout(t);
   }, [value, initial]);
+  return avail;
+}
 
+export function UsernameField({ value, onChange, initial, error }: { value: string; onChange: (v: string) => void; initial?: string | null; error?: string }) {
+  const avail = useUsernameAvail(value, initial);
   const msg = error ?? (avail === 'taken' ? 'Someone already has that one.' : avail === 'bad' ? '3 to 20 characters: lowercase letters, numbers and _.' : '');
   return (
     <label className={s.field}>
@@ -88,7 +93,7 @@ export function AvatarPicker({ uid, name, url, onChange }: { uid: string; name: 
     <div className={s.field}>
       <span className={s.label}>Profile picture <span className={s.hint}>optional</span></span>
       <div className={s.avatarRow}>
-        <Avatar name={name || '?'} url={url} size={84} />
+        <Avatar name={name || '?'} url={url} size={64} />
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           <button type="button" className={`${s.btn} ${s.btnLight} ${s.btnSm}`} onClick={() => input.current?.click()} disabled={busy}>
             {busy && <span className={s.spinner} aria-hidden="true" />}{url ? 'Change picture' : 'Upload a picture'}

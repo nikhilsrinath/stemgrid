@@ -2,10 +2,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/supabase/server';
 import { safeNext } from '@/lib/safe-next';
-import AuthShell from '@/ui/AuthShell';
-import s from '@/ui/ui.module.css';
-import { signOut } from '../../(auth)/actions';
-import Onboarding from './Onboarding';
+import Onboarding, { OnboardingShell } from './Onboarding';
 
 export const metadata: Metadata = { title: 'Welcome · StemGrid Beta' };
 
@@ -17,15 +14,13 @@ export default async function OnboardingPage({ searchParams }: PageProps<'/onboa
   if (profile?.onboarded) redirect(next);
   if (!profile) {
     return (
-      <AuthShell>
-        <h1 className={s.h1}>Almost there</h1>
-        <p className={s.sub}>We couldn&apos;t load your profile. Reload the page in a moment.</p>
-      </AuthShell>
+      <OnboardingShell>
+        <div style={{ textAlign: 'center' }}>
+          <h1 style={{ margin: 0, fontSize: 19, fontWeight: 600 }}>We couldn&apos;t load your profile</h1>
+          <p style={{ margin: '4px 0 0', color: '#71717A' }}>Reload the page in a moment.</p>
+        </div>
+      </OnboardingShell>
     );
   }
-  return (
-    <AuthShell wide top={<form action={signOut}><button className={s.linkBtn} style={{ color: 'var(--cream)' }}>Sign out</button></form>}>
-      <Onboarding profile={profile} next={next} />
-    </AuthShell>
-  );
+  return <Onboarding profile={profile} next={next} />;
 }

@@ -156,6 +156,23 @@ const styles = `  :root{
   .item.start{border-color:#f5b8bb;box-shadow:0 0 0 3px #fde3e4}
   .item.start::after{content:"Start here";position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--sg-red);color:#fff;font-size:10px;font-weight:600;letter-spacing:.02em;padding:2px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 4px 10px -4px rgba(180,9,18,.7)}
   .lib-none{padding:36px 10px;text-align:center;font-size:13px;color:var(--muted)}
+  /* TinkerAI: the part the tutorial wants next */
+  .item.tut{border-color:var(--sg-red-deep);outline:2px solid var(--sg-red-deep);outline-offset:2px;animation:sg-tut 1.4s ease-in-out infinite}
+  .item.tut::after{content:"Use this";position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--sg-red);color:#fff;font-size:10px;font-weight:600;letter-spacing:.02em;padding:2px 8px;border-radius:999px;white-space:nowrap;box-shadow:0 4px 10px -4px rgba(180,9,18,.7);z-index:1}
+  .desk .item.tut::after{content:"Next";top:50%;left:auto;right:8px;transform:translateY(-50%)}
+  .desk .item.tut b{padding-right:44px}
+  /* a dark red outline that breathes out and back, with a soft glow */
+  @keyframes sg-tut{
+    0%,100%{outline-offset:2px;outline-color:rgba(179,9,18,1);box-shadow:0 0 0 0 rgba(179,9,18,.0)}
+    50%{outline-offset:5px;outline-color:rgba(179,9,18,.55);box-shadow:0 0 14px 2px rgba(179,9,18,.28)}}
+  @media (prefers-reduced-motion:reduce){.item.tut{animation:none}}
+  /* the library is closed but a part is wanted: the Parts button gets the same dark red outline */
+  .parts-fab.tut:not(.on):not(.cancel){outline:2px solid var(--sg-red-deep);outline-offset:3px;animation:sg-tut-o 1.4s ease-in-out infinite}
+  @keyframes sg-tut-o{50%{outline-offset:7px;outline-color:rgba(179,9,18,.5)}}
+  @media (prefers-reduced-motion:reduce){.parts-fab.tut{animation:none}}
+  .ce-mark{position:absolute;left:0;right:0;height:20px;background:rgba(255,128,68,.18);box-shadow:inset 3px 0 0 var(--sg-module);display:none;pointer-events:none;transition:top .18s ease,height .18s ease}
+  .codep.locked .ce-ref,.codep.locked #ceEx{display:none}
+  .codep.locked .ce-area textarea{caret-color:transparent;cursor:default}
   .pill{flex:none;font-size:10px;font-weight:500;letter-spacing:.02em;border-radius:5px;padding:1px 6px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted)}
 
   /* ---------- desktop: the parts library as a sidebar ----------
@@ -187,6 +204,9 @@ const styles = `  :root{
   .desk .item .pill{position:static}
   .desk .item.start{box-shadow:none;border-color:#f8c9cb;background:#fff5f5}
   .desk .item.start::after{position:static;transform:none;flex:none;margin-left:auto;box-shadow:none;font-size:9.5px;padding:1px 7px}
+  .desk .item.tut{border-color:var(--sg-red-deep);background:#fff5f5}
+  .desk .item.tut:hover{background:#ffecec;border-color:var(--sg-red-deep)}
+  .desk .lib{padding-top:4px}
   .desk .pal.open~main .parts-fab{display:none}
   .desk .parts-fab kbd{display:none}
 
@@ -334,5 +354,10 @@ const styles = `  :root{
   @media (max-width:820px){ .inspector{width:230px} .beta{display:none} .doc [contenteditable]{max-width:140px} }
   @media (max-width:640px){ .dock-l .status{display:none} }
   @media (hover:none),(pointer:coarse){ .parts-fab kbd{display:none} }
+  /* /simulator?demo=parts (the Course page's turntable): only the 3D view, on a see-through page */
+  html:has(body.showcase),body.showcase{background:transparent}
+  body.showcase #stage{position:fixed;inset:0;z-index:100;background:transparent}
+  body.showcase #stage>:not(#c),body.showcase .appbar,body.showcase #partsPal{display:none!important}
+  body.showcase #c{pointer-events:none}
 `;
 export default styles;

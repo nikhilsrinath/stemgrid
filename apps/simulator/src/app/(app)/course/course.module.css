@@ -1,0 +1,188 @@
+/* Course ("coming soon"). Builds on ui.module.css (its variables come from .root). */
+
+/* ================= hero: a dark full-width band, the 3D explorer on the right ================= */
+.hero {
+  position: relative; overflow: hidden; isolation: isolate; color: #fff;
+  background:
+    radial-gradient(60% 80% at 72% 45%, rgb(228 18 27 / .28), transparent 70%),
+    radial-gradient(40% 60% at 8% 100%, rgb(255 128 68 / .12), transparent 70%),
+    #0E0E10;
+}
+.hero::before {               /* the base plate's hole grid, fading in from the left */
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background-image: radial-gradient(circle, rgb(255 255 255 / .07) 2px, transparent 2.6px); background-size: 26px 26px;
+  mask-image: radial-gradient(70% 90% at 70% 50%, #000, transparent 75%);
+}
+.hero::after {                /* a scan line sweeping down, like a 3D scanner */
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 120px; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgb(228 18 27 / .07), transparent);
+  animation: scan 7s linear infinite;
+}
+.heroIn {
+  display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.35fr); align-items: center; gap: clamp(20px, 4vw, 48px);
+  width: min(1240px, 100%); margin: 0 auto; padding: clamp(24px, 3.5vw, 40px) clamp(16px, 4vw, 32px) clamp(24px, 3vw, 36px);
+}
+.heroTx h1 {
+  margin: 18px 0 6px; font: 800 clamp(56px, 8vw, 104px)/.9 var(--font); letter-spacing: -.06em;
+  background: linear-gradient(180deg, #fff 30%, rgb(255 255 255 / .55)); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.tagline { margin: 0 0 18px; font: 700 clamp(19px, 2vw, 24px)/1.25 var(--font); letter-spacing: -.02em; }
+.tagline span {
+  background: linear-gradient(90deg, #ff4b52, #ffb199, #ff4b52); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: shine 4s linear infinite;
+}
+.intro { max-width: 400px; margin: 0; font-size: 14.5px; line-height: 1.7; color: rgb(255 255 255 / .66); }
+.soon {
+  display: inline-flex; align-items: center; gap: 9px; padding: 6px 14px 6px 11px; border-radius: 99px;
+  font-size: 11.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase;
+  color: #ffd2d4; background: rgb(228 18 27 / .14); border: 1px solid rgb(255 75 82 / .5);
+  box-shadow: 0 0 24px -6px rgb(228 18 27 / .7);
+}
+.soon i { position: relative; width: 8px; height: 8px; border-radius: 50%; background: #ff4b52; }
+.soon i::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: #ff4b52; animation: ping 1.6s ease-out infinite; }
+
+/* ---- the explorer: a 3D stage with a viewfinder, a spec card, and a rail of parts ---- */
+.explorer { min-width: 0; }
+.stage {
+  position: relative; aspect-ratio: 16 / 9.6; max-height: calc(100vh - 210px); width: 100%; border-radius: 20px; overflow: hidden;
+  background: radial-gradient(70% 60% at 50% 62%, rgb(255 255 255 / .07), transparent 70%);
+  border: 1px solid rgb(255 255 255 / .08);
+}
+.stage iframe { position: absolute; top: 0; left: 26%; width: 86%; height: 100%; border: 0; pointer-events: none; opacity: 0; transition: opacity .6s; color-scheme: normal; }
+.stage iframe.on { opacity: 1; }
+.pedestal {                   /* a glowing disc the part turns on */
+  position: absolute; left: 69%; top: 66%; width: 56%; aspect-ratio: 3.4; translate: -50% -50%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(228 18 27 / .45), rgb(228 18 27 / .08) 70%, transparent);
+  box-shadow: inset 0 0 0 1px rgb(255 120 120 / .25);
+}
+.pedestal::after { content: ""; position: absolute; inset: -14%; border-radius: 50%; border: 1px dashed rgb(255 255 255 / .12); animation: spin 30s linear infinite; }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; }
+.loading span { width: 34px; height: 34px; border-radius: 50%; border: 3px solid rgb(255 255 255 / .15); border-top-color: #ff4b52; animation: spin .8s linear infinite; }
+.corner { position: absolute; width: 18px; height: 18px; border: 2px solid rgb(255 255 255 / .35); pointer-events: none; }
+.tl { top: 14px; left: 14px; border-right: 0; border-bottom: 0; border-radius: 6px 0 0 0; }
+.tr { top: 14px; right: 14px; border-left: 0; border-bottom: 0; border-radius: 0 6px 0 0; }
+.bl { bottom: 14px; left: 14px; border-right: 0; border-top: 0; border-radius: 0 0 0 6px; }
+.br { bottom: 14px; right: 14px; border-left: 0; border-top: 0; border-radius: 0 0 6px 0; }
+.live {
+  position: absolute; top: 18px; right: 42px; display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 600; letter-spacing: .02em; color: rgb(255 255 255 / .55);
+}
+.live i { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+
+.card {
+  position: absolute; left: 22px; top: 50%; translate: 0 -50%; width: min(280px, 38%); padding: 14px 16px; border-radius: 14px;
+  background: rgb(20 20 23 / .72); border: 1px solid rgb(255 255 255 / .1); backdrop-filter: blur(12px);
+  animation: cardIn .5s cubic-bezier(.2, .8, .3, 1) both;
+}
+.cardCat { display: flex; justify-content: space-between; font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #ff6a6f; }
+.cardCat em { font-style: normal; font-weight: 600; letter-spacing: .04em; color: rgb(255 255 255 / .4); font-variant-numeric: tabular-nums; }
+.card b { display: block; margin: 6px 0 4px; font-size: 20px; letter-spacing: -.02em; }
+.card p { margin: 0; font-size: 12.5px; line-height: 1.55; color: rgb(255 255 255 / .7); }
+.card ul { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0 0; padding: 0; list-style: none; }
+.card li { padding: 2px 8px; border-radius: 99px; font-size: 10.5px; font-weight: 600; color: rgb(255 255 255 / .75); background: rgb(255 255 255 / .07); border: 1px solid rgb(255 255 255 / .1); }
+
+.rail { display: flex; gap: 6px; margin-top: 14px; padding-bottom: 4px; overflow-x: auto; scrollbar-width: none; mask-image: linear-gradient(90deg, #000 92%, transparent); }
+.rail::-webkit-scrollbar { display: none; }
+.rail button {
+  position: relative; flex: none; height: 34px; padding: 0 13px; overflow: hidden; border-radius: 10px; cursor: pointer;
+  font: 600 12.5px var(--font); color: rgb(255 255 255 / .55); background: rgb(255 255 255 / .04); border: 1px solid rgb(255 255 255 / .08);
+  transition: color .15s, background .15s, border-color .15s;
+}
+.rail button:hover { color: #fff; background: rgb(255 255 255 / .08); }
+.rail button.cur, .rail button.held { color: #fff; background: rgb(228 18 27 / .18); border-color: rgb(255 75 82 / .55); }
+.rail button i {              /* how long until the next part */
+  position: absolute; left: 0; bottom: 0; height: 2px; width: 100%; background: #ff4b52; transform-origin: left;
+  animation: fill var(--t) linear both;
+}
+.rail button.held i { background: rgb(255 255 255 / .5); }
+
+/* ================= sections below the hero ================= */
+.block { margin-top: 64px; }
+.secHead { margin-bottom: 22px; }
+.eyebrow { font-size: 11.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--red-deep); }
+.secHead h2 { margin: 6px 0 0; font: 800 clamp(24px, 3vw, 32px)/1.15 var(--font); letter-spacing: -.035em; }
+
+/* four moves, joined by a trace with a pulse running along it */
+.moves { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 0; padding: 0; list-style: none; }
+.moves::before {
+  content: ""; position: absolute; left: 12%; right: 12%; top: 27px; height: 2px; z-index: 0;
+  background: linear-gradient(90deg, transparent, #ff4b52, transparent) 0 0 / 30% 100% no-repeat, repeating-linear-gradient(90deg, var(--line-2) 0 8px, transparent 8px 14px);
+  animation: trace 3.2s linear infinite;
+}
+.moves li { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 8px; }
+.moveN {
+  display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 14px; border-radius: 16px;
+  font: 800 22px var(--font); color: #fff; background: linear-gradient(150deg, #ff4b52, var(--red-deep));
+  box-shadow: 0 10px 22px -10px rgb(179 9 18 / .8), inset 0 1px 0 rgb(255 255 255 / .3);
+  animation: pop 3.2s calc(var(--i) * .8s) ease-in-out infinite;
+}
+.moves b { font-size: 16px; letter-spacing: -.01em; }
+.moves p { margin: 4px 0 0; max-width: 230px; font-size: 13px; line-height: 1.55; color: var(--muted); }
+
+/* the path: units hang off a circuit trace, a light runs down it */
+.path { position: relative; display: grid; gap: 12px; margin: 0; padding: 0 0 0 64px; list-style: none; }
+.path::before { content: ""; position: absolute; left: 21px; top: 22px; bottom: 22px; width: 2px; background: var(--line); }
+.path::after {
+  content: ""; position: absolute; left: 21px; top: 22px; width: 2px; height: 90px;
+  background: linear-gradient(180deg, transparent, #ff4b52, transparent); animation: run 4.5s ease-in-out infinite;
+}
+.path li { position: relative; animation: rise .5s calc(var(--i) * 80ms) both cubic-bezier(.2, .8, .3, 1); }
+.node {
+  position: absolute; left: -64px; top: 50%; translate: 0 -50%; display: grid; place-items: center; width: 44px; height: 44px; z-index: 1;
+  border-radius: 12px; font: 800 14px var(--font); color: var(--red-deep); background: var(--surface); border: 2px solid #FECACA;
+  font-variant-numeric: tabular-nums;
+}
+.node::after { content: ""; position: absolute; left: 100%; top: 50%; width: 20px; height: 2px; background: #FECACA; }
+.unit {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-radius: 14px;
+  background: var(--surface); border: 1px solid var(--line); transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+.path li:hover .unit { border-color: #FECACA; box-shadow: 0 14px 30px -18px rgb(179 9 18 / .35); transform: translateX(4px); }
+.path li:hover .node { background: var(--red); border-color: var(--red); color: #fff; }
+.unit b { font-size: 15.5px; letter-spacing: -.01em; }
+.unit p { margin: 3px 0 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tags span { padding: 2px 9px; border-radius: 6px; font-size: 11.5px; font-weight: 600; color: var(--label); background: var(--soft); border: 1px solid var(--line); }
+.lock {
+  flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 99px;
+  font-size: 11.5px; font-weight: 700; color: var(--muted); background: var(--soft); border: 1px solid var(--line);
+}
+
+.cta {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 48px;
+  padding: 22px 26px; border-radius: 16px; background: #0E0E10; color: #fff;
+  background-image: radial-gradient(60% 140% at 100% 50%, rgb(228 18 27 / .35), transparent 70%);
+}
+.cta b { font-size: 16px; }
+.cta p { margin: 2px 0 0; font-size: 13.5px; color: rgb(255 255 255 / .65); }
+
+@keyframes spin { to { rotate: 360deg; } }
+@keyframes ping { 0% { scale: 1; opacity: .8; } 100% { scale: 2.8; opacity: 0; } }
+@keyframes shine { to { background-position: -200% 0; } }
+@keyframes scan { from { transform: translateY(-120px); } to { transform: translateY(900px); } }
+@keyframes cardIn { from { opacity: 0; transform: translateY(10px); } }
+@keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes trace { from { background-position: -30% 0, 0 0; } to { background-position: 130% 0, 0 0; } }
+@keyframes pop { 0%, 18%, 100% { transform: none; } 8% { transform: translateY(-5px) scale(1.06); } }
+@keyframes run { 0% { transform: translateY(0); opacity: 0; } 10%, 90% { opacity: 1; } 100% { transform: translateY(calc(var(--h, 520px))); opacity: 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+
+@media (max-width: 960px) {
+  .heroIn { grid-template-columns: 1fr; }
+  .heroTx h1 { margin-top: 14px; }
+  .intro { max-width: 560px; }
+}
+@media (max-width: 720px) {
+  .moves { grid-template-columns: 1fr 1fr; row-gap: 28px; }
+  .moves::before { display: none; }
+  .unit { flex-direction: column; align-items: flex-start; }
+  .card { position: static; width: auto; margin: 0; border-radius: 0; }
+  .stage { aspect-ratio: auto; display: flex; flex-direction: column; }
+  .stage iframe { position: relative; left: 0; width: 100%; aspect-ratio: 4 / 3; height: auto; }
+  .card { translate: none; }
+  .pedestal { left: 50%; top: 40%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero::after, .moves::before, .path::after, .moveN, .pedestal::after, .tagline span, .soon i::after { animation: none; }
+  .rail button i { display: none; }
+}

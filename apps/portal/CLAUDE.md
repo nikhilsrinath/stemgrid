@@ -44,6 +44,8 @@ Pages repeat the checks (`pageMember(slug, roles)`, `pageStaff()`); server actio
 - `apps/portal/supabase/seed.sql` is local only (`dev_force_status` for the toolbar). Demo data: `scripts/seed-demo.mjs`. `scripts/local.mjs` copies the simulator's migration folder into the portal's local Supabase stack before `db reset`, so local mirrors the shared project.
 - Students log in with `<username>@<institute_id>.students.invalid` + `pinPassword(PIN)`. Raise the project's sign-in rate limit before real classes: every student sign-in reaches Auth from the server's IP.
 
+**TinkerAI tutorials** (the simulator's guided projects): the console's **Tutorials** page (`console/(app)/tutorials/`, actions in `console/tutorial-actions.ts`) edits the simulator's `tutorials` table with the service role, logged as `tutorial.*`. Steps are JSON checked by `src/lib/tutorials.ts`, which mirrors the format in `apps/simulator/src/lib/tutorials.ts`.
+
 ## Key modules (`src/lib/`)
 
 `auth.ts` (session, `act()` action wrapper, `UserError`), `signin.ts` (one session at a time, student counting), `lifecycle.ts`, `pricing.ts`, `students.ts` (create single/CSV/self-join, PIN reset, rosters), `daily.ts` (the daily job), `invoices.ts` (GST split + PDF via pdf-lib), `payments/` (provider seam: Razorpay payment links or the local mock; `settle.ts` shared by webhook and mock), `enquiries.ts` (reads the simulator project's `institution_enquiries`; updates only `status`/`notes`), `mail.ts` (Resend, or the local mailbox), `clock.ts` (`now()`: use it instead of `new Date()` for anything business-related), `dates.ts` (IST months, financial year), `rules.ts` (slugs, usernames, PINs, join codes).

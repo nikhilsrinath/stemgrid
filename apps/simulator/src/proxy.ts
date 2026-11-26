@@ -7,9 +7,9 @@ import { APP_HOST, APP_URL, HOME_HOST, HOME_URL } from '@/lib/hosts';
    - signed-out visitors to account pages go to /login?next=...
    - signed-in visitors to /login or /signup go to their projects
    - signed-in users who haven't finished onboarding go to /onboarding */
-const PRIVATE = ['/projects', '/profile', '/onboarding'];
+const PRIVATE = ['/projects', '/tinkerai', '/course', '/profile', '/onboarding'];
 const AUTH_ONLY_GUESTS = ['/login', '/signup', '/forgot-password'];
-const NEEDS_PROFILE = ['/projects', '/profile', '/simulator/'];
+const NEEDS_PROFILE = ['/projects', '/tinkerai', '/course', '/profile', '/simulator/'];
 
 const under = (path: string, list: string[]) => list.some(p => p.endsWith('/') ? path.startsWith(p) : path === p || path.startsWith(p + '/'));
 
